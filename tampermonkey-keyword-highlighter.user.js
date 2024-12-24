@@ -6,8 +6,8 @@
 // @author       zbbayle
 // @match        *://*/*
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/zbayle/tampermonkey-keyword-highlighter/main/tampermonkey-keyword-highlighter.user.js
-// @downloadURL  https://raw.githubusercontent.com/zbayle/tampermonkey-keyword-highlighter/main/tampermonkey-keyword-highlighter.user.js
+// @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/blob/main/tampermonkey-keyword-highlighter.user.js
+// @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/blob/main/tampermonkey-keyword-highlighter.user.js
 // ==/UserScript==
 
 (function() {
