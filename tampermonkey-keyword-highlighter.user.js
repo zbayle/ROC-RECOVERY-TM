@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Keyword Highlighter with Floating Menu
+// @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
