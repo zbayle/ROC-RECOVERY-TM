@@ -72,6 +72,7 @@
 
     // Function to highlight keywords
     function highlightKeywords() {
+        console.log('Highlight Keywords');
         const boxContentSpans = document.querySelectorAll('span.box-content');
         boxContentSpans.forEach(span => {
             Object.keys(keywords).forEach(keyword => {
