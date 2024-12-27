@@ -12,35 +12,35 @@
 // @grant        GM_setValue
 // @grant        GM_log
 // @grant        GM_registerMenuCommand
-// @connect      githubusercontent.com
+// @connect     raw.githubusercontent.com
 // ==/UserScript==
 
 (function () {
     'use strict';
 
     // List of scripts to manage
-    const scripts = [
-        {
-            name: "Display Hover Box Data with Time and Packages",
-            url: "https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js",
-            currentVersion: GM_getValue("Display Hover Box Version", "0.0")
-        },
-        {
-            name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
-            url: "https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js",
-            currentVersion: GM_getValue("Vista Auto Fill Version", "0.0")
-        },
-        {
-            name: "WIMS and FMC Interaction",
-            url: "https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS%20and%20FMC%20Interaction.user.js",
-            currentVersion: GM_getValue("WIMS and FMC Version", "0.0")
-        },
-        {
-            name: "Tampermonkey Keyword Highlighter",
-            url: "https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/tampermonkey-keyword-highlighter.user.js",
-            currentVersion: GM_getValue("Keyword Highlighter Version", "0.0")
-        }
-    ];
+   const scripts = [
+    {
+        name: "Display Hover Box Data with Time and Packages",
+        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js", // Updated URL
+        currentVersion: GM_getValue("Display Hover Box Version", "0.0")
+    },
+    {
+        name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
+        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js", // Updated URL
+        currentVersion: GM_getValue("Vista Auto Fill Version", "0.0")
+    },
+    {
+        name: "WIMS and FMC Interaction",
+        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js", // Updated URL
+        currentVersion: GM_getValue("WIMS and FMC Version", "0.0")
+    },
+    {
+        name: "Tampermonkey Keyword Highlighter",
+        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js", // Updated URL
+        currentVersion: GM_getValue("Keyword Highlighter Version", "0.0")
+    }
+];
 
     // Compare versions
     function isNewVersion(current, latest) {
