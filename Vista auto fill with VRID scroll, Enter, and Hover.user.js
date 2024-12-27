@@ -2,6 +2,8 @@
 // @name         Vista auto fill with VRID scroll, Enter, and Hover
 // @namespace    http://tampermonkey.net/
 // @version      1.0
+// @updateURL    https://raw.githubusercontent.com/username/repository/main/script.user.js
+// @downloadURL  https://raw.githubusercontent.com/username/repository/main/script.user.js
 // @description  Automatically selects the facility in the dropdown, sets VRID in the filter input, presses Enter, scrolls into view, and hovers over the progress bar.
 // @author       You
 // @match        https://trans-logistics.amazon.com/sortcenter/vista/*
