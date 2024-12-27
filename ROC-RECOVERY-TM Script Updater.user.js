@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.1.8
+// @version      1.1.8.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -12,7 +12,7 @@
 // @grant        GM_setValue
 // @grant        GM_log
 // @grant        GM_registerMenuCommand
-// @connect     raw.githubusercontent.com
+// @connect     raw.githubusercontent.com 
 // ==/UserScript==
 
 (function () {
