@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.1.3
+// @version      1.1.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -24,25 +24,29 @@
             name: "Display Hover Box Data with Time and Packages",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js", // Updated URL
             currentVersion: GM_getValue("Display Hover Box Version", "0.0"),
-            match: "*://yourdomain.com/*"  // Add the match URL pattern
+            match: "https://trans-logistics.amazon.com/sortcenter/vista/*"  // Add the match URL pattern
         },
         {
             name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js", // Updated URL
             currentVersion: GM_getValue("Vista Auto Fill Version", "0.0"),
-            match: "*://yourdomain.com/*"  // Add the match URL pattern
+            match: "https://trans-logistics.amazon.com/sortcenter/vista/*"  // Add the match URL pattern
         },
         {
             name: "WIMS and FMC Interaction",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js", // Updated URL
             currentVersion: GM_getValue("WIMS and FMC Version", "0.0"),
-            match: "*://yourdomain.com/*"  // Add the match URL pattern
+            match: [
+                "https://optimus-internal.amazon.com/wims*", 
+                "https://trans-logistics.amazon.com/fmc/execution/*",
+                "https://trans-logistics.amazon.com/sortcenter/vista*"
+            ]
         },
         {
             name: "Tampermonkey Keyword Highlighter",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js", // Updated URL
             currentVersion: GM_getValue("Keyword Highlighter Version", "0.0"),
-            match: "*://yourdomain.com/*"  // Add the match URL pattern
+            match: "*://*/*"  // Add the match URL pattern
         }
     ];
 
