@@ -46,7 +46,7 @@
             name: "Tampermonkey Keyword Highlighter",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js", // Updated URL
             currentVersion: GM_getValue("Keyword Highlighter Version", "0.0"),
-            match: "*://*/*"  // Add the match URL pattern
+            match: "*"
         }
     ];
 
