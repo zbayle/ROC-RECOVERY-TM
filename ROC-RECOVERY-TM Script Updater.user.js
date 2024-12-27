@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
 // @author       zbbayle
 // @match        *://*/*
@@ -51,16 +51,18 @@
         return false;
     }
 
-    // Update a script
+    // Function to dynamically inject the script into Tampermonkey
+    function injectScript(content) {
+        const script = document.createElement('script');
+        script.textContent = content;
+        document.head.appendChild(script);
+    }
+
+    // Update and install a script
     function updateScript(script, latestVersion, content) {
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: script.url,
-            onload: function () {
-                GM_setValue(script.name + " Version", latestVersion);
-                alert(`${script.name} has been updated to version ${latestVersion}`);
-            }
-        });
+        GM_setValue(script.name + " Version", latestVersion);
+        injectScript(content); // Inject the new script into the page
+        alert(`${script.name} has been updated to version ${latestVersion}`);
     }
 
     // Check for updates
