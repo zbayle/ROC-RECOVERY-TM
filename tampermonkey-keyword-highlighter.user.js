@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        *://*/*
@@ -10,103 +10,238 @@
 // @downloadURL  https://github.com/raw/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 // ==/UserScript==
 
-(function() {
-    'use strict';
+// Log to verify script execution
+console.log('Script is running!');
 
-    // Create floating menu and styles
-    const menuHTML = `
-        <div id="hamburger-menu" style="
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #333;
-            color: white;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 1000;
-            font-size: 24px;
-        ">☰</div>
-        <div id="menu-content" style="
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            padding: 10px;
-            display: none;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-        ">
-            <input type="text" id="keyword-input" placeholder="Enter keyword" style="
-                margin: 5px 0;
-                width: 100%;
-                padding: 5px;
-            "/>
-            <input type="color" id="color-input" style="
-                margin: 5px 0;
-                width: 100%;
-                padding: 5px;
-            "/>
-            <button id="add-keyword" style="
-                margin-top: 10px;
-                padding: 5px 10px;
-                cursor: pointer;
-                background-color: #333;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                width: 100%;
-            ">Add Keyword</button>
-        </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', menuHTML);
+// Function to create and insert the floating menu
+function createFloatingMenu() {
+    console.log("Creating floating menu...");
 
-    // Manage keywords and their colors
-    const keywords = {};
+    const menu = document.createElement('div');
+    menu.style.position = 'fixed';
+    menu.style.bottom = '10px';
+    menu.style.right = '10px';
+    menu.style.padding = '10px';
+    menu.style.backgroundColor = '#333';
+    menu.style.color = '#fff';
+    menu.style.borderRadius = '5px';
+    menu.style.zIndex = '9999';
 
-    // Function to highlight keywords
-    function highlightKeywords() {
-        console.log('Highlight Keywords');
-        const boxContentSpans = document.querySelectorAll('span.box-content');
-        boxContentSpans.forEach(span => {
-            Object.keys(keywords).forEach(keyword => {
-                const color = keywords[keyword];
-                const regex = new RegExp(`(${keyword})`, 'g');
-                if (regex.test(span.textContent) && !span.dataset[`highlighted-${keyword}`]) {
-                    span.innerHTML = span.innerHTML.replace(regex, `<span style="background-color: ${color}; color: black; padding: 2px;">$1</span>`);
-                    span.dataset[`highlighted-${keyword}`] = "true"; // Mark as processed
-                }
-            });
-        });
+    const button = document.createElement('button');
+    button.textContent = 'ROC Tools Menu';
+    button.style.marginBottom = '10px';
+    button.style.padding = '10px';
+    button.style.backgroundColor = '#0fffcf';
+    button.style.color = '#333';
+    button.style.borderRadius = '5px';
+    button.style.cursor = 'pointer';
+    button.onclick = toggleMenu;
+
+    console.log("Button created for menu.");
+
+    const menuContent = document.createElement('div');
+    menuContent.id = 'floatingMenuContent';
+    menuContent.style.display = 'none';
+    menuContent.style.marginTop = '10px';
+
+    console.log("Menu content created.");
+
+    const keywordInputLabel = document.createElement('label');
+    keywordInputLabel.textContent = 'Keyword: ';
+    menuContent.appendChild(keywordInputLabel);
+
+    const keywordInput = document.createElement('input');
+    keywordInput.type = 'text';
+    keywordInput.id = 'keywordInput';
+    menuContent.appendChild(keywordInput);
+
+    const colorInputLabel = document.createElement('label');
+    colorInputLabel.textContent = ' Color: ';
+    menuContent.appendChild(colorInputLabel);
+
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.id = 'colorInput';
+    menuContent.appendChild(colorInput);
+
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Add/Update Keyword';
+    addButton.id = 'addButton';
+    menuContent.appendChild(addButton);
+
+    const keywordList = document.createElement('ul');
+    keywordList.id = 'keywordList';
+    menuContent.appendChild(keywordList);
+
+    menu.appendChild(button);
+    menu.appendChild(menuContent);
+
+    console.log("Menu content and button appended to menu.");
+
+    document.body.appendChild(menu);
+    console.log("Floating menu injected into the page.");
+}
+
+// Toggle the visibility of the floating menu
+function toggleMenu() {
+    console.log("Toggling menu visibility...");
+    const menuContent = document.getElementById('floatingMenuContent');
+    if (menuContent.style.display === 'none') {
+        menuContent.style.display = 'block';
+        console.log("Menu is now visible.");
+    } else {
+        menuContent.style.display = 'none';
+        console.log("Menu is now hidden.");
+    }
+}
+
+// Function to validate keywords
+function validateKeywords(keywords) {
+    return Array.isArray(keywords) ? keywords.filter(item => item.keyword && item.color) : [];
+}
+
+// Load keywords safely
+function loadKeywords() {
+    console.log("Loading saved keywords...");
+
+    let keywords = [];
+    try {
+        keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    } catch (e) {
+        console.error('Error reading from localStorage. Resetting keywords.');
     }
 
-    // Observe dynamically added content
-    const observer = new MutationObserver(() => highlightKeywords());
-    observer.observe(document.body, { childList: true, subtree: true });
+    keywords = validateKeywords(keywords);
 
-    // Toggle menu visibility
-    const menu = document.getElementById('menu-content');
-    document.getElementById('hamburger-menu').addEventListener('click', () => {
-        menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+    const list = document.getElementById('keywordList');
+    list.innerHTML = '';
+
+    keywords.forEach((item, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${item.keyword}: ${item.color}`;
+        listItem.style.color = item.color;
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.onclick = () => editKeyword(index);
+        listItem.appendChild(editButton);
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = () => removeKeyword(index);
+        listItem.appendChild(removeButton);
+
+        list.appendChild(listItem);
     });
 
-    // Add new keywords and colors
-    document.getElementById('add-keyword').addEventListener('click', () => {
-        const keyword = document.getElementById('keyword-input').value.trim();
-        const color = document.getElementById('color-input').value;
-        if (keyword) {
-            keywords[keyword] = color;
-            highlightKeywords(); // Apply highlighting immediately
-            document.getElementById('keyword-input').value = ''; // Clear input
+    console.log("Keywords loaded successfully.");
+    highlightKeywords(keywords);
+}
+
+
+// Add or update keyword and color
+function addOrUpdateKeyword() {
+    const keyword = document.getElementById('keywordInput').value;
+    const color = document.getElementById('colorInput').value;
+
+    if (keyword === '') return; // Don't allow empty keywords
+
+    let keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+
+    // Ensure keywords is an array (in case it's been incorrectly stored as an object)
+    if (typeof keywords === 'object' && !Array.isArray(keywords)) {
+        console.error('Keywords are stored incorrectly in localStorage. Resetting to an empty array.');
+        keywords = [];
+    }
+
+    // Check if the keyword already exists
+    const existingIndex = keywords.findIndex(item => item.keyword === keyword);
+    if (existingIndex !== -1) {
+        // Edit existing keyword and color
+        keywords[existingIndex] = { keyword, color };
+    } else {
+        // Check for duplicate keyword before adding
+        const duplicateIndex = keywords.findIndex(item => item.keyword.toLowerCase() === keyword.toLowerCase());
+        if (duplicateIndex !== -1) {
+            console.error("This keyword already exists. Please enter a different keyword.");
+            return; // Exit if the keyword is a duplicate
         }
-    });
 
-    // Initial highlight on page load
-    highlightKeywords();
-})();
+        // Add new keyword and color
+        keywords.push({ keyword, color });
+    }
+
+    // Store keywords as an array
+    localStorage.setItem('keywords', JSON.stringify(keywords));
+    console.log("Updated keywords in localStorage:", localStorage.getItem('keywords'));
+    loadKeywords();
+}
+
+// Edit keyword and color
+function editKeyword(index) {
+    const keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    const keyword = keywords[index];
+
+    document.getElementById('keywordInput').value = keyword.keyword;
+    document.getElementById('colorInput').value = keyword.color;
+
+    document.getElementById('addButton').textContent = 'Update Keyword';
+    document.getElementById('addButton').onclick = () => {
+        updateKeyword(index);
+    };
+}
+
+// Update keyword
+function updateKeyword(index) {
+    const keyword = document.getElementById('keywordInput').value;
+    const color = document.getElementById('colorInput').value;
+
+    if (keyword === '') return;
+
+    let keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    keywords[index] = { keyword, color };
+
+    localStorage.setItem('keywords', JSON.stringify(keywords));
+    loadKeywords();
+
+    document.getElementById('addButton').textContent = 'Add/Update Keyword';
+    document.getElementById('addButton').onclick = addOrUpdateKeyword;
+}
+
+// Remove keyword
+function removeKeyword(index) {
+    let keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    keywords.splice(index, 1);
+    localStorage.setItem('keywords', JSON.stringify(keywords));
+    loadKeywords();
+}
+
+// Highlight keywords in page content
+function highlightKeywords(keywords) {
+    console.log("Highlighting keywords...");
+
+    const bodyText = document.body.innerHTML;
+
+    keywords.forEach(keyword => {
+        const regex = new RegExp(keyword.keyword, 'gi');  // Add 'gi' for case-insensitive matching
+        document.body.innerHTML = document.body.innerHTML.replace(regex, match => {
+            return `<span style="color:${keyword.color}">${match}</span>`;
+        });
+    });
+}
+
+// Ensure the DOM is loaded before trying to access elements
+window.onload = function () {
+    console.log("Window loaded.");
+
+    createFloatingMenu();
+    loadKeywords();
+
+    const addButton = document.getElementById('addButton');
+    if (addButton) {
+        console.log("Add button exists.");
+        addButton.addEventListener('click', addOrUpdateKeyword);
+    } else {
+        console.error('Add button not found!');
+    }
+};
