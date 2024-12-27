@@ -2,8 +2,8 @@
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
 // @version      1.1.0
-// @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
-// @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
+// @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
+// @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
 // @author       zbbayle
 // @match        *://*/*
@@ -12,6 +12,7 @@
 // @grant        GM_setValue
 // @grant        GM_log
 // @grant        GM_registerMenuCommand
+// @grant        GM_addScript
 // @connect     raw.githubusercontent.com
 // ==/UserScript==
 
@@ -53,17 +54,10 @@
         return false;
     }
 
-    // Function to dynamically inject the script into Tampermonkey
-    function injectScript(content) {
-        const script = document.createElement('script');
-        script.textContent = content;
-        document.head.appendChild(script);
-    }
-
     // Update and install a script
-    function updateScript(script, latestVersion, content) {
+    function updateScript(script, latestVersion) {
         GM_setValue(script.name + " Version", latestVersion);
-        injectScript(content); // Inject the new script into the page
+        GM_addScript(script.url); // Inject the updated script directly using GM_addScript
         alert(`${script.name} has been updated to version ${latestVersion}`);
     }
 
@@ -77,7 +71,7 @@
                     const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
                     if (remoteVersion && isNewVersion(script.currentVersion, remoteVersion)) {
                         console.log(`Updating ${script.name} from version ${script.currentVersion} to ${remoteVersion}`);
-                        updateScript(script, remoteVersion, response.responseText);
+                        updateScript(script, remoteVersion);
                     } else {
                         console.log(`${script.name} is already up to date.`);
                     }
