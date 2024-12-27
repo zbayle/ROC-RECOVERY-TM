@@ -2,8 +2,8 @@
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
 // @version      1.1.0
-// @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
-// @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
+// @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
+// @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
 // @author       zbbayle
 // @match        *://*/*
