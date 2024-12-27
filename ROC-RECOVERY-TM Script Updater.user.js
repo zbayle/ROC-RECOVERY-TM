@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.1.2
+// @version      1.1.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -19,28 +19,32 @@
     'use strict';
 
     // List of scripts to manage
-   const scripts = [
-    {
-        name: "Display Hover Box Data with Time and Packages",
-        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js", // Updated URL
-        currentVersion: GM_getValue("Display Hover Box Version", "0.0")
-    },
-    {
-        name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
-        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js", // Updated URL
-        currentVersion: GM_getValue("Vista Auto Fill Version", "0.0")
-    },
-    {
-        name: "WIMS and FMC Interaction",
-        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js", // Updated URL
-        currentVersion: GM_getValue("WIMS and FMC Version", "0.0")
-    },
-    {
-        name: "Tampermonkey Keyword Highlighter",
-        url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js", // Updated URL
-        currentVersion: GM_getValue("Keyword Highlighter Version", "0.0")
-    }
-];
+    const scripts = [
+        {
+            name: "Display Hover Box Data with Time and Packages",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js", // Updated URL
+            currentVersion: GM_getValue("Display Hover Box Version", "0.0"),
+            match: "*://yourdomain.com/*"  // Add the match URL pattern
+        },
+        {
+            name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js", // Updated URL
+            currentVersion: GM_getValue("Vista Auto Fill Version", "0.0"),
+            match: "*://yourdomain.com/*"  // Add the match URL pattern
+        },
+        {
+            name: "WIMS and FMC Interaction",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js", // Updated URL
+            currentVersion: GM_getValue("WIMS and FMC Version", "0.0"),
+            match: "*://yourdomain.com/*"  // Add the match URL pattern
+        },
+        {
+            name: "Tampermonkey Keyword Highlighter",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js", // Updated URL
+            currentVersion: GM_getValue("Keyword Highlighter Version", "0.0"),
+            match: "*://yourdomain.com/*"  // Add the match URL pattern
+        }
+    ];
 
     // Compare versions
     function isNewVersion(current, latest) {
@@ -53,46 +57,42 @@
         return false;
     }
 
-    // Update and install a script
-    function updateScript(script, latestVersion) {
-        GM_setValue(script.name + " Version", latestVersion);
+    // Function to dynamically inject the script into Tampermonkey
+    function injectScript(content) {
+        const script = document.createElement('script');
+        script.textContent = content;
+        document.head.appendChild(script);
+    }
 
-        // Fetch the script content
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: script.url,
-            onload: function(response) {
-                // Inject the script content into the page
-                const scriptElement = document.createElement('script');
-                scriptElement.textContent = response.responseText;
-                document.head.appendChild(scriptElement); // This will execute the script
-                alert(`${script.name} has been updated to version ${latestVersion}`);
-            },
-            onerror: function (error) {
-                console.error(`Error fetching ${script.name}:`, error);
-            }
-        });
+    // Update and install a script
+    function updateScript(script, latestVersion, content) {
+        GM_setValue(script.name + " Version", latestVersion);
+        injectScript(content); // Inject the new script into the page
+        alert(`${script.name} has been updated to version ${latestVersion}`);
     }
 
     // Check for updates
     function checkForUpdates() {
         scripts.forEach(script => {
-            GM_xmlhttpRequest({
-                method: "GET",
-                url: script.url,
-                onload: function (response) {
-                    const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
-                    if (remoteVersion && isNewVersion(script.currentVersion, remoteVersion)) {
-                        console.log(`Updating ${script.name} from version ${script.currentVersion} to ${remoteVersion}`);
-                        updateScript(script, remoteVersion);
-                    } else {
-                        console.log(`${script.name} is already up to date.`);
+            // Ensure the page matches the script's match pattern before injecting
+            if (window.location.href.match(new RegExp(script.match))) {
+                GM_xmlhttpRequest({
+                    method: "GET",
+                    url: script.url,
+                    onload: function (response) {
+                        const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
+                        if (remoteVersion && isNewVersion(script.currentVersion, remoteVersion)) {
+                            console.log(`Updating ${script.name} from version ${script.currentVersion} to ${remoteVersion}`);
+                            updateScript(script, remoteVersion, response.responseText);
+                        } else {
+                            console.log(`${script.name} is already up to date.`);
+                        }
+                    },
+                    onerror: function (error) {
+                        console.error(`Error fetching ${script.name}:`, error);
                     }
-                },
-                onerror: function (error) {
-                    console.error(`Error fetching ${script.name}:`, error);
-                }
-            });
+                });
+            }
         });
     }
 
