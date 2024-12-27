@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.1.8.0
+// @version      1.2.0.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -42,11 +42,11 @@
                 "https://trans-logistics.amazon.com/sortcenter/vista*"
             ]
         },
-        {
-            name: "Tampermonkey Keyword Highlighter",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js", // Updated URL
-            currentVersion: GM_getValue("Keyword Highlighter Version", "0.0"),
-        }
+        // {
+        //     name: "Tampermonkey Keyword Highlighter",
+        //     url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js", // Updated URL
+        //     currentVersion: GM_getValue("Keyword Highlighter Version", "0.0"),
+        // }
     ];
 
     // Compare versions
