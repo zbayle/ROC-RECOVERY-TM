@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.6.1
+// @version      1.6.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -256,8 +256,20 @@
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
     
+                        // Locate the VRID element and retrieve its value
+                        const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
+                        if (!vridElement) {
+                            console.error('VRID element not found!');
+                            return;
+                        }
+    
+                        const vrid = vridElement.textContent.trim();
+                        if (!vrid) {
+                            console.error('VRID not found!');
+                            return;
+                        }
+    
                         // Store the VRID in localStorage
-                        const vrid = 'YOUR_VRID_VALUE'; // Replace with the actual VRID value
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
     
