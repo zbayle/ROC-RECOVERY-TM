@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.2.0.0
+// @version      1.2.0.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -78,7 +78,26 @@
     function checkForUpdates() {
         scripts.forEach(script => {
             // Ensure the page matches the script's match pattern before injecting
-            if (window.location.href.match(new RegExp(script.match))) {
+            if (Array.isArray(script.match)) {
+                if (script.match.some(pattern => window.location.href.match(new RegExp(pattern)))) {
+                    GM_xmlhttpRequest({
+                        method: "GET",
+                        url: script.url,
+                        onload: function (response) {
+                            const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
+                            if (remoteVersion && isNewVersion(script.currentVersion, remoteVersion)) {
+                                console.log(`Updating ${script.name} from version ${script.currentVersion} to ${remoteVersion}`);
+                                updateScript(script, remoteVersion, response.responseText);
+                            } else {
+                                console.log(`${script.name} is already up to date.`);
+                            }
+                        },
+                        onerror: function (error) {
+                            console.error(`Error fetching ${script.name}:`, error);
+                        }
+                    });
+                }
+            } else if (window.location.href.match(new RegExp(script.match))) {
                 GM_xmlhttpRequest({
                     method: "GET",
                     url: script.url,
