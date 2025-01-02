@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.6.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -210,16 +210,16 @@
         const retryInterval = setInterval(() => {
             console.log('Checking for assets container...');
             const assetsContainer = document.querySelector('td.assets');
-
+    
             if (assetsContainer) {
                 console.log('Assets container found!');
                 clearInterval(retryInterval);
-
+    
                 // Check for "OutboundAmazonManaged" and show the button if found
                 const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
                 if (outboundAmazonManagedText) {
                     console.log('OutboundAmazonManaged text found!');
-
+    
                     // Create a new button element
                     const vistaButton = document.createElement('button');
                     vistaButton.textContent = 'Open Vista';
@@ -230,32 +230,37 @@
                     vistaButton.style.cursor = 'pointer';
                     vistaButton.style.borderRadius = '5px';
                     vistaButton.style.fontSize = '16px';
-
+    
                     // Add an event listener to open the Vista URL
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
-
+    
                         // Select the second 'span.vr-stop-name' element
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
-
+    
                         if (stopNames.length < 2) {
                             console.error('Not enough stops found!');
                             return;
                         }
-
+    
                         const finalFacilityElement = stopNames[1];
                         const facilityId = finalFacilityElement.textContent.trim();
-
+    
                         if (!facilityId) {
                             console.error('Facility ID not found!');
                             return;
                         }
-
+    
                         // Store the facilityId in localStorage
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
-
+    
+                        // Store the VRID in localStorage
+                        const vrid = 'YOUR_VRID_VALUE'; // Replace with the actual VRID value
+                        localStorage.setItem('vrid', vrid);
+                        console.log('Stored VRID:', vrid);
+    
                         // Open the Vista page in a new tab
                         const link = document.createElement('a');
                         link.href = `https://trans-logistics.amazon.com/sortcenter/vista/?facility=${facilityId}`;
@@ -264,7 +269,7 @@
                         link.click();
                         document.body.removeChild(link);
                     });
-
+    
                     // Append the button to the assets container
                     assetsContainer.appendChild(vistaButton);
                     console.log('Vista button added to the page.');
