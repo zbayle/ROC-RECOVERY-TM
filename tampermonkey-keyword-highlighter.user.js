@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.6
+// @version      1.0.9.8
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        *://*/*
@@ -30,13 +30,25 @@ function createFloatingMenu() {
     const handle = document.createElement('div');
     handle.style.cursor = 'move'; // Change cursor to indicate draggable
     handle.style.marginBottom = '10px';
-    handle.style.padding = '10px';
-    handle.style.backgroundColor = '#0fffcf';
-    handle.style.color = '#333';
+    handle.style.padding = '5px';
+    handle.style.backgroundColor = '#555';
+    handle.style.color = '#fff';
     handle.style.borderRadius = '5px';
-    handle.textContent = 'ROC Tools Menu';
+    handle.textContent = 'Drag Here';
 
     console.log("Handle created for menu.");
+
+    const button = document.createElement('button');
+    button.textContent = 'ROC Tools Menu';
+    button.style.marginBottom = '10px';
+    button.style.padding = '10px';
+    button.style.backgroundColor = '#0fffcf';
+    button.style.color = '#333';
+    button.style.borderRadius = '5px';
+    button.style.cursor = 'pointer';
+    button.onclick = toggleMenu;
+
+    console.log("Button created for menu.");
 
     const menuContent = document.createElement('div');
     menuContent.id = 'floatingMenuContent';
@@ -73,9 +85,10 @@ function createFloatingMenu() {
     menuContent.appendChild(keywordList);
 
     menu.appendChild(handle);
+    menu.appendChild(button);
     menu.appendChild(menuContent);
 
-    console.log("Menu content and handle appended to menu.");
+    console.log("Menu content, handle, and button appended to menu.");
 
     document.body.appendChild(menu);
     console.log("Floating menu injected into the page.");
@@ -115,8 +128,10 @@ function makeDraggable(element, handle) {
         e.preventDefault();
         offsetX = e.clientX - initialX;
         offsetY = e.clientY - initialY;
-        element.style.top = offsetY + "px";
-        element.style.left = offsetX + "px";
+        element.style.top = (element.offsetTop + offsetY) + "px";
+        element.style.left = (element.offsetLeft + offsetX) + "px";
+        initialX = e.clientX;
+        initialY = e.clientY;
     }
 
     function closeDragElement() {
