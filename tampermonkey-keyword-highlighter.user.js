@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.4
+// @version      1.0.9.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        *://*/*
@@ -26,19 +26,18 @@ function createFloatingMenu() {
     menu.style.color = '#fff';
     menu.style.borderRadius = '5px';
     menu.style.zIndex = '9999';
-    menu.style.cursor = 'move'; // Change cursor to indicate draggable
 
-    const button = document.createElement('button');
-    button.textContent = 'ROC Tools Menu';
-    button.style.marginBottom = '10px';
-    button.style.padding = '10px';
-    button.style.backgroundColor = '#0fffcf';
-    button.style.color = '#333';
-    button.style.borderRadius = '5px';
-    button.style.cursor = 'pointer';
-    button.onclick = toggleMenu;
+    const handle = document.createElement('div');
+    handle.style.cursor = 'move'; // Change cursor to indicate draggable
+    handle.style.marginBottom = '10px';
+    handle.style.padding = '10px';
+    handle.style.backgroundColor = '#0fffcf';
+    handle.style.color = '#333';
+    handle.style.borderRadius = '5px';
+    handle.textContent = 'ROC Tools Menu';
+    handle.onclick = toggleMenu;
 
-    console.log("Button created for menu.");
+    console.log("Handle created for menu.");
 
     const menuContent = document.createElement('div');
     menuContent.id = 'floatingMenuContent';
@@ -74,16 +73,16 @@ function createFloatingMenu() {
     keywordList.id = 'keywordList';
     menuContent.appendChild(keywordList);
 
-    menu.appendChild(button);
+    menu.appendChild(handle);
     menu.appendChild(menuContent);
 
-    console.log("Menu content and button appended to menu.");
+    console.log("Menu content and handle appended to menu.");
 
     document.body.appendChild(menu);
     console.log("Floating menu injected into the page.");
 
-    // Make the menu draggable
-    makeDraggable(menu);
+    // Make the menu draggable using the handle
+    makeDraggable(menu, handle);
 }
 
 // Toggle the visibility of the floating menu
@@ -99,11 +98,11 @@ function toggleMenu() {
     }
 }
 
-// Function to make an element draggable
-function makeDraggable(element) {
+// Function to make an element draggable using a handle
+function makeDraggable(element, handle) {
     let offsetX = 0, offsetY = 0, initialX = 0, initialY = 0;
 
-    element.addEventListener('mousedown', dragMouseDown);
+    handle.addEventListener('mousedown', dragMouseDown);
 
     function dragMouseDown(e) {
         e.preventDefault();
