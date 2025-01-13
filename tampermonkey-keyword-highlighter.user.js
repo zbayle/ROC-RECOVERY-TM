@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.2
+// @version      1.0.9.4
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        *://*/*
@@ -19,8 +19,8 @@ function createFloatingMenu() {
 
     const menu = document.createElement('div');
     menu.style.position = 'fixed';
-    menu.style.bottom = '10px';
-    menu.style.right = '10px';
+    menu.style.top = '10px'; // Set initial top position
+    menu.style.left = '10px'; // Set initial left position
     menu.style.padding = '10px';
     menu.style.backgroundColor = '#333';
     menu.style.color = '#fff';
@@ -107,18 +107,20 @@ function makeDraggable(element) {
 
     function dragMouseDown(e) {
         e.preventDefault();
-        initialX = e.clientX - element.offsetLeft;
-        initialY = e.clientY - element.offsetTop;
+        initialX = e.clientX;
+        initialY = e.clientY;
         document.addEventListener('mousemove', elementDrag);
         document.addEventListener('mouseup', closeDragElement);
     }
 
     function elementDrag(e) {
         e.preventDefault();
-        offsetX = e.clientX - initialX;
-        offsetY = e.clientY - initialY;
-        element.style.top = offsetY + "px";
-        element.style.left = offsetX + "px";
+        offsetX = initialX - e.clientX;
+        offsetY = initialY - e.clientY;
+        initialX = e.clientX;
+        initialY = e.clientY;
+        element.style.top = (element.offsetTop - offsetY) + "px";
+        element.style.left = (element.offsetLeft - offsetX) + "px";
     }
 
     function closeDragElement() {
