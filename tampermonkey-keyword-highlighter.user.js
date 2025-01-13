@@ -138,7 +138,6 @@ function loadKeywords() {
     highlightKeywords(keywords);
 }
 
-
 // Add or update keyword and color
 function addOrUpdateKeyword() {
     const keyword = document.getElementById('keywordInput').value;
@@ -220,12 +219,37 @@ function removeKeyword(index) {
 function highlightKeywords(keywords) {
     console.log("Highlighting keywords...");
 
-    const bodyText = document.body.innerHTML;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    const nodes = [];
 
-    keywords.forEach(keyword => {
-        const regex = new RegExp(keyword.keyword, 'gi');  // Add 'gi' for case-insensitive matching
-        document.body.innerHTML = document.body.innerHTML.replace(regex, match => {
-            return `<span style="color:${keyword.color}">${match}</span>`;
+    while (walker.nextNode()) {
+        nodes.push(walker.currentNode);
+    }
+
+    nodes.forEach(node => {
+        const parent = node.parentNode;
+        const text = node.nodeValue;
+
+        keywords.forEach(keyword => {
+            const regex = new RegExp(`(${keyword.keyword})`, 'gi');
+            const parts = text.split(regex);
+
+            if (parts.length > 1) {
+                const fragment = document.createDocumentFragment();
+
+                parts.forEach(part => {
+                    if (regex.test(part)) {
+                        const span = document.createElement('span');
+                        span.style.color = keyword.color;
+                        span.textContent = part;
+                        fragment.appendChild(span);
+                    } else {
+                        fragment.appendChild(document.createTextNode(part));
+                    }
+                });
+
+                parent.replaceChild(fragment, node);
+            }
         });
     });
 }
