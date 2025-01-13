@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.8
+// @version      1.0.9.10
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        *://*/*
@@ -128,8 +128,17 @@ function makeDraggable(element, handle) {
         e.preventDefault();
         offsetX = e.clientX - initialX;
         offsetY = e.clientY - initialY;
-        element.style.top = (element.offsetTop + offsetY) + "px";
-        element.style.left = (element.offsetLeft + offsetX) + "px";
+        let newTop = element.offsetTop + offsetY;
+        let newLeft = element.offsetLeft + offsetX;
+
+        // Boundary checks
+        if (newTop < 0) newTop = 0;
+        if (newLeft < 0) newLeft = 0;
+        if (newTop + element.offsetHeight > window.innerHeight) newTop = window.innerHeight - element.offsetHeight;
+        if (newLeft + element.offsetWidth > window.innerWidth) newLeft = window.innerWidth - element.offsetWidth;
+
+        element.style.top = newTop + "px";
+        element.style.left = newLeft + "px";
         initialX = e.clientX;
         initialY = e.clientY;
     }
