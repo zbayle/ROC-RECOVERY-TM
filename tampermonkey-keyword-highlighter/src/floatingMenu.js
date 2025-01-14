@@ -1,4 +1,6 @@
-// This file contains the implementation of the createFloatingMenu function, which creates and injects the floating menu into the page.
+import { makeDraggable } from './draggable';
+import { loadKeywords, addOrUpdateKeyword } from './keywords';
+import { loadAlerts, addOrUpdateAlert } from './alerts';
 
 export function createFloatingMenu() {
     console.log("Creating floating menu...");
@@ -25,6 +27,8 @@ export function createFloatingMenu() {
     handle.style.borderRadius = '5px';
     handle.textContent = 'Drag Here';
 
+    console.log("Handle created for menu.");
+
     const button = document.createElement('button');
     button.textContent = 'Close Menu';
     button.style.marginBottom = '10px';
@@ -35,9 +39,13 @@ export function createFloatingMenu() {
     button.style.cursor = 'pointer';
     button.onclick = toggleMenu;
 
+    console.log("Button created for menu.");
+
     const menuContent = document.createElement('div');
     menuContent.id = 'floatingMenuContent';
     menuContent.style.marginTop = '10px';
+
+    console.log("Menu content created.");
 
     const tabs = document.createElement('div');
     tabs.style.display = 'flex';
@@ -120,6 +128,25 @@ export function createFloatingMenu() {
     alertInput.id = 'alertInput';
     alertsTabContent.appendChild(alertInput);
 
+    const soundSelectLabel = document.createElement('label');
+    soundSelectLabel.textContent = ' Sound: ';
+    alertsTabContent.appendChild(soundSelectLabel);
+
+    const soundSelect = document.createElement('select');
+    soundSelect.id = 'soundSelect';
+    const sounds = [
+        { name: 'Beep', url: 'https://www.soundjay.com/button/beep-07.wav' },
+        { name: 'Chime', url: 'https://www.soundjay.com/button/chime-01.wav' },
+        { name: 'Ding', url: 'https://www.soundjay.com/button/ding-01.wav' }
+    ];
+    sounds.forEach(sound => {
+        const option = document.createElement('option');
+        option.value = sound.url;
+        option.textContent = sound.name;
+        soundSelect.appendChild(option);
+    });
+    alertsTabContent.appendChild(soundSelect);
+
     const alertButton = document.createElement('button');
     alertButton.textContent = 'Add Alert';
     alertButton.id = 'alertButton';
@@ -137,7 +164,10 @@ export function createFloatingMenu() {
     menu.appendChild(button);
     menu.appendChild(menuContent);
 
+    console.log("Menu content, handle, and button appended to menu.");
+
     document.body.appendChild(menu);
+    console.log("Floating menu injected into the page.");
 
     // Make the menu draggable using the handle
     makeDraggable(menu, handle);
@@ -149,15 +179,36 @@ export function createFloatingMenu() {
         GM_setValue('alertEnabled', alertToggle.checked);
     });
 
+    // Load alerts
+    loadAlerts();
+
     // Start observing for WIM alerts if enabled
     if (alertEnabled) {
         observeWIMAlerts();
     }
+}
 
-    // Add an audio element for the alert sound
-    const audio = document.createElement('audio');
-    audio.id = 'alertSound';
-    audio.src = 'https://www.soundjay.com/button/beep-07.wav'; // Replace with your preferred sound URL
-    audio.type = 'audio/wav';
-    document.body.appendChild(audio);
+export function toggleMenu() {
+    console.log("Toggling menu visibility...");
+    const menu = document.getElementById('floatingMenu');
+    if (menu.style.display === 'none') {
+        menu.style.display = 'block';
+        console.log("Menu is now visible.");
+    } else {
+        menu.style.display = 'none';
+        console.log("Menu is now hidden.");
+    }
+}
+
+function showTab(tabId) {
+    const keywordsTab = document.getElementById('keywordsTab');
+    const alertsTabContent = document.getElementById('alertsTab');
+
+    if (tabId === 'keywordsTab') {
+        keywordsTab.style.display = 'block';
+        alertsTabContent.style.display = 'none';
+    } else if (tabId === 'alertsTab') {
+        keywordsTab.style.display = 'none';
+        alertsTabContent.style.display = 'block';
+    }
 }

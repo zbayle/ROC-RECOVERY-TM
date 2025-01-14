@@ -1,4 +1,4 @@
-function makeDraggable(element, handle = element) {
+export function makeDraggable(element, handle = element) {
     let offsetX = 0, offsetY = 0, initialX = 0, initialY = 0;
 
     handle.addEventListener('mousedown', dragMouseDown);
@@ -35,5 +35,3 @@ function makeDraggable(element, handle = element) {
         document.removeEventListener('mouseup', closeDragElement);
     }
 }
-
-export { makeDraggable };
