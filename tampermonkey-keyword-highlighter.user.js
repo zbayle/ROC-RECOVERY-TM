@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.14
+// @version      1.0.9.15
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -230,6 +230,7 @@ function addOrUpdateKeyword() {
     GM_setValue('keywords', keywords);
     console.log("Updated keywords in storage:", GM_getValue('keywords'));
     loadKeywords();
+    highlightKeywords(keywords); // Ensure keywords are highlighted after adding/updating
 }
 
 // Edit keyword and color
@@ -258,6 +259,7 @@ function updateKeyword(index) {
 
     GM_setValue('keywords', keywords);
     loadKeywords();
+    highlightKeywords(keywords); // Ensure keywords are highlighted after updating
 
     document.getElementById('addButton').textContent = 'Add/Update Keyword';
     document.getElementById('addButton').onclick = addOrUpdateKeyword;
@@ -269,6 +271,7 @@ function removeKeyword(index) {
     keywords.splice(index, 1);
     GM_setValue('keywords', keywords);
     loadKeywords();
+    highlightKeywords(keywords); // Ensure keywords are highlighted after removing
 }
 
 // Highlight keywords in page content
