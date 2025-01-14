@@ -1,0 +1,16 @@
+{
+  "name": "tampermonkey-keyword-highlighter",
+  "version": "1.0.0",
+  "description": "A Tampermonkey script to highlight specified keywords dynamically with custom colors using a floating menu.",
+  "main": "src/main.js",
+  "scripts": {
+    "build": "echo 'Build script not defined'",
+    "test": "echo 'Test script not defined'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  },
+  "author": "zbbayle",
+  "license": "MIT"
+}
