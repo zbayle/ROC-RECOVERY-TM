@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.16
-// @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
-// @author       zbbayle
+// @version      1.0.9.18
+// @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
+// @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
 // @match        https://trans-logistics.amazon.com/*
 // @grant        GM_setValue
@@ -108,53 +108,75 @@ function createFloatingMenu() {
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
-keywordsTab.appendChild(colorInput);
+    keywordsTab.appendChild(colorInput);
 
-const addButton = document.createElement('button');
-addButton.textContent = 'Add/Update Keyword';
-addButton.id = 'addButton';
-keywordsTab.appendChild(addButton);
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Add/Update Keyword';
+    addButton.id = 'addButton';
+    keywordsTab.appendChild(addButton);
 
-const keywordList = document.createElement('ul');
-keywordList.id = 'keywordList';
-keywordsTab.appendChild(keywordList);
+    const keywordList = document.createElement('ul');
+    keywordList.id = 'keywordList';
+    keywordsTab.appendChild(keywordList);
 
-const alertsTabContent = document.createElement('div');
-alertsTabContent.id = 'alertsTab';
-alertsTabContent.style.display = 'none';
+    const alertsTabContent = document.createElement('div');
+    alertsTabContent.id = 'alertsTab';
+    alertsTabContent.style.display = 'none';
 
-const alertInputLabel = document.createElement('label');
-alertInputLabel.textContent = 'Alert: ';
-alertsTabContent.appendChild(alertInputLabel);
+    const alertToggleLabel = document.createElement('label');
+    alertToggleLabel.textContent = 'WIM Alert: ';
+    alertsTabContent.appendChild(alertToggleLabel);
 
-const alertInput = document.createElement('input');
-alertInput.type = 'text';
-alertInput.id = 'alertInput';
-alertsTabContent.appendChild(alertInput);
+    const alertToggle = document.createElement('input');
+    alertToggle.type = 'checkbox';
+    alertToggle.id = 'alertToggle';
+    alertsTabContent.appendChild(alertToggle);
 
-const alertButton = document.createElement('button');
-alertButton.textContent = 'Add Alert';
-alertButton.id = 'alertButton';
-alertsTabContent.appendChild(alertButton);
+    const alertInputLabel = document.createElement('label');
+    alertInputLabel.textContent = 'Alert: ';
+    alertsTabContent.appendChild(alertInputLabel);
 
-const alertList = document.createElement('ul');
-alertList.id = 'alertList';
-alertsTabContent.appendChild(alertList);
+    const alertInput = document.createElement('input');
+    alertInput.type = 'text';
+    alertInput.id = 'alertInput';
+    alertsTabContent.appendChild(alertInput);
 
-menuContent.appendChild(tabs);
-menuContent.appendChild(keywordsTab);
-menuContent.appendChild(alertsTabContent);
+    const alertButton = document.createElement('button');
+    alertButton.textContent = 'Add Alert';
+    alertButton.id = 'alertButton';
+    alertsTabContent.appendChild(alertButton);
 
-menu.appendChild(handle);
-menu.appendChild(button);
-menu.appendChild(menuContent);
+    const alertList = document.createElement('ul');
+    alertList.id = 'alertList';
+    alertsTabContent.appendChild(alertList);
 
-console.log("Menu content, handle, and button appended to menu.");
+    menuContent.appendChild(tabs);
+    menuContent.appendChild(keywordsTab);
+    menuContent.appendChild(alertsTabContent);
 
-document.body.appendChild(menu);
-console.log("Floating menu injected into the page.");
+    menu.appendChild(handle);
+    menu.appendChild(button);
+    menu.appendChild(menuContent);
+
+    console.log("Menu content, handle, and button appended to menu.");
+
+    document.body.appendChild(menu);
+    console.log("Floating menu injected into the page.");
+
     // Make the menu draggable using the handle
     makeDraggable(menu, handle);
+
+    // Load the alert toggle state
+    const alertEnabled = GM_getValue('alertEnabled', false);
+    alertToggle.checked = alertEnabled;
+    alertToggle.addEventListener('change', () => {
+        GM_setValue('alertEnabled', alertToggle.checked);
+    });
+
+    // Start observing for WIM alerts if enabled
+    if (alertEnabled) {
+        observeWIMAlerts();
+    }
 }
 
 // Toggle the visibility of the floating menu
@@ -173,14 +195,14 @@ function toggleMenu() {
 // Show the selected tab
 function showTab(tabId) {
     const keywordsTab = document.getElementById('keywordsTab');
-    const alertsTab = document.getElementById('alertsTab');
+    const alertsTabContent = document.getElementById('alertsTab');
 
     if (tabId === 'keywordsTab') {
         keywordsTab.style.display = 'block';
-        alertsTab.style.display = 'none';
+        alertsTabContent.style.display = 'none';
     } else if (tabId === 'alertsTab') {
         keywordsTab.style.display = 'none';
-        alertsTab.style.display = 'block';
+        alertsTabContent.style.display = 'block';
     }
 }
 
@@ -384,6 +406,25 @@ function highlightKeywords(keywords) {
             }
         });
     });
+}
+
+// Function to observe WIM alerts
+function observeWIMAlerts() {
+    if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1 && node.querySelector('.btn-primary.btn-block.btn.btn-info')) {
+                            alert('WIM is offered to you!');
+                        }
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
 }
 
 // Ensure the DOM is loaded before trying to access elements
