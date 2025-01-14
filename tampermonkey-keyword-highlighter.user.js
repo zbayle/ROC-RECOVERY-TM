@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.24
+// @version      1.0.10.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -15,13 +15,46 @@
 // Log to verify script execution
 console.log('Script is running!');
 
+// Function to create and insert the floating icon
+function createFloatingIcon() {
+    console.log("Creating floating icon...");
+
+    const icon = document.createElement('div');
+    icon.style.position = 'fixed';
+    icon.style.top = '10px'; // Set initial top position
+    icon.style.left = '10px'; // Set initial left position
+    icon.style.width = '40px';
+    icon.style.height = '40px';
+    icon.style.backgroundColor = '#0fffcf';
+    icon.style.borderRadius = '50%';
+    icon.style.cursor = 'pointer';
+    icon.style.zIndex = '9999';
+    icon.style.display = 'flex';
+    icon.style.alignItems = 'center';
+    icon.style.justifyContent = 'center';
+    icon.textContent = 'ROC';
+    icon.style.color = '#333';
+    icon.style.fontWeight = 'bold';
+
+    console.log("Icon created.");
+
+    icon.onclick = toggleMenu;
+
+    document.body.appendChild(icon);
+    console.log("Floating icon injected into the page.");
+
+    // Make the icon draggable
+    makeDraggable(icon);
+}
+
 // Function to create and insert the floating menu
 function createFloatingMenu() {
     console.log("Creating floating menu...");
 
     const menu = document.createElement('div');
+    menu.id = 'floatingMenu';
     menu.style.position = 'fixed';
-    menu.style.top = '10px'; // Set initial top position
+    menu.style.top = '60px'; // Set initial top position
     menu.style.left = '10px'; // Set initial left position
     menu.style.padding = '10px';
     menu.style.backgroundColor = '#333';
@@ -29,6 +62,7 @@ function createFloatingMenu() {
     menu.style.borderRadius = '5px';
     menu.style.zIndex = '9999';
     menu.style.width = '300px';
+    menu.style.display = 'none';
 
     const handle = document.createElement('div');
     handle.style.cursor = 'move'; // Change cursor to indicate draggable
@@ -42,7 +76,7 @@ function createFloatingMenu() {
     console.log("Handle created for menu.");
 
     const button = document.createElement('button');
-    button.textContent = 'ROC Tools Menu';
+    button.textContent = 'Close Menu';
     button.style.marginBottom = '10px';
     button.style.padding = '10px';
     button.style.backgroundColor = '#0fffcf';
@@ -55,7 +89,6 @@ function createFloatingMenu() {
 
     const menuContent = document.createElement('div');
     menuContent.id = 'floatingMenuContent';
-    menuContent.style.display = 'none';
     menuContent.style.marginTop = '10px';
 
     console.log("Menu content created.");
@@ -189,12 +222,12 @@ function createFloatingMenu() {
 // Toggle the visibility of the floating menu
 function toggleMenu() {
     console.log("Toggling menu visibility...");
-    const menuContent = document.getElementById('floatingMenuContent');
-    if (menuContent.style.display === 'none') {
-        menuContent.style.display = 'block';
+    const menu = document.getElementById('floatingMenu');
+    if (menu.style.display === 'none') {
+        menu.style.display = 'block';
         console.log("Menu is now visible.");
     } else {
-        menuContent.style.display = 'none';
+        menu.style.display = 'none';
         console.log("Menu is now hidden.");
     }
 }
@@ -214,7 +247,7 @@ function showTab(tabId) {
 }
 
 // Function to make an element draggable using a handle
-function makeDraggable(element, handle) {
+function makeDraggable(element, handle = element) {
     let offsetX = 0, offsetY = 0, initialX = 0, initialY = 0;
 
     handle.addEventListener('mousedown', dragMouseDown);
@@ -445,6 +478,7 @@ function observeWIMAlerts() {
 window.onload = function () {
     console.log("Window loaded.");
 
+    createFloatingIcon();
     createFloatingMenu();
     loadKeywords();
 
