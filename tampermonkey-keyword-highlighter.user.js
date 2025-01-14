@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.15
+// @version      1.0.9.16
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -28,6 +28,7 @@ function createFloatingMenu() {
     menu.style.color = '#fff';
     menu.style.borderRadius = '5px';
     menu.style.zIndex = '9999';
+    menu.style.width = '300px';
 
     const handle = document.createElement('div');
     handle.style.cursor = 'move'; // Change cursor to indicate draggable
@@ -59,42 +60,99 @@ function createFloatingMenu() {
 
     console.log("Menu content created.");
 
+    const tabs = document.createElement('div');
+    tabs.style.display = 'flex';
+    tabs.style.justifyContent = 'space-around';
+    tabs.style.marginBottom = '10px';
+
+    const keywordTab = document.createElement('button');
+    keywordTab.textContent = 'Keywords';
+    keywordTab.style.flex = '1';
+    keywordTab.style.padding = '10px';
+    keywordTab.style.backgroundColor = '#0fffcf';
+    keywordTab.style.color = '#333';
+    keywordTab.style.border = 'none';
+    keywordTab.style.cursor = 'pointer';
+    keywordTab.onclick = () => showTab('keywordsTab');
+
+    const alertsTab = document.createElement('button');
+    alertsTab.textContent = 'Alerts';
+    alertsTab.style.flex = '1';
+    alertsTab.style.padding = '10px';
+    alertsTab.style.backgroundColor = '#0fffcf';
+    alertsTab.style.color = '#333';
+    alertsTab.style.border = 'none';
+    alertsTab.style.cursor = 'pointer';
+    alertsTab.onclick = () => showTab('alertsTab');
+
+    tabs.appendChild(keywordTab);
+    tabs.appendChild(alertsTab);
+
+    const keywordsTab = document.createElement('div');
+    keywordsTab.id = 'keywordsTab';
+    keywordsTab.style.display = 'block';
+
     const keywordInputLabel = document.createElement('label');
     keywordInputLabel.textContent = 'Keyword: ';
-    menuContent.appendChild(keywordInputLabel);
+    keywordsTab.appendChild(keywordInputLabel);
 
     const keywordInput = document.createElement('input');
     keywordInput.type = 'text';
     keywordInput.id = 'keywordInput';
-    menuContent.appendChild(keywordInput);
+    keywordsTab.appendChild(keywordInput);
 
     const colorInputLabel = document.createElement('label');
     colorInputLabel.textContent = ' Color: ';
-    menuContent.appendChild(colorInputLabel);
+    keywordsTab.appendChild(colorInputLabel);
 
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
-    menuContent.appendChild(colorInput);
+keywordsTab.appendChild(colorInput);
 
-    const addButton = document.createElement('button');
-    addButton.textContent = 'Add/Update Keyword';
-    addButton.id = 'addButton';
-    menuContent.appendChild(addButton);
+const addButton = document.createElement('button');
+addButton.textContent = 'Add/Update Keyword';
+addButton.id = 'addButton';
+keywordsTab.appendChild(addButton);
 
-    const keywordList = document.createElement('ul');
-    keywordList.id = 'keywordList';
-    menuContent.appendChild(keywordList);
+const keywordList = document.createElement('ul');
+keywordList.id = 'keywordList';
+keywordsTab.appendChild(keywordList);
 
-    menu.appendChild(handle);
-    menu.appendChild(button);
-    menu.appendChild(menuContent);
+const alertsTabContent = document.createElement('div');
+alertsTabContent.id = 'alertsTab';
+alertsTabContent.style.display = 'none';
 
-    console.log("Menu content, handle, and button appended to menu.");
+const alertInputLabel = document.createElement('label');
+alertInputLabel.textContent = 'Alert: ';
+alertsTabContent.appendChild(alertInputLabel);
 
-    document.body.appendChild(menu);
-    console.log("Floating menu injected into the page.");
+const alertInput = document.createElement('input');
+alertInput.type = 'text';
+alertInput.id = 'alertInput';
+alertsTabContent.appendChild(alertInput);
 
+const alertButton = document.createElement('button');
+alertButton.textContent = 'Add Alert';
+alertButton.id = 'alertButton';
+alertsTabContent.appendChild(alertButton);
+
+const alertList = document.createElement('ul');
+alertList.id = 'alertList';
+alertsTabContent.appendChild(alertList);
+
+menuContent.appendChild(tabs);
+menuContent.appendChild(keywordsTab);
+menuContent.appendChild(alertsTabContent);
+
+menu.appendChild(handle);
+menu.appendChild(button);
+menu.appendChild(menuContent);
+
+console.log("Menu content, handle, and button appended to menu.");
+
+document.body.appendChild(menu);
+console.log("Floating menu injected into the page.");
     // Make the menu draggable using the handle
     makeDraggable(menu, handle);
 }
@@ -109,6 +167,20 @@ function toggleMenu() {
     } else {
         menuContent.style.display = 'none';
         console.log("Menu is now hidden.");
+    }
+}
+
+// Show the selected tab
+function showTab(tabId) {
+    const keywordsTab = document.getElementById('keywordsTab');
+    const alertsTab = document.getElementById('alertsTab');
+
+    if (tabId === 'keywordsTab') {
+        keywordsTab.style.display = 'block';
+        alertsTab.style.display = 'none';
+    } else if (tabId === 'alertsTab') {
+        keywordsTab.style.display = 'none';
+        alertsTab.style.display = 'block';
     }
 }
 
