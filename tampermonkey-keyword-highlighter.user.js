@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0.1
+// @version      1.0.10.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -12,64 +12,11 @@
 // @downloadURL  https://github.com/raw/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 // ==/UserScript==
 
-
-
+// Log to verify script execution
 console.log('Script is running!');
 
-// MAIN 
-
-window.onload = function () {
-    console.log("Window loaded.");
-
-    createFloatingIcon();
-    createFloatingMenu();
-    loadKeywords();
-    loadAlerts();
-
-    const addButton = document.getElementById('addButton');
-    if (addButton) {
-        console.log("Add button exists.");
-        addButton.addEventListener('click', addOrUpdateKeyword);
-    } else {
-        console.error('Add button not found!');
-    }
-
-    const alertButton = document.getElementById('alertButton');
-    if (alertButton) {
-        console.log("Alert button exists.");
-        alertButton.addEventListener('click', addOrUpdateAlert);
-    } else {
-        console.error('Alert button not found!');
-    }
-};
-
-export function toggleMenu() {
-    console.log("Toggling menu visibility...");
-    const menu = document.getElementById('floatingMenu');
-    if (menu.style.display === 'none') {
-        menu.style.display = 'block';
-        console.log("Menu is now visible.");
-    } else {
-        menu.style.display = 'none';
-        console.log("Menu is now hidden.");
-    }
-}
-
-function showTab(tabId) {
-    const keywordsTab = document.getElementById('keywordsTab');
-    const alertsTabContent = document.getElementById('alertsTab');
-
-    if (tabId === 'keywordsTab') {
-        keywordsTab.style.display = 'block';
-        alertsTabContent.style.display = 'none';
-    } else if (tabId === 'alertsTab') {
-        keywordsTab.style.display = 'none';
-        alertsTabContent.style.display = 'block';
-    }
-}
-
-//FloatingIcon
-export function createFloatingIcon() {
+// Function to create and insert the floating icon
+function createFloatingIcon() {
     console.log("Creating floating icon...");
 
     const icon = document.createElement('div');
@@ -98,10 +45,10 @@ export function createFloatingIcon() {
 
     // Make the icon draggable
     makeDraggable(icon);
-} //END FloatingIcon
+}
 
-//FloatingMenu
-export function createFloatingMenu() {
+// Function to create and insert the floating menu
+function createFloatingMenu() {
     console.log("Creating floating menu...");
 
     const menu = document.createElement('div');
@@ -116,8 +63,6 @@ export function createFloatingMenu() {
     menu.style.zIndex = '9999';
     menu.style.width = '300px';
     menu.style.display = 'none';
-
-    console.log("Menu element created.");
 
     const handle = document.createElement('div');
     handle.style.cursor = 'move'; // Change cursor to indicate draggable
@@ -229,25 +174,6 @@ export function createFloatingMenu() {
     alertInput.id = 'alertInput';
     alertsTabContent.appendChild(alertInput);
 
-    const soundSelectLabel = document.createElement('label');
-    soundSelectLabel.textContent = ' Sound: ';
-    alertsTabContent.appendChild(soundSelectLabel);
-
-    const soundSelect = document.createElement('select');
-    soundSelect.id = 'soundSelect';
-    const sounds = [
-        { name: 'Beep', url: 'https://www.soundjay.com/button/beep-07.wav' },
-        { name: 'Chime', url: 'https://www.soundjay.com/button/chime-01.wav' },
-        { name: 'Ding', url: 'https://www.soundjay.com/button/ding-01.wav' }
-    ];
-    sounds.forEach(sound => {
-        const option = document.createElement('option');
-        option.value = sound.url;
-        option.textContent = sound.name;
-        soundSelect.appendChild(option);
-    });
-    alertsTabContent.appendChild(soundSelect);
-
     const alertButton = document.createElement('button');
     alertButton.textContent = 'Add Alert';
     alertButton.id = 'alertButton';
@@ -280,17 +206,48 @@ export function createFloatingMenu() {
         GM_setValue('alertEnabled', alertToggle.checked);
     });
 
-    // Load alerts
-    loadAlerts();
-
     // Start observing for WIM alerts if enabled
     if (alertEnabled) {
         observeWIMAlerts();
     }
-}//END FloatingMenu
 
-//Draggable
-export function makeDraggable(element, handle = element) {
+    // Add an audio element for the alert sound
+    const audio = document.createElement('audio');
+    audio.id = 'alertSound';
+    audio.src = 'https://www.soundjay.com/button/beep-07.wav'; // Replace with your preferred sound URL
+    audio.type = 'audio/wav';
+    document.body.appendChild(audio);
+}
+
+// Toggle the visibility of the floating menu
+function toggleMenu() {
+    console.log("Toggling menu visibility...");
+    const menu = document.getElementById('floatingMenu');
+    if (menu.style.display === 'none') {
+        menu.style.display = 'block';
+        console.log("Menu is now visible.");
+    } else {
+        menu.style.display = 'none';
+        console.log("Menu is now hidden.");
+    }
+}
+
+// Show the selected tab
+function showTab(tabId) {
+    const keywordsTab = document.getElementById('keywordsTab');
+    const alertsTabContent = document.getElementById('alertsTab');
+
+    if (tabId === 'keywordsTab') {
+        keywordsTab.style.display = 'block';
+        alertsTabContent.style.display = 'none';
+    } else if (tabId === 'alertsTab') {
+        keywordsTab.style.display = 'none';
+        alertsTabContent.style.display = 'block';
+    }
+}
+
+// Function to make an element draggable using a handle
+function makeDraggable(element, handle = element) {
     let offsetX = 0, offsetY = 0, initialX = 0, initialY = 0;
 
     handle.addEventListener('mousedown', dragMouseDown);
@@ -326,11 +283,15 @@ export function makeDraggable(element, handle = element) {
         document.removeEventListener('mousemove', elementDrag);
         document.removeEventListener('mouseup', closeDragElement);
     }
-}//END Draggable
+}
 
-//Keywords
+// Function to validate keywords
+function validateKeywords(keywords) {
+    return Array.isArray(keywords) ? keywords.filter(item => item.keyword && item.color) : [];
+}
 
-export function loadKeywords() {
+// Load keywords safely
+function loadKeywords() {
     console.log("Loading saved keywords...");
 
     let keywords = [];
@@ -367,7 +328,8 @@ export function loadKeywords() {
     highlightKeywords(keywords);
 }
 
-export function addOrUpdateKeyword() {
+// Add or update keyword and color
+function addOrUpdateKeyword() {
     const keyword = document.getElementById('keywordInput').value;
     const color = document.getElementById('colorInput').value;
 
@@ -405,6 +367,7 @@ export function addOrUpdateKeyword() {
     highlightKeywords(keywords); // Ensure keywords are highlighted after adding/updating
 }
 
+// Edit keyword and color
 function editKeyword(index) {
     const keywords = GM_getValue('keywords', []);
     const keyword = keywords[index];
@@ -418,6 +381,7 @@ function editKeyword(index) {
     };
 }
 
+// Update keyword
 function updateKeyword(index) {
     const keyword = document.getElementById('keywordInput').value;
     const color = document.getElementById('colorInput').value;
@@ -435,155 +399,19 @@ function updateKeyword(index) {
     document.getElementById('addButton').onclick = addOrUpdateKeyword;
 }
 
+// Remove keyword
 function removeKeyword(index) {
     let keywords = GM_getValue('keywords', []);
     keywords.splice(index, 1);
     GM_setValue('keywords', keywords);
     loadKeywords();
     highlightKeywords(keywords); // Ensure keywords are highlighted after removing
-}//END Keywords
-
-//Alerts
-function loadAlerts() {
-    console.log("Loading saved alerts...");
-
-    let alerts = [];
-    try {
-        alerts = GM_getValue('alerts', []);
-    } catch (e) {
-        console.error('Error reading from storage. Resetting alerts.');
-    }
-
-    const list = document.getElementById('alertList');
-    list.innerHTML = '';
-
-    alerts.forEach((alert, index) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${alert.text} (${alert.soundName})`;
-
-        const editButton = document.createElement('button');
-        editButton.textContent = 'Edit';
-        editButton.onclick = () => editAlert(index);
-        listItem.appendChild(editButton);
-
-        const removeButton = document.createElement('button');
-        removeButton.textContent = 'Remove';
-        removeButton.onclick = () => removeAlert(index);
-        listItem.appendChild(removeButton);
-
-        list.appendChild(listItem);
-    });
-
-    console.log("Alerts loaded successfully.");
 }
 
-// Add or update alert
-function addOrUpdateAlert() {
-    const alertText = document.getElementById('alertInput').value;
-    const alertSound = document.getElementById('soundSelect').value;
-    const alertSoundName = document.getElementById('soundSelect').selectedOptions[0].text;
+// Highlight keywords in page content
+function highlightKeywords(keywords) {
+    console.log("Highlighting keywords...");
 
-    if (alertText === '') return; // Don't allow empty alerts
-
-    let alerts = GM_getValue('alerts', []);
-
-    // Ensure alerts is an array (in case it's been incorrectly stored as an object)
-    if (typeof alerts === 'object' && !Array.isArray(alerts)) {
-        console.error('Alerts are stored incorrectly. Resetting to an empty array.');
-        alerts = [];
-    }
-
-    // Check if the alert already exists
-    const existingIndex = alerts.findIndex(alert => alert.text === alertText);
-    if (existingIndex !== -1) {
-        // Edit existing alert
-        alerts[existingIndex] = { text: alertText, sound: alertSound, soundName: alertSoundName };
-    } else {
-        // Add new alert
-        alerts.push({ text: alertText, sound: alertSound, soundName: alertSoundName });
-    }
-
-    // Store alerts as an array
-    GM_setValue('alerts', alerts);
-    console.log("Updated alerts in storage:", GM_getValue('alerts'));
-    loadAlerts();
-}
-
-// Edit alert
-function editAlert(index) {
-    const alerts = GM_getValue('alerts', []);
-    const alert = alerts[index];
-
-    document.getElementById('alertInput').value = alert.text;
-    document.getElementById('soundSelect').value = alert.sound;
-
-    document.getElementById('alertButton').textContent = 'Update Alert';
-    document.getElementById('alertButton').onclick = () => {
-        updateAlert(index);
-    };
-}
-
-// Update alert
-function updateAlert(index) {
-    const alertText = document.getElementById('alertInput').value;
-    const alertSound = document.getElementById('soundSelect').value;
-    const alertSoundName = document.getElementById('soundSelect').selectedOptions[0].text;
-
-    if (alertText === '') return;
-
-    let alerts = GM_getValue('alerts', []);
-    alerts[index] = { text: alertText, sound: alertSound, soundName: alertSoundName };
-
-    GM_setValue('alerts', alerts);
-    loadAlerts();
-
-    document.getElementById('alertButton').textContent = 'Add Alert';
-    document.getElementById('alertButton').onclick = addOrUpdateAlert;
-}
-
-// Remove alert
-function removeAlert(index) {
-    let alerts = GM_getValue('alerts', []);
-    alerts.splice(index, 1);
-    GM_setValue('alerts', alerts);
-    loadAlerts();
-}
-
-// Function to observe WIM alerts
-function observeWIMAlerts() {
-    if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.addedNodes.length) {
-                    mutation.addedNodes.forEach((node) => {
-                        if (node.nodeType === 1 && node.querySelector('.btn-primary.btn-block.btn.btn-info')) {
-                            console.log("Assign to me button detected.");
-                            const audio = document.getElementById('alertSound');
-                            if (audio) {
-                                console.log("Playing alert sound.");
-                                audio.play().catch(error => console.error("Error playing audio:", error));
-                            } else {
-                                console.error("Audio element not found.");
-                            }
-                        }
-                    });
-                }
-            });
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
-}//END Alerts
-
-// Audio element for playing alerts
-
-// Validate keywords to ensure they have the required properties
-export function validateKeywords(keywords) {
-    return Array.isArray(keywords) ? keywords.filter(item => item.keyword && item.color) : [];
-}
-
-// Highlight keywords in the page content
-export function highlightKeywords(keywords) {
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     const nodes = [];
 
@@ -618,4 +446,47 @@ export function highlightKeywords(keywords) {
             }
         });
     });
-}//END Audio element for playing alerts
+}
+
+// Function to observe WIM alerts
+function observeWIMAlerts() {
+    if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1 && node.querySelector('.btn-primary.btn-block.btn.btn-info')) {
+                            console.log("Assign to me button detected.");
+                            const audio = document.getElementById('alertSound');
+                            if (audio) {
+                                console.log("Playing alert sound.");
+                                audio.play().catch(error => console.error("Error playing audio:", error));
+                            } else {
+                                console.error("Audio element not found.");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+}
+
+// Ensure the DOM is loaded before trying to access elements
+window.onload = function () {
+    console.log("Window loaded.");
+
+    createFloatingIcon();
+    createFloatingMenu();
+    loadKeywords();
+
+    const addButton = document.getElementById('addButton');
+    if (addButton) {
+        console.log("Add button exists.");
+        addButton.addEventListener('click', addOrUpdateKeyword);
+    } else {
+        console.error('Add button not found!');
+    }
+};
