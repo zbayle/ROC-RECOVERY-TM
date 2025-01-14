@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.0.9.12
+// @version      1.0.9.14
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/*
 // @match        https://trans-logistics.amazon.com/*
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
 // @updateURL    https://github.com/raw/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 // @downloadURL  https://github.com/raw/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 // ==/UserScript==
@@ -161,9 +162,9 @@ function loadKeywords() {
 
     let keywords = [];
     try {
-        keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+        keywords = GM_getValue('keywords', []);
     } catch (e) {
-        console.error('Error reading from localStorage. Resetting keywords.');
+        console.error('Error reading from storage. Resetting keywords.');
     }
 
     keywords = validateKeywords(keywords);
@@ -200,11 +201,11 @@ function addOrUpdateKeyword() {
 
     if (keyword === '') return; // Don't allow empty keywords
 
-    let keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    let keywords = GM_getValue('keywords', []);
 
     // Ensure keywords is an array (in case it's been incorrectly stored as an object)
     if (typeof keywords === 'object' && !Array.isArray(keywords)) {
-        console.error('Keywords are stored incorrectly in localStorage. Resetting to an empty array.');
+        console.error('Keywords are stored incorrectly. Resetting to an empty array.');
         keywords = [];
     }
 
@@ -226,14 +227,14 @@ function addOrUpdateKeyword() {
     }
 
     // Store keywords as an array
-    localStorage.setItem('keywords', JSON.stringify(keywords));
-    console.log("Updated keywords in localStorage:", localStorage.getItem('keywords'));
+    GM_setValue('keywords', keywords);
+    console.log("Updated keywords in storage:", GM_getValue('keywords'));
     loadKeywords();
 }
 
 // Edit keyword and color
 function editKeyword(index) {
-    const keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    const keywords = GM_getValue('keywords', []);
     const keyword = keywords[index];
 
     document.getElementById('keywordInput').value = keyword.keyword;
@@ -252,10 +253,10 @@ function updateKeyword(index) {
 
     if (keyword === '') return;
 
-    let keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    let keywords = GM_getValue('keywords', []);
     keywords[index] = { keyword, color };
 
-    localStorage.setItem('keywords', JSON.stringify(keywords));
+    GM_setValue('keywords', keywords);
     loadKeywords();
 
     document.getElementById('addButton').textContent = 'Add/Update Keyword';
@@ -264,9 +265,9 @@ function updateKeyword(index) {
 
 // Remove keyword
 function removeKeyword(index) {
-    let keywords = JSON.parse(localStorage.getItem('keywords')) || [];
+    let keywords = GM_getValue('keywords', []);
     keywords.splice(index, 1);
-    localStorage.setItem('keywords', JSON.stringify(keywords));
+    GM_setValue('keywords', keywords);
     loadKeywords();
 }
 
