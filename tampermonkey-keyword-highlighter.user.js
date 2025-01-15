@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0.5
+// @version      2.0.1.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -474,6 +474,74 @@ function highlightKeywords(keywords) {
             }
         });
     });
+}
+
+function loadAlerts() {
+    console.log("Loading saved alerts...");
+
+    let alerts = [];
+    try {
+        alerts = GM_getValue('alerts', []);
+        console.log("Loaded alerts from storage:", alerts);
+    } catch (e) {
+        console.error('Error reading from storage. Resetting alerts.');
+    }
+
+    const list = document.getElementById('alertList');
+    list.innerHTML = '';
+
+    alerts.forEach((alert, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${alert.text} (${alert.soundName})`;
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.onclick = () => editAlert(index);
+        listItem.appendChild(editButton);
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = () => removeAlert(index);
+        listItem.appendChild(removeButton);
+
+        list.appendChild(listItem);
+    });
+
+    console.log("Alerts loaded successfully.");
+}
+
+// Add or update alert and sound
+function addOrUpdateAlert() {
+    const alertText = document.getElementById('alertInput').value;
+    const alertSound = document.getElementById('soundSelect').value;
+    const alertSoundName = document.getElementById('soundSelect').selectedOptions[0].text;
+
+    if (alertText === '') return; // Don't allow empty alerts
+
+    let alerts = GM_getValue('alerts', []);
+
+    // Ensure alerts is an array (in case it's been incorrectly stored as an object)
+    if (typeof alerts === 'object' && !Array.isArray(alerts)) {
+        console.error('Alerts are stored incorrectly. Resetting to an empty array.');
+        alerts = [];
+    }
+
+    // Check if the alert already exists
+    const existingIndex = alerts.findIndex(alert => alert.text === alertText);
+    if (existingIndex !== -1) {
+        // Edit existing alert
+        alerts[existingIndex] = { text: alertText, sound: alertSound, soundName: alertSoundName };
+        console.log("Updated existing alert:", alerts[existingIndex]);
+    } else {
+        // Add new alert
+        alerts.push({ text: alertText, sound: alertSound, soundName: alertSoundName });
+        console.log("Added new alert:", { text: alertText, sound: alertSound, soundName: alertSoundName });
+    }
+
+    // Store alerts as an array
+    GM_setValue('alerts', alerts);
+    console.log("Updated alerts in storage:", GM_getValue('alerts'));
+    loadAlerts();
 }
 
 // Function to observe WIM alerts
