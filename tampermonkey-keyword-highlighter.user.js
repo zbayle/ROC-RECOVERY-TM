@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0.3
+// @version      2.0.0.4
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -47,6 +47,7 @@ function createFloatingIcon() {
     makeDraggable(icon);
 }
 
+// Function to create and insert the floating menu
 // Function to create and insert the floating menu
 function createFloatingMenu() {
     console.log("Creating floating menu...");
@@ -174,6 +175,25 @@ function createFloatingMenu() {
     alertInput.id = 'alertInput';
     alertsTabContent.appendChild(alertInput);
 
+    const soundSelectLabel = document.createElement('label');
+    soundSelectLabel.textContent = ' Sound: ';
+    alertsTabContent.appendChild(soundSelectLabel);
+
+    const soundSelect = document.createElement('select');
+    soundSelect.id = 'soundSelect';
+    const sounds = [
+        { name: 'Beep', url: 'https://www.soundjay.com/button/beep-07.mp3' }, // Changed to .mp3
+        { name: 'Chime', url: 'https://www.soundjay.com/button/chime-01.mp3' }, // Changed to .mp3
+        { name: 'Ding', url: 'https://www.soundjay.com/button/ding-01.mp3' } // Changed to .mp3
+    ];
+    sounds.forEach(sound => {
+        const option = document.createElement('option');
+        option.value = sound.url;
+        option.textContent = sound.name;
+        soundSelect.appendChild(option);
+    });
+    alertsTabContent.appendChild(soundSelect);
+
     const alertButton = document.createElement('button');
     alertButton.textContent = 'Add Alert';
     alertButton.id = 'alertButton';
@@ -206,6 +226,9 @@ function createFloatingMenu() {
         GM_setValue('alertEnabled', alertToggle.checked);
     });
 
+    // Load alerts
+    loadAlerts();
+
     // Start observing for WIM alerts if enabled
     if (alertEnabled) {
         observeWIMAlerts();
@@ -214,8 +237,8 @@ function createFloatingMenu() {
     // Add an audio element for the alert sound
     const audio = document.createElement('audio');
     audio.id = 'alertSound';
-    audio.src = 'https://www.soundjay.com/button/beep-07.wav'; // Replace with your preferred sound URL
-    audio.type = 'audio/wav';
+    audio.src = 'https://www.soundjay.com/button/beep-07.mp3'; // Changed to .mp3
+    audio.type = 'audio/mpeg'; // Changed to 'audio/mpeg'
     document.body.appendChild(audio);
 }
 
@@ -490,6 +513,7 @@ window.onload = function () {
     createFloatingIcon();
     createFloatingMenu();
     loadKeywords();
+    loadAlerts();
 
     const addButton = document.getElementById('addButton');
     if (addButton) {
@@ -497,5 +521,13 @@ window.onload = function () {
         addButton.addEventListener('click', addOrUpdateKeyword);
     } else {
         console.error('Add button not found!');
+    }
+
+    const alertButton = document.getElementById('alertButton');
+    if (alertButton) {
+        console.log("Alert button exists.");
+        alertButton.addEventListener('click', addOrUpdateAlert);
+    } else {
+        console.error('Alert button not found!');
     }
 };
