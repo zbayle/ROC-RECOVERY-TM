@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         WOSIM Refresh
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1.0.0.1
 // @description  A script to refresh WOSIM page
 // @author       Zbbayle
 // @match        https://t.corp.amazon.com/issues/*
 // @grant        none
+// @updateURL     https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WOSIM-Refresh.js
 // ==/UserScript==
 
 (function() {
