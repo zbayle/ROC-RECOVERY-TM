@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WOSIM Refresh
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0.1
+// @version      1.0.0.2
 // @description  A script to refresh WOSIM page
 // @author       zbbayle
 // @match        https://t.corp.amazon.com/issues/*
