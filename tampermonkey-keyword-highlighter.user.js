@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1.9
+// @version      2.0.1.10
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -183,9 +183,9 @@ function createFloatingMenu() {
     const soundSelect = document.createElement('select');
     soundSelect.id = 'soundSelect';
     const sounds = [
-        { name: 'Beep', url: 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/bleep.mp3' },
-        { name: 'Chime', url: 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/bleep.mp3' },
-        { name: 'Ding', url: 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/bleep.mp3' }
+        { name: 'Beep', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAAB... (base64 encoded audio data)' },
+        { name: 'Chime', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAAB... (base64 encoded audio data)' },
+        { name: 'Ding', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAAB... (base64 encoded audio data)' }
     ];
     sounds.forEach(sound => {
         const option = document.createElement('option');
@@ -265,12 +265,8 @@ function createFloatingMenu() {
     audio.type = 'audio/mpeg';
     document.body.appendChild(audio);
 
-    // Download the audio file and set the source
-    const soundUrl = 'https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/sounds/beep-07.mp3';
-    downloadAudioFile(soundUrl, function(objectURL) {
-        audio.src = objectURL;
-        console.log("Audio file downloaded and set as source.");
-    });
+    // Set the default audio source
+    audio.src = sounds[0].url;
 }
 
 // Toggle the visibility of the floating menu
