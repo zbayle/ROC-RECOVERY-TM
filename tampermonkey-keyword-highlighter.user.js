@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1.10
+// @version      2.0.1.11
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -183,9 +183,9 @@ function createFloatingMenu() {
     const soundSelect = document.createElement('select');
     soundSelect.id = 'soundSelect';
     const sounds = [
-        { name: 'Beep', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAAB... (base64 encoded audio data)' },
-        { name: 'Chime', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAAB... (base64 encoded audio data)' },
-        { name: 'Ding', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAAB... (base64 encoded audio data)' }
+        { name: 'Beep', url: 'data:audio/mpeg;base64,SUQzAwAAAAAAJ1RFTkMAAAABAAgAZGF0YQAAAAA=' },
+        { name: 'Chime', url: 'data:audio/mpeg;base64,SUQzAwAAAAAAJ1RFTkMAAAABAAgAZGF0YQAAAAA=' },
+        { name: 'Ding', url: 'data:audio/mpeg;base64,SUQzAwAAAAAAJ1RFTkMAAAABAAgAZGF0YQAAAAA=' }
     ];
     sounds.forEach(sound => {
         const option = document.createElement('option');
