@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1.6
+// @version      2.0.1.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -204,6 +204,30 @@ function createFloatingMenu() {
     alertList.id = 'alertList';
     alertsTabContent.appendChild(alertList);
 
+    // Add a test button to manually trigger the alert sound
+    const testButton = document.createElement('button');
+    testButton.textContent = 'Test Alert Sound';
+    testButton.style.marginTop = '10px';
+    testButton.style.padding = '10px';
+    testButton.style.backgroundColor = '#0fffcf';
+    testButton.style.color = '#333';
+    testButton.style.borderRadius = '5px';
+    testButton.style.cursor = 'pointer';
+    testButton.onclick = () => {
+        const audio = document.getElementById('alertSound');
+        if (audio) {
+            console.log("Playing test alert sound.");
+            audio.play().catch(error => {
+                console.error("Error playing test audio:", error);
+                console.error("Audio element:", audio);
+                console.error("Audio source URL:", audio.src);
+            });
+        } else {
+            console.error("Audio element not found.");
+        }
+    };
+    alertsTabContent.appendChild(testButton);
+
     menuContent.appendChild(tabs);
     menuContent.appendChild(keywordsTab);
     menuContent.appendChild(alertsTabContent);
@@ -242,7 +266,7 @@ function createFloatingMenu() {
     document.body.appendChild(audio);
 
     // Download the audio file and set the source
-    const soundUrl = 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/bleep.mp3';
+    const soundUrl = 'https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/sounds/beep-07.mp3';
     downloadAudioFile(soundUrl, function(objectURL) {
         audio.src = objectURL;
         console.log("Audio file downloaded and set as source.");
