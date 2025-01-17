@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1.8
+// @version      2.0.1.9
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -509,11 +509,13 @@ function highlightKeywords(keywords) {
 
 // Function to download the audio file
 function downloadAudioFile(url, callback) {
+    console.log("Starting download of audio file from URL:", url);
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'blob';
     xhr.onload = function() {
         if (xhr.status === 200) {
+            console.log("Audio file downloaded successfully.");
             const blob = xhr.response;
             const objectURL = URL.createObjectURL(blob);
             callback(objectURL);
