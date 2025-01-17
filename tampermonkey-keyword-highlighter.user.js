@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1.5
+// @version      2.0.1.6
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -242,7 +242,7 @@ function createFloatingMenu() {
     document.body.appendChild(audio);
 
     // Download the audio file and set the source
-    const soundUrl = 'https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/sounds/beep-07.mp3';
+    const soundUrl = 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/bleep.mp3';
     downloadAudioFile(soundUrl, function(objectURL) {
         audio.src = objectURL;
         console.log("Audio file downloaded and set as source.");
