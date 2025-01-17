@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.2.7
+// @version      2.0.2.8
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -261,6 +261,7 @@ function createFloatingMenu() {
 
 // Function to play sound using Web Audio API
 function playSound(type) {
+    console.log(`Playing sound: ${type}`);
     const gainNode = audioCtx.createGain();
     gainNode.connect(audioCtx.destination);
 
@@ -647,28 +648,8 @@ function observeWIMAlerts() {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1 && node.querySelector('.btn-primary.btn-block.btn.btn-info')) {
                             console.log("Assign to me button detected.");
-                            const audio = document.getElementById('alertSound');
-                            if (audio) {
-                                console.log("Playing alert sound.");
-                                // Resume the audio context if it is suspended
-                                if (audioCtx.state === 'suspended') {
-                                    audioCtx.resume().then(() => {
-                                        audio.play().catch(error => {
-                                            console.error("Error playing audio:", error);
-                                            console.error("Audio element:", audio);
-                                            console.error("Audio source URL:", audio.src);
-                                        });
-                                    });
-                                } else {
-                                    audio.play().catch(error => {
-                                        console.error("Error playing audio:", error);
-                                        console.error("Audio element:", audio);
-                                        console.error("Audio source URL:", audio.src);
-                                    });
-                                }
-                            } else {
-                                console.error("Audio element not found.");
-                            }
+                            const selectedSound = document.getElementById('soundSelect').value;
+                            playSound(selectedSound);
                         }
                     });
                 }
