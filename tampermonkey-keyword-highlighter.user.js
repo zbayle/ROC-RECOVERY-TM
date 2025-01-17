@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1.4
+// @version      2.0.1.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -48,7 +48,7 @@ function createFloatingIcon() {
     makeDraggable(icon);
 }
 
-// Function to create and insert the floating menu
+
 // Function to create and insert the floating menu
 function createFloatingMenu() {
     console.log("Creating floating menu...");
@@ -238,9 +238,15 @@ function createFloatingMenu() {
     // Add an audio element for the alert sound
     const audio = document.createElement('audio');
     audio.id = 'alertSound';
-    audio.src = 'https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/sounds/beep-07.mp3'; // Replace with your preferred sound URL
     audio.type = 'audio/mpeg';
     document.body.appendChild(audio);
+
+    // Download the audio file and set the source
+    const soundUrl = 'https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/sounds/beep-07.mp3';
+    downloadAudioFile(soundUrl, function(objectURL) {
+        audio.src = objectURL;
+        console.log("Audio file downloaded and set as source.");
+    });
 }
 
 // Toggle the visibility of the floating menu
@@ -475,6 +481,26 @@ function highlightKeywords(keywords) {
             }
         });
     });
+}
+
+// Function to download the audio file
+function downloadAudioFile(url, callback) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'blob';
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            const blob = xhr.response;
+            const objectURL = URL.createObjectURL(blob);
+            callback(objectURL);
+        } else {
+            console.error('Failed to download audio file:', xhr.status, xhr.statusText);
+        }
+    };
+    xhr.onerror = function() {
+        console.error('Network error while downloading audio file.');
+    };
+    xhr.send();
 }
 
 function loadAlerts() {
