@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1.13
+// @version      2.0.2.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -183,9 +183,9 @@ function createFloatingMenu() {
     const soundSelect = document.createElement('select');
     soundSelect.id = 'soundSelect';
     const sounds = [
-        { name: 'Beep', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAABG... (valid base64 encoded audio data)' },
-        { name: 'Chime', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAABG... (valid base64 encoded audio data)' },
-        { name: 'Ding', url: 'data:audio/mpeg;base64,//uQxAAADhQzAAABG... (valid base64 encoded audio data)' }
+        { name: 'Beep', url: 'beep' },
+        { name: 'Chime', url: 'chime' },
+        { name: 'Ding', url: 'ding' }
     ];
     sounds.forEach(sound => {
         const option = document.createElement('option');
@@ -214,17 +214,8 @@ function createFloatingMenu() {
     testButton.style.borderRadius = '5px';
     testButton.style.cursor = 'pointer';
     testButton.onclick = () => {
-        const audio = document.getElementById('alertSound');
-        if (audio) {
-            console.log("Playing test alert sound.");
-            audio.play().catch(error => {
-                console.error("Error playing test audio:", error);
-                console.error("Audio element:", audio);
-                console.error("Audio source URL:", audio.src);
-            });
-        } else {
-            console.error("Audio element not found.");
-        }
+        const selectedSound = document.getElementById('soundSelect').value;
+        playSound(selectedSound);
     };
     alertsTabContent.appendChild(testButton);
 
@@ -264,9 +255,38 @@ function createFloatingMenu() {
     audio.id = 'alertSound';
     audio.type = 'audio/mpeg';
     document.body.appendChild(audio);
+}
 
-    // Set the default audio source
-    audio.src = sounds[0].url;
+// Function to play sound using Web Audio API
+function playSound(type) {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    switch (type) {
+        case 'beep':
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+            break;
+        case 'chime':
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            break;
+        case 'ding':
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+            break;
+        default:
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+    }
+
+    oscillator.start();
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1);
+    oscillator.stop(audioCtx.currentTime + 1);
 }
 
 // Toggle the visibility of the floating menu
