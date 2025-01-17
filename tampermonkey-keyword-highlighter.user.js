@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.2.8
+// @version      2.0.2.9
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -605,7 +605,39 @@ function loadAlerts() {
     console.log("Alerts loaded successfully.");
 }
 
-// Add or update alert and sound
+// Function to edit an alert
+function editAlert(index) {
+    const alerts = GM_getValue('alerts', []);
+    const alert = alerts[index];
+
+    document.getElementById('alertInput').value = alert.text;
+    document.getElementById('soundSelect').value = alert.sound;
+
+    document.getElementById('alertButton').textContent = 'Update Alert';
+    document.getElementById('alertButton').onclick = () => {
+        updateAlert(index);
+    };
+}
+
+// Function to update an alert
+function updateAlert(index) {
+    const alertText = document.getElementById('alertInput').value;
+    const alertSound = document.getElementById('soundSelect').value;
+    const alertSoundName = document.getElementById('soundSelect').selectedOptions[0].text;
+
+    if (alertText === '') return;
+
+    let alerts = GM_getValue('alerts', []);
+    alerts[index] = { text: alertText, sound: alertSound, soundName: alertSoundName };
+
+    GM_setValue('alerts', alerts);
+    loadAlerts();
+
+    document.getElementById('alertButton').textContent = 'Add Alert';
+    document.getElementById('alertButton').onclick = addOrUpdateAlert;
+}
+
+
 function addOrUpdateAlert() {
     const alertText = document.getElementById('alertInput').value;
     const alertSound = document.getElementById('soundSelect').value;
@@ -638,7 +670,6 @@ function addOrUpdateAlert() {
     console.log("Updated alerts in storage:", GM_getValue('alerts'));
     loadAlerts();
 }
-
 // Function to observe WIM alerts
 function observeWIMAlerts() {
     if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
