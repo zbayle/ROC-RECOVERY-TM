@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.2.0
+// @version      2.0.2.1
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -260,33 +260,54 @@ function createFloatingMenu() {
 // Function to play sound using Web Audio API
 function playSound(type) {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
-
-    oscillator.connect(gainNode);
     gainNode.connect(audioCtx.destination);
+
+    const playNote = (frequency, duration, startTime) => {
+        const oscillator = audioCtx.createOscillator();
+        oscillator.connect(gainNode);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime);
+        oscillator.start(audioCtx.currentTime + startTime);
+        oscillator.stop(audioCtx.currentTime + startTime + duration);
+    };
 
     switch (type) {
         case 'beep':
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+            playNote(440, 1, 0); // A4 for 1 second
             break;
         case 'chime':
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            playNoteSequence([
+                { frequency: 523.25, duration: 0.3 }, // C5
+                { frequency: 659.25, duration: 0.3 }, // E5
+                { frequency: 783.99, duration: 0.3 }, // G5
+                { frequency: 1046.50, duration: 0.3 } // C6
+            ]);
             break;
         case 'ding':
-            oscillator.type = 'triangle';
-            oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+            playNoteSequence([
+                { frequency: 659.25, duration: 0.3 }, // E5
+                { frequency: 783.99, duration: 0.3 }, // G5
+                { frequency: 987.77, duration: 0.3 }, // B5
+                { frequency: 1318.51, duration: 0.3 } // E6
+            ]);
             break;
         default:
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+            playNoteSequence([
+                { frequency: 440, duration: 0.3 }, // A4
+                { frequency: 523.25, duration: 0.3 }, // C5
+                { frequency: 659.25, duration: 0.3 }, // E5
+                { frequency: 783.99, duration: 0.3 } // G5
+            ]);
     }
 
-    oscillator.start();
-    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1);
-    oscillator.stop(audioCtx.currentTime + 1);
+    function playNoteSequence(notes) {
+        let startTime = 0;
+        notes.forEach(note => {
+            playNote(note.frequency, note.duration, startTime);
+            startTime += note.duration;
+        });
+    }
 }
 
 // Toggle the visibility of the floating menu
