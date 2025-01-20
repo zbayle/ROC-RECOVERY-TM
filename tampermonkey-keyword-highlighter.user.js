@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.2.9
+// @version      2.0.2.10
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -197,6 +197,19 @@ function createFloatingMenu() {
     });
     alertsTabContent.appendChild(soundSelect);
 
+    const volumeLabel = document.createElement('label');
+    volumeLabel.textContent = ' Volume: ';
+    alertsTabContent.appendChild(volumeLabel);
+
+    const volumeSlider = document.createElement('input');
+    volumeSlider.type = 'range';
+    volumeSlider.id = 'volumeSlider';
+    volumeSlider.min = '0';
+    volumeSlider.max = '1';
+    volumeSlider.step = '0.01';
+    volumeSlider.value = '0.5'; // Default volume
+    alertsTabContent.appendChild(volumeSlider);
+
     const alertButton = document.createElement('button');
     alertButton.textContent = 'Add Alert';
     alertButton.id = 'alertButton';
@@ -265,6 +278,8 @@ function playSound(type) {
     const gainNode = audioCtx.createGain();
     gainNode.connect(audioCtx.destination);
 
+    const volume = document.getElementById('volumeSlider').value;
+
     const playNote = (frequency, duration, startTime, volume = 1) => {
         const oscillator = audioCtx.createOscillator();
         const noteGainNode = audioCtx.createGain();
@@ -279,30 +294,30 @@ function playSound(type) {
 
     switch (type) {
         case 'beep':
-            playNote(440, 1, 0); // A4 for 1 second
+            playNote(440, 1, 0, volume); // A4 for 1 second
             break;
         case 'chime':
             playNoteSequence([
-                { frequency: 392.00, duration: 0.3, volume: 0.5 }, // G4
-                { frequency: 440.00, duration: 0.3, volume: 0.5 }, // A4
-                { frequency: 523.25, duration: 0.3, volume: 0.5 }, // C5
-                { frequency: 392.00, duration: 0.3, volume: 0.5 }  // G4
+                { frequency: 392.00, duration: 0.3, volume: volume }, // G4
+                { frequency: 440.00, duration: 0.3, volume: volume }, // A4
+                { frequency: 523.25, duration: 0.3, volume: volume }, // C5
+                { frequency: 392.00, duration: 0.3, volume: volume }  // G4
             ]);
             break;
         case 'ding':
             playNoteSequence([
-                { frequency: 523.25, duration: 0.3, volume: 0.5 }, // C5
-                { frequency: 587.33, duration: 0.3, volume: 0.5 }, // D5
-                { frequency: 659.25, duration: 0.3, volume: 0.5 }, // E5
-                { frequency: 523.25, duration: 0.3, volume: 0.5 }  // C5
+                { frequency: 523.25, duration: 0.3, volume: volume }, // C5
+                { frequency: 587.33, duration: 0.3, volume: volume }, // D5
+                { frequency: 659.25, duration: 0.3, volume: volume }, // E5
+                { frequency: 523.25, duration: 0.3, volume: volume }  // C5
             ]);
             break;
         default:
             playNoteSequence([
-                { frequency: 440, duration: 0.3, volume: 0.5 }, // A4
-                { frequency: 523.25, duration: 0.3, volume: 0.5 }, // C5
-                { frequency: 659.25, duration: 0.3, volume: 0.5 }, // E5
-                { frequency: 783.99, duration: 0.3, volume: 0.5 } // G5
+                { frequency: 440, duration: 0.3, volume: volume }, // A4
+                { frequency: 523.25, duration: 0.3, volume: volume }, // C5
+                { frequency: 659.25, duration: 0.3, volume: volume }, // E5
+                { frequency: 783.99, duration: 0.3, volume: volume } // G5
             ]);
     }
 
