@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.6.3
+// @version      1.6.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -32,10 +32,28 @@
 
     let highlightRunStructure = true;
 
-    // Utility function to find elements by text
-    function findElementByText(selector, text) {
-        return [...document.querySelectorAll(selector)].find(el => el.textContent.includes(text));
+    // Function to highlight the correct timer
+    function highlightCorrectTimer() {
+        const timerElement = document.querySelector('div.v-text-center.col-md-4');
+        if (timerElement) {
+            timerElement.classList.add('highlight-counter');
+        }
     }
+    
+    // Observe the DOM for changes and highlight the timer when it is added
+    const observer = new MutationObserver((mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                highlightCorrectTimer();
+            }
+        }
+    });
+
+    // Start observing the document body for changes
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Initial call to highlight the timer if it is already present
+    highlightCorrectTimer();
 
     // Refresh Timer
     function createTimer() {
