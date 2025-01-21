@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3.8
+// @version      2.0.3.9
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
 // @match        https://trans-logistics.amazon.com/*
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @updateURL    https://github.com/raw/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
-// @downloadURL  https://github.com/raw/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
+// @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
+// @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 
 // ==/UserScript==
 
