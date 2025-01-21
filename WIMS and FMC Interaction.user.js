@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.6.2
+// @version      1.6.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -14,6 +14,21 @@
 
 (function () {
     'use strict';
+
+    // Inject CSS for highlighting the counter
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .highlight-counter {
+            font-size: 2em;
+            color: red;
+            background-color: yellow;
+            padding: 10px;
+            border: 2px solid red;
+            border-radius: 5px;
+            text-align: center;
+        }
+    `;
+    document.head.appendChild(style);
 
     let highlightRunStructure = true;
 
@@ -47,8 +62,10 @@
             let counter = parseInt(counterElement.textContent);
             if (counter > 0) {
                 counterElement.textContent = counter - 1;
+                counterElement.classList.add('highlight-counter');
             } else {
                 counterElement.textContent = 60;
+                counterElement.classList.add('highlight-counter');
                 checkAndSelectOptions();
             }
         }
