@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3.3
+// @version      2.0.3.4
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -284,17 +284,20 @@ function createFloatingMenu() {
 
 // Function to play sound using Web Audio API
 function playSound(type) {
+    // Ensure the audio context is resumed
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
     const gainNode = audioCtx.createGain();
     gainNode.connect(audioCtx.destination);
 
     const volume = document.getElementById('volumeSlider').value;
+    gainNode.gain.value = volume;
 
-    const playNote = (frequency, duration, startTime, volume = 1) => {
+    const playNote = (frequency, duration, startTime) => {
         const oscillator = audioCtx.createOscillator();
-        const noteGainNode = audioCtx.createGain();
-        noteGainNode.gain.value = volume;
-        oscillator.connect(noteGainNode);
-        noteGainNode.connect(gainNode);
+        oscillator.connect(gainNode);
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime);
         oscillator.start(audioCtx.currentTime + startTime);
@@ -303,41 +306,48 @@ function playSound(type) {
 
     switch (type) {
         case 'beep':
-            playNote(440, 1, 0, volume); // A4 for 1 second
+            playNote(440, 1, 0); // A4 for 1 second
             break;
         case 'chime':
             playNoteSequence([
-                { frequency: 392.00, duration: 0.3, volume: volume }, // G4
-                { frequency: 440.00, duration: 0.3, volume: volume }, // A4
-                { frequency: 523.25, duration: 0.3, volume: volume }, // C5
-                { frequency: 392.00, duration: 0.3, volume: volume }  // G4
+                { frequency: 392.00, duration: 0.3 }, // G4
+                { frequency: 440.00, duration: 0.3 }, // A4
+                { frequency: 523.25, duration: 0.3 }, // C5
+                { frequency: 392.00, duration: 0.3 }  // G4
             ]);
             break;
         case 'ding':
             playNoteSequence([
-                { frequency: 523.25, duration: 0.3, volume: volume }, // C5
-                { frequency: 587.33, duration: 0.3, volume: volume }, // D5
-                { frequency: 659.25, duration: 0.3, volume: volume }, // E5
-                { frequency: 523.25, duration: 0.3, volume: volume }  // C5
+                { frequency: 523.25, duration: 0.3 }, // C5
+                { frequency: 587.33, duration: 0.3 }, // D5
+                { frequency: 659.25, duration: 0.3 }, // E5
+                { frequency: 523.25, duration: 0.3 }  // C5
             ]);
             break;
         default:
             playNoteSequence([
-                { frequency: 440, duration: 0.3, volume: volume }, // A4
-                { frequency: 523.25, duration: 0.3, volume: volume }, // C5
-                { frequency: 659.25, duration: 0.3, volume: volume }, // E5
-                { frequency: 783.99, duration: 0.3, volume: volume } // G5
+                { frequency: 440, duration: 0.3 }, // A4
+                { frequency: 523.25, duration: 0.3 }, // C5
+                { frequency: 659.25, duration: 0.3 }, // E5
+                { frequency: 783.99, duration: 0.3 } // G5
             ]);
     }
 
     function playNoteSequence(notes) {
         let startTime = 0;
         notes.forEach(note => {
-            playNote(note.frequency, note.duration, startTime, note.volume);
+            playNote(note.frequency, note.duration, startTime);
             startTime += note.duration;
         });
     }
 }
+
+// Ensure the audio context is resumed on user interaction
+document.addEventListener('click', () => {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+});
 
 // Toggle the visibility of the floating menu
 function toggleMenu() {
