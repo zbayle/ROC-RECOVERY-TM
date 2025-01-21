@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3.6
+// @version      2.0.3.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -326,6 +326,7 @@ window.onload = function() {
 
 // Function to play sound using Web Audio API
 function playSound(type) {
+    console.log("playSound function called with type:", type);
     // Ensure the audio context is resumed
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
@@ -655,7 +656,9 @@ function downloadAudioFile(url, callback) {
 
 // Function to observe WIM alerts
 function observeWIMAlerts() {
+    console.log("observeWIMAlerts function called.");
     if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
+        console.log("URL matches WIMS page.");
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.addedNodes.length) {
@@ -663,6 +666,7 @@ function observeWIMAlerts() {
                         if (node.nodeType === 1 && node.querySelector('.btn-primary.btn-block.btn.btn-info')) {
                             console.log("Assign to me button detected.");
                             const selectedSound = document.getElementById('soundSelect').value;
+                            console.log("Selected sound:", selectedSound);
                             playSound(selectedSound);
                         }
                     });
@@ -671,6 +675,9 @@ function observeWIMAlerts() {
         });
 
         observer.observe(document.body, { childList: true, subtree: true });
+        console.log("MutationObserver is now observing the DOM.");
+    } else {
+        console.log("URL does not match WIMS page.");
     }
 }
 
