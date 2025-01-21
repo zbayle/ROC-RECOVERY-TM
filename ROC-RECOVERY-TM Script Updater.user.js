@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater 
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1.2
+// @version      1.2.1.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -44,7 +44,7 @@
         },
         {
             name: "ROC Tools with Floating Menu",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
+            url: "https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/tampermonkey-keyword-highlighter.user.js",
             currentVersion: GM_getValue("Keyword Highlighter Version", "0.0"),
             match: [
                 "https://trans-logistics.amazon.com/*",
