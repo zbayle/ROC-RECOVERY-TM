@@ -14,13 +14,11 @@
 // ==/UserScript==
 
 // Log to verify script execution
-console.log('Script is running!');
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 // Function to create and insert the floating icon
 function createFloatingIcon() {
-    console.log("Creating floating icon...");
 
     const icon = document.createElement('div');
     icon.style.position = 'fixed';
@@ -38,13 +36,9 @@ function createFloatingIcon() {
     icon.textContent = 'ROC';
     icon.style.color = '#333';
     icon.style.fontWeight = 'bold';
-
-    console.log("Icon created.");
-
     icon.onclick = toggleMenu;
 
     document.body.appendChild(icon);
-    console.log("Floating icon injected into the page.");
 
     // Make the icon draggable
     makeDraggable(icon);
@@ -52,7 +46,6 @@ function createFloatingIcon() {
 
 // Function to create and insert the floating menu
 function createFloatingMenu() {
-    console.log("Creating floating menu...");
 
     const menu = document.createElement('div');
     menu.id = 'floatingMenu';
@@ -77,7 +70,6 @@ function createFloatingMenu() {
     handle.style.borderRadius = '5px';
     handle.textContent = 'Drag Here';
 
-    console.log("Handle created for menu.");
 
     const button = document.createElement('button');
     button.textContent = 'Close Menu';
@@ -90,13 +82,13 @@ function createFloatingMenu() {
     button.style.cursor = 'pointer';
     button.onclick = toggleMenu;
 
-    console.log("Button created for menu.");
+   
 
     const menuContent = document.createElement('div');
     menuContent.id = 'floatingMenuContent';
     menuContent.style.marginTop = '10px';
 
-    console.log("Menu content created.");
+
 
     const tabs = document.createElement('div');
     tabs.style.display = 'flex';
@@ -252,10 +244,8 @@ function createFloatingMenu() {
     menu.appendChild(button);
     menu.appendChild(menuContent);
 
-    console.log("Menu content, handle, and button appended to menu.");
 
     document.body.appendChild(menu);
-    console.log("Floating menu injected into the page.");
 
     // Make the menu draggable using the handle
     makeDraggable(menu, handle);
@@ -294,7 +284,6 @@ function createFloatingMenu() {
 
 // Function to play sound using Web Audio API
 function playSound(type) {
-    console.log(`Playing sound: ${type}`);
     const gainNode = audioCtx.createGain();
     gainNode.connect(audioCtx.destination);
 
@@ -352,7 +341,7 @@ function playSound(type) {
 
 // Toggle the visibility of the floating menu
 function toggleMenu() {
-    console.log("Toggling menu visibility...");
+
     const menu = document.getElementById('floatingMenu');
     if (menu.style.display === 'none') {
         menu.style.display = 'block';
@@ -431,7 +420,6 @@ function validateKeywords(keywords) {
 
 // Load keywords safely
 function loadKeywords() {
-    console.log("Loading saved keywords...");
 
     let keywords = [];
     try {
@@ -463,7 +451,6 @@ function loadKeywords() {
         list.appendChild(listItem);
     });
 
-    console.log("Keywords loaded successfully.");
     highlightKeywords(keywords);
 }
 

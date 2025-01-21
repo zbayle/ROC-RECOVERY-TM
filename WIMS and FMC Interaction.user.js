@@ -61,10 +61,8 @@
         const recoveryExists = selectedItems.some(el => el.textContent.includes('Recovery WIMS [NA]'));
 
         if (!criticalExists || !recoveryExists) {
-            console.log('One or both filters missing. Applying filters.');
             const filterContainer = document.querySelector('.filter-input-container.form-control.clearfix');
             if (!filterContainer) {
-                console.error('Filter input container not found.');
                 return;
             }
 
