@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3.4
+// @version      2.0.3.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -281,6 +281,48 @@ function createFloatingMenu() {
     audio.type = 'audio/mpeg';
     document.body.appendChild(audio);
 }
+
+// Define the loadAlerts function
+function loadAlerts() {
+    // Load the alert toggle state
+    const alertEnabled = GM_getValue('alertEnabled', false);
+    const alertToggle = document.getElementById('alertToggle');
+    if (alertToggle) {
+        alertToggle.checked = alertEnabled;
+        alertToggle.addEventListener('change', () => {
+            GM_setValue('alertEnabled', alertToggle.checked);
+            if (alertToggle.checked) {
+                observeWIMAlerts();
+            } else {
+                stopObservingWIMAlerts();
+            }
+        });
+    }
+
+    // Load the selected sound and volume
+    const selectedSound = GM_getValue('selectedSound', 'beep');
+    const soundSelect = document.getElementById('soundSelect');
+    if (soundSelect) {
+        soundSelect.value = selectedSound;
+        soundSelect.addEventListener('change', () => {
+            GM_setValue('selectedSound', soundSelect.value);
+        });
+    }
+
+    const volume = GM_getValue('volume', 0.5);
+    const volumeSlider = document.getElementById('volumeSlider');
+    if (volumeSlider) {
+        volumeSlider.value = volume;
+        volumeSlider.addEventListener('input', () => {
+            GM_setValue('volume', volumeSlider.value);
+        });
+    }
+}
+
+// Call loadAlerts on window load
+window.onload = function() {
+    loadAlerts();
+};
 
 // Function to play sound using Web Audio API
 function playSound(type) {
