@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.4.1
+// @version      2.0.4.2
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -14,6 +14,19 @@
 // ==/UserScript==
 
 // Log to verify script execution
+
+// Ensure GM functions are available
+if (typeof GM_getValue === 'undefined') {
+    GM_getValue = function (key, defaultValue) {
+        return localStorage.getItem(key) || defaultValue;
+    };
+}
+
+if (typeof GM_setValue === 'undefined') {
+    GM_setValue = function (key, value) {
+        localStorage.setItem(key, value);
+    };
+}
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -46,7 +59,6 @@ function createFloatingIcon() {
 
 // Function to create and insert the floating menu
 function createFloatingMenu() {
-
     const menu = document.createElement('div');
     menu.id = 'floatingMenu';
     menu.style.position = 'fixed';
@@ -70,7 +82,6 @@ function createFloatingMenu() {
     handle.style.borderRadius = '5px';
     handle.textContent = 'Drag Here';
 
-
     const button = document.createElement('button');
     button.textContent = 'Close Menu';
     button.style.marginBottom = '10px';
@@ -82,13 +93,9 @@ function createFloatingMenu() {
     button.style.cursor = 'pointer';
     button.onclick = toggleMenu;
 
-   
-
     const menuContent = document.createElement('div');
     menuContent.id = 'floatingMenuContent';
     menuContent.style.marginTop = '10px';
-
-
 
     const tabs = document.createElement('div');
     tabs.style.display = 'flex';
@@ -243,7 +250,6 @@ function createFloatingMenu() {
     menu.appendChild(handle);
     menu.appendChild(button);
     menu.appendChild(menuContent);
-
 
     document.body.appendChild(menu);
 
