@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3.1
+// @version      2.0.3.2
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -412,6 +412,7 @@ function makeDraggable(element, handle = element) {
         initialY = e.clientY - element.offsetTop;
         document.addEventListener('mousemove', elementDrag);
         document.addEventListener('mouseup', closeDragElement);
+        document.addEventListener('mouseleave', closeDragElement); // Ensure drag stops if mouse leaves window
     }
 
     function elementDrag(e) {
@@ -435,9 +436,12 @@ function makeDraggable(element, handle = element) {
     }
 
     function closeDragElement() {
-        isDragging = false;
-        document.removeEventListener('mousemove', elementDrag);
-        document.removeEventListener('mouseup', closeDragElement);
+        if (isDragging) {
+            isDragging = false;
+            document.removeEventListener('mousemove', elementDrag);
+            document.removeEventListener('mouseup', closeDragElement);
+            document.removeEventListener('mouseleave', closeDragElement);
+        }
     }
 }
 
