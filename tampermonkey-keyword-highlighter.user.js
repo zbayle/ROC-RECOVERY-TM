@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.2.10
+// @version      2.0.3.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -60,20 +60,21 @@ function createFloatingMenu() {
     menu.style.position = 'fixed';
     menu.style.top = '60px'; // Set initial top position
     menu.style.left = '10px'; // Set initial left position
-    menu.style.padding = '10px';
-    menu.style.backgroundColor = '#333';
-    menu.style.color = '#fff';
-    menu.style.borderRadius = '5px';
+    menu.style.padding = '20px';
+    menu.style.backgroundColor = '#232f3e';
+    menu.style.color = '#f2f2f2';
+    menu.style.borderRadius = '10px';
     menu.style.zIndex = '9999';
     menu.style.width = '300px';
+    menu.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
     menu.style.display = 'none';
 
     const handle = document.createElement('div');
     handle.style.cursor = 'move'; // Change cursor to indicate draggable
     handle.style.marginBottom = '10px';
-    handle.style.padding = '5px';
-    handle.style.backgroundColor = '#555';
-    handle.style.color = '#fff';
+    handle.style.padding = '10px';
+    handle.style.backgroundColor = '#146eb4';
+    handle.style.color = '#f2f2f2';
     handle.style.borderRadius = '5px';
     handle.textContent = 'Drag Here';
 
@@ -83,8 +84,9 @@ function createFloatingMenu() {
     button.textContent = 'Close Menu';
     button.style.marginBottom = '10px';
     button.style.padding = '10px';
-    button.style.backgroundColor = '#0fffcf';
-    button.style.color = '#333';
+    button.style.backgroundColor = '#ff9900';
+    button.style.color = '#000000';
+    button.style.border = 'none';
     button.style.borderRadius = '5px';
     button.style.cursor = 'pointer';
     button.onclick = toggleMenu;
@@ -106,9 +108,10 @@ function createFloatingMenu() {
     keywordTab.textContent = 'Keywords';
     keywordTab.style.flex = '1';
     keywordTab.style.padding = '10px';
-    keywordTab.style.backgroundColor = '#0fffcf';
-    keywordTab.style.color = '#333';
+    keywordTab.style.backgroundColor = '#146eb4';
+    keywordTab.style.color = '#f2f2f2';
     keywordTab.style.border = 'none';
+    keywordTab.style.borderRadius = '5px';
     keywordTab.style.cursor = 'pointer';
     keywordTab.onclick = () => showTab('keywordsTab');
 
@@ -116,9 +119,10 @@ function createFloatingMenu() {
     alertsTab.textContent = 'Alerts';
     alertsTab.style.flex = '1';
     alertsTab.style.padding = '10px';
-    alertsTab.style.backgroundColor = '#0fffcf';
-    alertsTab.style.color = '#333';
+    alertsTab.style.backgroundColor = '#146eb4';
+    alertsTab.style.color = '#f2f2f2';
     alertsTab.style.border = 'none';
+    alertsTab.style.borderRadius = '5px';
     alertsTab.style.cursor = 'pointer';
     alertsTab.onclick = () => showTab('alertsTab');
 
@@ -136,6 +140,11 @@ function createFloatingMenu() {
     const keywordInput = document.createElement('input');
     keywordInput.type = 'text';
     keywordInput.id = 'keywordInput';
+    keywordInput.style.marginBottom = '10px';
+    keywordInput.style.padding = '10px';
+    keywordInput.style.border = '1px solid #146eb4';
+    keywordInput.style.borderRadius = '5px';
+    keywordInput.style.width = '100%';
     keywordsTab.appendChild(keywordInput);
 
     const colorInputLabel = document.createElement('label');
@@ -145,11 +154,23 @@ function createFloatingMenu() {
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
+    colorInput.style.marginBottom = '10px';
+    colorInput.style.padding = '10px';
+    colorInput.style.border = '1px solid #146eb4';
+    colorInput.style.borderRadius = '5px';
+    colorInput.style.width = '100%';
     keywordsTab.appendChild(colorInput);
 
     const addButton = document.createElement('button');
     addButton.textContent = 'Add/Update Keyword';
     addButton.id = 'addButton';
+    addButton.style.marginBottom = '10px';
+    addButton.style.padding = '10px';
+    addButton.style.backgroundColor = '#ff9900';
+    addButton.style.color = '#000000';
+    addButton.style.border = 'none';
+    addButton.style.borderRadius = '5px';
+    addButton.style.cursor = 'pointer';
     keywordsTab.appendChild(addButton);
 
     const keywordList = document.createElement('ul');
@@ -176,6 +197,11 @@ function createFloatingMenu() {
     const alertInput = document.createElement('input');
     alertInput.type = 'text';
     alertInput.id = 'alertInput';
+    alertInput.style.marginBottom = '10px';
+    alertInput.style.padding = '10px';
+    alertInput.style.border = '1px solid #146eb4';
+    alertInput.style.borderRadius = '5px';
+    alertInput.style.width = '100%';
     alertsTabContent.appendChild(alertInput);
 
     const soundSelectLabel = document.createElement('label');
@@ -184,6 +210,11 @@ function createFloatingMenu() {
 
     const soundSelect = document.createElement('select');
     soundSelect.id = 'soundSelect';
+    soundSelect.style.marginBottom = '10px';
+    soundSelect.style.padding = '10px';
+    soundSelect.style.border = '1px solid #146eb4';
+    soundSelect.style.borderRadius = '5px';
+    soundSelect.style.width = '100%';
     const sounds = [
         { name: 'Beep', url: 'beep' },
         { name: 'Chime', url: 'chime' },
@@ -208,11 +239,20 @@ function createFloatingMenu() {
     volumeSlider.max = '1';
     volumeSlider.step = '0.01';
     volumeSlider.value = '0.5'; // Default volume
+    volumeSlider.style.marginBottom = '10px';
+    volumeSlider.style.width = '100%';
     alertsTabContent.appendChild(volumeSlider);
 
     const alertButton = document.createElement('button');
     alertButton.textContent = 'Add Alert';
     alertButton.id = 'alertButton';
+    alertButton.style.marginBottom = '10px';
+    alertButton.style.padding = '10px';
+    alertButton.style.backgroundColor = '#ff9900';
+    alertButton.style.color = '#000000';
+    alertButton.style.border = 'none';
+    alertButton.style.borderRadius = '5px';
+    alertButton.style.cursor = 'pointer';
     alertsTabContent.appendChild(alertButton);
 
     const alertList = document.createElement('ul');
@@ -224,8 +264,9 @@ function createFloatingMenu() {
     testButton.textContent = 'Test Alert Sound';
     testButton.style.marginTop = '10px';
     testButton.style.padding = '10px';
-    testButton.style.backgroundColor = '#0fffcf';
-    testButton.style.color = '#333';
+    testButton.style.backgroundColor = '#ff9900';
+    testButton.style.color = '#000000';
+    testButton.style.border = 'none';
     testButton.style.borderRadius = '5px';
     testButton.style.cursor = 'pointer';
     testButton.onclick = () => {
