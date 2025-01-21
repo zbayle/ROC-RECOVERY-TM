@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3.0
+// @version      2.0.3.1
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -28,7 +28,7 @@ function createFloatingIcon() {
     icon.style.left = '10px'; // Set initial left position
     icon.style.width = '40px';
     icon.style.height = '40px';
-    icon.style.backgroundColor = '#0fffcf';
+    icon.style.backgroundColor = '#ff9900';
     icon.style.borderRadius = '50%';
     icon.style.cursor = 'pointer';
     icon.style.zIndex = '9999';
@@ -401,11 +401,13 @@ function showTab(tabId) {
 // Function to make an element draggable using a handle
 function makeDraggable(element, handle = element) {
     let offsetX = 0, offsetY = 0, initialX = 0, initialY = 0;
+    let isDragging = false;
 
     handle.addEventListener('mousedown', dragMouseDown);
 
     function dragMouseDown(e) {
         e.preventDefault();
+        isDragging = true;
         initialX = e.clientX - element.offsetLeft;
         initialY = e.clientY - element.offsetTop;
         document.addEventListener('mousemove', elementDrag);
@@ -413,6 +415,7 @@ function makeDraggable(element, handle = element) {
     }
 
     function elementDrag(e) {
+        if (!isDragging) return;
         e.preventDefault();
         offsetX = e.clientX - initialX;
         offsetY = e.clientY - initialY;
@@ -432,6 +435,7 @@ function makeDraggable(element, handle = element) {
     }
 
     function closeDragElement() {
+        isDragging = false;
         document.removeEventListener('mousemove', elementDrag);
         document.removeEventListener('mouseup', closeDragElement);
     }
