@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater 
 // @namespace    http://tampermonkey.net/
-// @version      1.2.2.2
+// @version      1.2.2.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -39,7 +39,7 @@
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js",
             key: "WIMS and FMC Version",
             match: [
-                "https://optimus-internal.amazon.com/wims*", 
+                "https://optimus-internal.amazon.com/*", 
                 "https://trans-logistics.amazon.com/fmc/execution/*",
                 "https://trans-logistics.amazon.com/sortcenter/vista*"
             ]
