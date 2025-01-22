@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater 
 // @namespace    http://tampermonkey.net/
-// @version      1.2.2.1
+// @version      1.2.2.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -71,7 +71,7 @@
         const script = document.createElement('script');
         script.textContent = content;
         document.head.appendChild(script);
-        console.log("Injected script content:", content); // Add this line to log the injected script content
+        console.log("Injected script content:", content); 
     }
 
     // Update and install a script
