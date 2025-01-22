@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.4.8
+// @version      2.0.4.9
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -552,29 +552,45 @@ function loadScripts() {
     const scripts = [
         {
             name: "Display Hover Box Data with Time and Packages",
-            version: GM_getValue("Display Hover Box Version", "0.0")
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js",
+            key: "Display Hover Box Version"
         },
         {
             name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
-            version: GM_getValue("Vista Auto Fill Version", "0.0")
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js",
+            key: "Vista Auto Fill Version"
         },
         {
             name: "WIMS and FMC Interaction",
-            version: GM_getValue("WIMS and FMC Version", "0.0")
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js",
+            key: "WIMS and FMC Version"
         },
         {
             name: "ROC Tools with Floating Menu",
-            version: GM_info.script.version // Use GM_info to get the current script version
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
+            key: "ROC Tools with Floating Menu Version"
         }
     ];
 
     scripts.forEach(script => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${script.name}: ${script.version}`;
-        scriptsList.appendChild(listItem);
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: script.url,
+            onload: function (response) {
+                const versionMatch = response.responseText.match(/@version\s+([\d.]+)/);
+                const version = versionMatch ? versionMatch[1] : "0.0";
+                GM_setValue(script.key, version);
+
+                const listItem = document.createElement('li');
+                listItem.textContent = `${script.name}: ${version}`;
+                scriptsList.appendChild(listItem);
+            },
+            onerror: function (error) {
+                console.error(`Error fetching ${script.name}:`, error);
+            }
+        });
     });
 }
-
 // Add or update keyword and color
 function addOrUpdateKeyword() {
     const keyword = document.getElementById('keywordInput').value;
