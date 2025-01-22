@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.4.4
+// @version      2.0.4.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -124,8 +124,20 @@ function createFloatingMenu() {
     alertsTab.style.cursor = 'pointer';
     alertsTab.onclick = () => showTab('alertsTab');
 
+    const scriptsTab = document.createElement('button');
+    scriptsTab.textContent = 'Scripts';
+    scriptsTab.style.flex = '1';
+    scriptsTab.style.padding = '10px';
+    scriptsTab.style.backgroundColor = '#146eb4';
+    scriptsTab.style.color = '#f2f2f2';
+    scriptsTab.style.border = 'none';
+    scriptsTab.style.borderRadius = '5px';
+    scriptsTab.style.cursor = 'pointer';
+    scriptsTab.onclick = () => showTab('scriptsTab');
+
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
+    tabs.appendChild(scriptsTab);
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -243,9 +255,19 @@ function createFloatingMenu() {
     };
     alertsTabContent.appendChild(testButton);
 
+
+    const scriptsTabContent = document.createElement('div');
+    scriptsTabContent.id = 'scriptsTab';
+    scriptsTabContent.style.display = 'none';
+
+    const scriptsList = document.createElement('ul');
+    scriptsList.id = 'scriptsList';
+    scriptsTabContent.appendChild(scriptsList);
+
     menuContent.appendChild(tabs);
     menuContent.appendChild(keywordsTab);
     menuContent.appendChild(alertsTabContent);
+    menuContent.appendChild(scriptsTabContent);
 
     menu.appendChild(handle);
     menu.appendChild(button);
@@ -410,13 +432,21 @@ function toggleMenu() {
 function showTab(tabId) {
     const keywordsTab = document.getElementById('keywordsTab');
     const alertsTabContent = document.getElementById('alertsTab');
+    const scriptsTabContent = document.getElementById('scriptsTab');
 
     if (tabId === 'keywordsTab') {
         keywordsTab.style.display = 'block';
         alertsTabContent.style.display = 'none';
+        scriptsTabContent.style.display = 'none';
     } else if (tabId === 'alertsTab') {
         keywordsTab.style.display = 'none';
         alertsTabContent.style.display = 'block';
+        scriptsTabContent.style.display = 'none';
+    } else if (tabId === 'scriptsTab') {
+        keywordsTab.style.display = 'none';
+        alertsTabContent.style.display = 'none';
+        scriptsTabContent.style.display = 'block';
+        loadScripts(); // Load scripts when the tab is shown
     }
 }
 
@@ -509,6 +539,37 @@ function loadKeywords() {
     });
 
     highlightKeywords(keywords);
+}
+
+// Loaded scipts 
+function loadScripts() {
+    const scriptsList = document.getElementById('scriptsList');
+    scriptsList.innerHTML = '';
+
+    const scripts = [
+        {
+            name: "Display Hover Box Data with Time and Packages",
+            version: GM_getValue("Display Hover Box Version", "0.0")
+        },
+        {
+            name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
+            version: GM_getValue("Vista Auto Fill Version", "0.0")
+        },
+        {
+            name: "WIMS and FMC Interaction",
+            version: GM_getValue("WIMS and FMC Version", "0.0")
+        },
+        {
+            name: "ROC Tools with Floating Menu",
+            version: GM_getValue("Keyword Highlighter Version", "0.0")
+        }
+    ];
+
+    scripts.forEach(script => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${script.name}: ${script.version}`;
+        scriptsList.appendChild(listItem);
+    });
 }
 
 // Add or update keyword and color
