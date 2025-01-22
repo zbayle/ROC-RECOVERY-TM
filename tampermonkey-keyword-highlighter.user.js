@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.5.0
+// @version      2.0.5.1
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -124,20 +124,10 @@ function createFloatingMenu() {
     alertsTab.style.cursor = 'pointer';
     alertsTab.onclick = () => showTab('alertsTab');
 
-    const scriptsTab = document.createElement('button');
-    scriptsTab.textContent = 'Scripts';
-    scriptsTab.style.flex = '1';
-    scriptsTab.style.padding = '10px';
-    scriptsTab.style.backgroundColor = '#146eb4';
-    scriptsTab.style.color = '#f2f2f2';
-    scriptsTab.style.border = 'none';
-    scriptsTab.style.borderRadius = '5px';
-    scriptsTab.style.cursor = 'pointer';
-    scriptsTab.onclick = () => showTab('scriptsTab');
 
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
-    tabs.appendChild(scriptsTab);
+
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -254,14 +244,6 @@ function createFloatingMenu() {
         playSound(selectedSound);
     };
     alertsTabContent.appendChild(testButton);
-
-    const scriptsTabContent = document.createElement('div');
-    scriptsTabContent.id = 'scriptsTab';
-    scriptsTabContent.style.display = 'none';
-
-    const scriptsList = document.createElement('ul');
-    scriptsList.id = 'scriptsList';
-    scriptsTabContent.appendChild(scriptsList);
 
     menuContent.appendChild(tabs);
     menuContent.appendChild(keywordsTab);
@@ -430,7 +412,7 @@ function toggleMenu() {
 function showTab(tabId) {
     const keywordsTab = document.getElementById('keywordsTab');
     const alertsTabContent = document.getElementById('alertsTab');
-    const scriptsTabContent = document.getElementById('scriptsTab');
+
 
     if (tabId === 'keywordsTab') {
         keywordsTab.style.display = 'block';
@@ -444,7 +426,6 @@ function showTab(tabId) {
         keywordsTab.style.display = 'none';
         alertsTabContent.style.display = 'none';
         scriptsTabContent.style.display = 'block';
-        loadScripts(); // Load scripts when the tab is shown
     }
 }
 
@@ -539,53 +520,6 @@ function loadKeywords() {
     highlightKeywords(keywords);
 }
 
-// Loaded scipts 
-function loadScripts() {
-    const scriptsList = document.getElementById('scriptsList');
-    scriptsList.innerHTML = '';
-
-    const scripts = [
-        {
-            name: "Display Hover Box Data with Time and Packages",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js",
-            key: "Display Hover Box Version"
-        },
-        {
-            name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js",
-            key: "Vista Auto Fill Version"
-        },
-        {
-            name: "WIMS and FMC Interaction",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js",
-            key: "WIMS and FMC Version"
-        },
-        {
-            name: "ROC Tools with Floating Menu",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
-            key: "ROC Tools with Floating Menu Version"
-        }
-    ];
-
-    scripts.forEach(script => {
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: script.url,
-            onload: function (response) {
-                const versionMatch = response.responseText.match(/@version\s+([\d.]+)/);
-                const version = versionMatch ? versionMatch[1] : "0.0";
-                GM_setValue(script.key, version);
-
-                const listItem = document.createElement('li');
-                listItem.textContent = `${script.name}: ${version}`;
-                scriptsList.appendChild(listItem);
-            },
-            onerror: function (error) {
-                console.error(`Error fetching ${script.name}:`, error);
-            }
-        });
-    });
-}
 // Add or update keyword and color
 function addOrUpdateKeyword() {
     const keyword = document.getElementById('keywordInput').value;
