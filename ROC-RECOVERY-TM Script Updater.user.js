@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater 
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1.9
+// @version      1.2.1.10
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -85,6 +85,9 @@
         console.log("Checking for updates...");
         scripts.forEach(script => {
             console.log(`Checking script: ${script.name}`);
+            console.log(`Current URL: ${window.location.href}`);
+            console.log(`Match patterns: ${script.match}`);
+    
             // Ensure the page matches the script's match pattern before injecting
             if (Array.isArray(script.match)) {
                 if (script.match.some(pattern => window.location.href.match(new RegExp(pattern)))) {
