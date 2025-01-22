@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater 
 // @namespace    http://tampermonkey.net/
-// @version      1.2.2.4
+// @version      1.2.2.5
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -86,56 +86,24 @@
         console.log("Checking for updates...");
         scripts.forEach(script => {
             console.log(`Checking script: ${script.name}`);
-            console.log(`Current URL: ${window.location.href}`);
-            console.log(`Match patterns: ${script.match}`);
-    
-            // Ensure the page matches the script's match pattern before injecting
-            if (Array.isArray(script.match)) {
-                if (script.match.some(pattern => window.location.href.includes(pattern))) {
-                    console.log(`Match found for script: ${script.name}`);
-                    GM_xmlhttpRequest({
-                        method: "GET",
-                        url: script.url,
-                        onload: function (response) {
-                            const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
-                            if (remoteVersion && isNewVersion(GM_getValue(script.key, "0.0"), remoteVersion)) {
-                                console.log(`Updating ${script.name} from version ${GM_getValue(script.key, "0.0")} to ${remoteVersion}`);
-                                updateScript(script, remoteVersion, response.responseText);
-                            } else {
-                                console.log(`${script.name} is already up to date.`);
-                            }
-                        },
-                        onerror: function (error) {
-                            console.error(`Error fetching ${script.name}:`, error);
-                        }
-                    });
-                } else {
-                    console.log(`No match found for script: ${script.name}`);
-                }
-            } else if (window.location.href.includes(script.match)) {
-                console.log(`Match found for script: ${script.name}`);
-                GM_xmlhttpRequest({
-                    method: "GET",
-                    url: script.url,
-                    onload: function (response) {
-                        const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
-                        if (remoteVersion && isNewVersion(GM_getValue(script.key, "0.0"), remoteVersion)) {
-                            console.log(`Updating ${script.name} from version ${GM_getValue(script.key, "0.0")} to ${remoteVersion}`);
-                            updateScript(script, remoteVersion, response.responseText);
-                        } else {
-                            console.log(`${script.name} is already up to date.`);
-                        }
-                    },
-                    onerror: function (error) {
-                        console.error(`Error fetching ${script.name}:`, error);
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: script.url,
+                onload: function (response) {
+                    const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
+                    if (remoteVersion && isNewVersion(GM_getValue(script.key, "0.0"), remoteVersion)) {
+                        console.log(`Updating ${script.name} from version ${GM_getValue(script.key, "0.0")} to ${remoteVersion}`);
+                        updateScript(script, remoteVersion, response.responseText);
+                    } else {
+                        console.log(`${script.name} is already up to date.`);
                     }
-                });
-            } else {
-                console.log(`No match found for script: ${script.name}`);
-            }
+                },
+                onerror: function (error) {
+                    console.error(`Error fetching ${script.name}:`, error);
+                }
+            });
         });
     }
-
     // Register a menu command to manually check for updates
     GM_registerMenuCommand("Check for Updates", checkForUpdates);
 
