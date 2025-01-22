@@ -10,7 +10,6 @@
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @grant        GM_info
 // ==/UserScript==
 
 (function() {

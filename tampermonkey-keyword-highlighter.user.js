@@ -8,7 +8,6 @@
 // @match        https://trans-logistics.amazon.com/*
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @grant        GM_info
 // @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 // @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 
@@ -28,7 +27,6 @@ if (typeof GM_setValue === 'undefined') {
         localStorage.setItem(key, value);
     };
 }
-GM_setValue('ROC Tools with Floating Menu Version', GM_info.script.version);
 
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
