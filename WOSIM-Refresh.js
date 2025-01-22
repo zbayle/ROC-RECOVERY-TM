@@ -5,7 +5,9 @@
 // @description  A script to refresh WOSIM page
 // @author       zbbayle
 // @match        https://t.corp.amazon.com/issues/*
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_info
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WOSIM-Refresh.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WOSIM-Refresh.js
 // ==/UserScript==

@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         Display Hover Box Data with Time and Packages
 // @namespace    http://tampermonkey.net/
-// @version      1.7
+// @version      1.7.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @description  Extract and display time and package data from tooltip in a floating container, highlighting the first cumulative threshold.
 // @author       zbbayle
 // @match        https://trans-logistics.amazon.com/sortcenter/vista/*
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_info
 // ==/UserScript==
 
 (function() {

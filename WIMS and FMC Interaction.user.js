@@ -9,7 +9,9 @@
 // @match        https://optimus-internal.amazon.com/wims*
 // @match        https://trans-logistics.amazon.com/fmc/execution/*
 // @match        https://trans-logistics.amazon.com/sortcenter/vista/*
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_info
 // ==/UserScript==
 
 (function () {
