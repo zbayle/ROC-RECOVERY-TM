@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater 
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1.7
+// @version      1.2.1.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -17,6 +17,8 @@
 
 (function () {
     'use strict';
+
+    console.log("ROC-RECOVERY-TM Script Updater loaded.");
 
     // List of scripts to manage
     const scripts = [
@@ -75,15 +77,18 @@
     function updateScript(script, latestVersion, content) {
         GM_setValue(script.key, latestVersion);
         injectScript(content); // Inject the new script into the page
-        // alert(`${script.name} has been updated to version ${latestVersion}`);
+        console.log(`${script.name} has been updated to version ${latestVersion}`);
     }
 
     // Check for updates
     function checkForUpdates() {
+        console.log("Checking for updates...");
         scripts.forEach(script => {
+            console.log(`Checking script: ${script.name}`);
             // Ensure the page matches the script's match pattern before injecting
             if (Array.isArray(script.match)) {
                 if (script.match.some(pattern => window.location.href.match(new RegExp(pattern)))) {
+                    console.log(`Match found for script: ${script.name}`);
                     GM_xmlhttpRequest({
                         method: "GET",
                         url: script.url,
@@ -100,8 +105,11 @@
                             console.error(`Error fetching ${script.name}:`, error);
                         }
                     });
+                } else {
+                    console.log(`No match found for script: ${script.name}`);
                 }
             } else if (window.location.href.match(new RegExp(script.match))) {
+                console.log(`Match found for script: ${script.name}`);
                 GM_xmlhttpRequest({
                     method: "GET",
                     url: script.url,
@@ -118,6 +126,8 @@
                         console.error(`Error fetching ${script.name}:`, error);
                     }
                 });
+            } else {
+                console.log(`No match found for script: ${script.name}`);
             }
         });
     }
@@ -126,7 +136,7 @@
     GM_registerMenuCommand("Check for Updates", checkForUpdates);
 
     // Auto-check for updates every 24 hours
-    setInterval(checkForUpdates, 24 * 60 * 60 * 1000);
+    setInterval(checkForUpdates, 60 * 1000);
 
     // Initial check on load
     checkForUpdates();
