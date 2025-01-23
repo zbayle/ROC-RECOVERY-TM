@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.5.4
+// @version      2.0.5.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -124,10 +124,8 @@ function createFloatingMenu() {
     alertsTab.style.cursor = 'pointer';
     alertsTab.onclick = () => showTab('alertsTab');
 
-
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
-
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -248,7 +246,6 @@ function createFloatingMenu() {
     menuContent.appendChild(tabs);
     menuContent.appendChild(keywordsTab);
     menuContent.appendChild(alertsTabContent);
-    menuContent.appendChild(scriptsTabContent);
 
     menu.appendChild(handle);
     menu.appendChild(button);
@@ -402,19 +399,12 @@ function showTab(tabId) {
     const keywordsTab = document.getElementById('keywordsTab');
     const alertsTabContent = document.getElementById('alertsTab');
 
-
     if (tabId === 'keywordsTab') {
         keywordsTab.style.display = 'block';
         alertsTabContent.style.display = 'none';
-        scriptsTabContent.style.display = 'none';
     } else if (tabId === 'alertsTab') {
         keywordsTab.style.display = 'none';
         alertsTabContent.style.display = 'block';
-        scriptsTabContent.style.display = 'none';
-    } else if (tabId === 'scriptsTab') {
-        keywordsTab.style.display = 'none';
-        alertsTabContent.style.display = 'none';
-        scriptsTabContent.style.display = 'block';
     }
 }
 
