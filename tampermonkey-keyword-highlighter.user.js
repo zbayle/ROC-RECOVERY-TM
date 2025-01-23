@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.5.3
+// @version      2.0.5.4
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -396,21 +396,6 @@ document.addEventListener('click', () => {
     }
 });
 
-// Toggle the visibility of the floating menu
-function toggleMenu() {
-    const menu = document.getElementById('floatingMenu');
-    if (menu) {
-        if (menu.style.display === 'none') {
-            menu.style.display = 'block';
-            console.log("Menu is now visible.");
-        } else {
-            menu.style.display = 'none';
-            console.log("Menu is now hidden.");
-        }
-    } else {
-        console.error('Floating menu element not found!');
-    }
-}
 
 // Show the selected tab
 function showTab(tabId) {
@@ -708,7 +693,7 @@ window.onload = function () {
     console.log("Window loaded.");
 
     createFloatingIcon();
-    createFloatingMenu(); // Ensure this is called before toggleMenu is used
+    createFloatingMenu();
     loadKeywords();
     loadAlerts();
 
@@ -729,3 +714,19 @@ window.onload = function () {
         console.error('Alert toggle not found!');
     }
 };
+
+// Toggle the visibility of the floating menu
+function toggleMenu() {
+    const menu = document.getElementById('floatingMenu');
+    if (menu) {
+        if (menu.style.display === 'none') {
+            menu.style.display = 'block';
+            console.log("Menu is now visible.");
+        } else {
+            menu.style.display = 'none';
+            console.log("Menu is now hidden.");
+        }
+    } else {
+        console.error('Floating menu element not found!');
+    }
+}
