@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.5.6
+// @version      2.0.5.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -69,13 +69,13 @@ function createFloatingMenu() {
     menu.style.color = '#f2f2f2';
     menu.style.borderRadius = '10px';
     menu.style.zIndex = '9999';
-    menu.style.width = '300px';
+    menu.style.width = '350px'; // Increased width
     menu.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
     menu.style.display = 'none';
 
     const handle = document.createElement('div');
     handle.style.cursor = 'move'; // Change cursor to indicate draggable
-    handle.style.marginBottom = '10px';
+    handle.style.marginBottom = '15px'; // Increased margin
     handle.style.padding = '10px';
     handle.style.backgroundColor = '#146eb4';
     handle.style.color = '#f2f2f2';
@@ -84,13 +84,17 @@ function createFloatingMenu() {
 
     const button = document.createElement('button');
     button.textContent = 'Close Menu';
-    button.style.marginBottom = '10px';
+    button.style.marginBottom = '15px'; // Increased margin
     button.style.padding = '10px';
     button.style.backgroundColor = '#ff9900';
     button.style.color = '#000000';
     button.style.border = 'none';
     button.style.borderRadius = '5px';
     button.style.cursor = 'pointer';
+    button.style.width = '100%'; // Full width button
+    button.style.boxSizing = 'border-box';
+    button.onmouseover = () => button.style.backgroundColor = '#e68a00';
+    button.onmouseout = () => button.style.backgroundColor = '#ff9900';
     button.onclick = toggleMenu;
 
     const menuContent = document.createElement('div');
@@ -100,7 +104,7 @@ function createFloatingMenu() {
     const tabs = document.createElement('div');
     tabs.style.display = 'flex';
     tabs.style.justifyContent = 'space-around';
-    tabs.style.marginBottom = '10px';
+    tabs.style.marginBottom = '15px'; // Increased margin
 
     const keywordTab = document.createElement('button');
     keywordTab.textContent = 'Keywords';
@@ -111,6 +115,9 @@ function createFloatingMenu() {
     keywordTab.style.border = 'none';
     keywordTab.style.borderRadius = '5px';
     keywordTab.style.cursor = 'pointer';
+    keywordTab.style.marginRight = '5px'; // Added margin between tabs
+    keywordTab.onmouseover = () => keywordTab.style.backgroundColor = '#125a9e';
+    keywordTab.onmouseout = () => keywordTab.style.backgroundColor = '#146eb4';
     keywordTab.onclick = () => showTab('keywordsTab');
 
     const alertsTab = document.createElement('button');
@@ -122,6 +129,8 @@ function createFloatingMenu() {
     alertsTab.style.border = 'none';
     alertsTab.style.borderRadius = '5px';
     alertsTab.style.cursor = 'pointer';
+    alertsTab.onmouseover = () => alertsTab.style.backgroundColor = '#125a9e';
+    alertsTab.onmouseout = () => alertsTab.style.backgroundColor = '#146eb4';
     alertsTab.onclick = () => showTab('alertsTab');
 
     tabs.appendChild(keywordTab);
@@ -133,12 +142,14 @@ function createFloatingMenu() {
 
     const keywordInputLabel = document.createElement('label');
     keywordInputLabel.textContent = 'Keyword: ';
+    keywordInputLabel.style.display = 'block'; // Block display for better spacing
+    keywordInputLabel.style.marginBottom = '5px'; // Added margin
     keywordsTab.appendChild(keywordInputLabel);
 
     const keywordInput = document.createElement('input');
     keywordInput.type = 'text';
     keywordInput.id = 'keywordInput';
-    keywordInput.style.marginBottom = '10px';
+    keywordInput.style.marginBottom = '15px'; // Increased margin
     keywordInput.style.padding = '10px';
     keywordInput.style.border = '1px solid #146eb4';
     keywordInput.style.borderRadius = '5px';
@@ -147,13 +158,14 @@ function createFloatingMenu() {
 
     const colorInputLabel = document.createElement('label');
     colorInputLabel.textContent = ' Color: ';
+    colorInputLabel.style.display = 'block'; // Block display for better spacing
+    colorInputLabel.style.marginBottom = '5px'; // Added margin
     keywordsTab.appendChild(colorInputLabel);
 
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
-    colorInput.style.marginBottom = '10px';
-    colorInput.style.padding = '0px';
+    colorInput.style.marginBottom = '15px'; // Increased margin
     colorInput.style.border = '1px solid #146eb4';
     colorInput.style.borderRadius = '5px';
     colorInput.style.width = '100%';
@@ -162,17 +174,23 @@ function createFloatingMenu() {
     const addButton = document.createElement('button');
     addButton.textContent = 'Add/Update Keyword';
     addButton.id = 'addButton';
-    addButton.style.marginBottom = '10px';
+    addButton.style.marginBottom = '15px'; // Increased margin
     addButton.style.padding = '10px';
     addButton.style.backgroundColor = '#ff9900';
     addButton.style.color = '#000000';
     addButton.style.border = 'none';
     addButton.style.borderRadius = '5px';
     addButton.style.cursor = 'pointer';
+    addButton.style.width = '100%'; // Full width button
+    addButton.style.boxSizing = 'border-box';
+    addButton.onmouseover = () => addButton.style.backgroundColor = '#e68a00';
+    addButton.onmouseout = () => addButton.style.backgroundColor = '#ff9900';
     keywordsTab.appendChild(addButton);
 
     const keywordList = document.createElement('ul');
     keywordList.id = 'keywordList';
+    keywordList.style.padding = '0';
+    keywordList.style.listStyle = 'none'; // Remove default list styling
     keywordsTab.appendChild(keywordList);
 
     const alertsTabContent = document.createElement('div');
@@ -181,20 +199,25 @@ function createFloatingMenu() {
 
     const alertToggleLabel = document.createElement('label');
     alertToggleLabel.textContent = 'WIM Alert: ';
+    alertToggleLabel.style.display = 'block'; // Block display for better spacing
+    alertToggleLabel.style.marginBottom = '5px'; // Added margin
     alertsTabContent.appendChild(alertToggleLabel);
 
     const alertToggle = document.createElement('input');
     alertToggle.type = 'checkbox';
     alertToggle.id = 'alertToggle';
+    alertToggle.style.marginBottom = '15px'; // Increased margin
     alertsTabContent.appendChild(alertToggle);
 
     const soundSelectLabel = document.createElement('label');
     soundSelectLabel.textContent = ' Sound: ';
+    soundSelectLabel.style.display = 'block'; // Block display for better spacing
+    soundSelectLabel.style.marginBottom = '5px'; // Added margin
     alertsTabContent.appendChild(soundSelectLabel);
 
     const soundSelect = document.createElement('select');
     soundSelect.id = 'soundSelect';
-    soundSelect.style.marginBottom = '10px';
+    soundSelect.style.marginBottom = '15px'; // Increased margin
     soundSelect.style.padding = '10px';
     soundSelect.style.border = '1px solid #146eb4';
     soundSelect.style.borderRadius = '5px';
@@ -214,6 +237,8 @@ function createFloatingMenu() {
 
     const volumeLabel = document.createElement('label');
     volumeLabel.textContent = ' Volume: ';
+    volumeLabel.style.display = 'block'; // Block display for better spacing
+    volumeLabel.style.marginBottom = '5px'; // Added margin
     alertsTabContent.appendChild(volumeLabel);
 
     const volumeSlider = document.createElement('input');
@@ -223,7 +248,7 @@ function createFloatingMenu() {
     volumeSlider.max = '1';
     volumeSlider.step = '0.01';
     volumeSlider.value = '0.5'; // Default volume
-    volumeSlider.style.marginBottom = '10px';
+    volumeSlider.style.marginBottom = '15px'; // Increased margin
     volumeSlider.style.width = '100%';
     alertsTabContent.appendChild(volumeSlider);
 
@@ -237,6 +262,10 @@ function createFloatingMenu() {
     testButton.style.border = 'none';
     testButton.style.borderRadius = '5px';
     testButton.style.cursor = 'pointer';
+    testButton.style.width = '100%'; // Full width button
+    testButton.style.boxSizing = 'border-box';
+    testButton.onmouseover = () => testButton.style.backgroundColor = '#e68a00';
+    testButton.onmouseout = () => testButton.style.backgroundColor = '#ff9900';
     testButton.onclick = () => {
         const selectedSound = document.getElementById('soundSelect').value;
         playSound(selectedSound);
