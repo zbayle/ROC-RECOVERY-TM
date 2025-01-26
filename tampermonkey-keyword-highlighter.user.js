@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.5.5
+// @version      2.0.5.6
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -153,7 +153,7 @@ function createFloatingMenu() {
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
     colorInput.style.marginBottom = '10px';
-    colorInput.style.padding = '10px';
+    colorInput.style.padding = '0px';
     colorInput.style.border = '1px solid #146eb4';
     colorInput.style.borderRadius = '5px';
     colorInput.style.width = '100%';
