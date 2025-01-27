@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.5.8
+// @version      2.0.5.9
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -536,8 +536,8 @@ function addOrUpdateKeyword() {
 
     let keywords = GM_getValue('keywords', []);
 
-    // Ensure keywords is an array (in case it's been incorrectly stored as an object)
-    if (typeof keywords === 'object' && !Array.isArray(keywords)) {
+    // Ensure keywords is an array
+    if (!Array.isArray(keywords)) {
         console.error('Keywords are stored incorrectly. Resetting to an empty array.');
         keywords = [];
     }
@@ -610,6 +610,12 @@ function removeKeyword(index) {
 // Highlight keywords in page content
 function highlightKeywords(keywords) {
     console.log("Highlighting keywords...", keywords); // Debug log
+
+    // Ensure keywords is an array
+    if (!Array.isArray(keywords)) {
+        console.error('Keywords are stored incorrectly. Resetting to an empty array.');
+        keywords = [];
+    }
 
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     const nodes = [];
