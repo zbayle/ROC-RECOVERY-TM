@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.5.7
+// @version      2.0.5.8
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
 // @match        https://trans-logistics.amazon.com/*
 // @grant        GM_setValue
-// @grant        GM_getValue
 // @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 // @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 
@@ -707,8 +706,8 @@ function observeWIMAlerts() {
     }
 }
 
-// Ensure the DOM is loaded before trying to access elements
-window.onload = function () {
+// Ensure the page is fully loaded before trying to access elements
+window.addEventListener('load', function () {
     console.log("Window loaded.");
 
     createFloatingIcon();
@@ -732,7 +731,13 @@ window.onload = function () {
     } else {
         console.error('Alert toggle not found!');
     }
-};
+
+    // Highlight keywords every 15 seconds
+    setInterval(() => {
+        const keywords = GM_getValue('keywords', []);
+        highlightKeywords(keywords);
+    }, 15000);
+});
 
 // Toggle the visibility of the floating menu
 function toggleMenu() {
