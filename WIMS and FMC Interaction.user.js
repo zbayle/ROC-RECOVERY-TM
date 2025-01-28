@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.6.9
+// @version      1.7.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -455,12 +455,18 @@
     }
 
     // Page Handling
-    if (window.location.pathname.includes('/fmc/execution/')) {
-        highlightRunStructureLink();
-        redesignTable();
-        addVistaButton();
-        document.addEventListener("DOMContentLoaded", addFacilityClasses);
-    } else if (window.location.pathname.includes('/wims')) {
+if (window.location.pathname.includes('/fmc/execution/')) {
+    highlightRunStructureLink();
+    redesignTable();
+    addVistaButton();
+    document.addEventListener("DOMContentLoaded", addFacilityClasses);
+} else if (window.location.pathname.includes('/wims')) {
+    if (window.location.pathname.includes('/wims/related')) {
+        // Wait for 5 seconds and then redirect to /wims
+        setTimeout(() => {
+            window.location.pathname = '/wims';
+        }, 5000);
+    } else {
         createTimer();
         waitForLoadingToFinish(() => {
             checkAndSelectOptions();
@@ -470,6 +476,7 @@
             console.log('Final Facility:', fcFinal);
         });
     }
+}
 
     setInterval(updateCounter, 1000);
     setInterval(checkAndSelectOptions, 60000);
