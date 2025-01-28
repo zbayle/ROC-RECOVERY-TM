@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.6.7
+// @version      1.6.8
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -328,20 +328,86 @@
         }, 500);
     }
 
-    // Table Redesign
-    function redesignTable() {
-        const table = document.querySelector('#fmc-execution-plans-vrs');
-        if (table) {
-            table.style.borderCollapse = 'collapse';
-            table.querySelectorAll('thead th').forEach(th => {
-                th.style.backgroundColor = '#FF9900';
-                th.style.color = 'black';
+    // Function to redesign the table with responsive design
+function redesignTable() {
+    const table = document.querySelector('#fmc-execution-plans-vrs');
+    if (table) {
+        table.style.borderCollapse = 'collapse';
+        table.querySelectorAll('thead th').forEach(th => {
+            th.style.backgroundColor = '#FF9900';
+            th.style.color = 'black';
+        });
+        table.querySelectorAll('tbody tr:nth-child(even)').forEach(row => {
+            row.style.backgroundColor = '#f2f2f2';
+        });
+
+        // Inject responsive CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            /* Basic table styling */
+            #fmc-execution-plans-vrs {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td {
+                padding: 8px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            /* Responsive design for smaller screens */
+            @media screen and (max-width: 768px) {
+                #fmc-execution-plans-vrs, #fmc-execution-plans-vrs thead, #fmc-execution-plans-vrs tbody, #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td, #fmc-execution-plans-vrs tr {
+                    display: block;
+                }
+
+                #fmc-execution-plans-vrs thead tr {
+                    display: none;
+                }
+
+                #fmc-execution-plans-vrs tr {
+                    margin-bottom: 15px;
+                }
+
+                #fmc-execution-plans-vrs td {
+                    text-align: right;
+                    padding-left: 50%;
+                    position: relative;
+                }
+
+                #fmc-execution-plans-vrs td:before {
+                    content: attr(data-label);
+                    position: absolute;
+                    left: 0;
+                    width: 50%;
+                    padding-left: 15px;
+                    font-weight: bold;
+                    text-align: left;
+                }
+            }
+
+            /* Hide less important columns on smaller screens */
+            @media screen and (max-width: 768px) {
+                .hide-on-small {
+                    display: none;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add data-label attributes to each cell for responsive design
+        const headers = table.querySelectorAll('thead th');
+        table.querySelectorAll('tbody tr').forEach(row => {
+            row.querySelectorAll('td').forEach((cell, index) => {
+                cell.setAttribute('data-label', headers[index].textContent.trim());
             });
-            table.querySelectorAll('tbody tr:nth-child(even)').forEach(row => {
-                row.style.backgroundColor = '#f2f2f2';
-            });
-        }
+        });
     }
+}
+
+// Call the redesignTable function when the page loads
+document.addEventListener("DOMContentLoaded", redesignTable);
 
     // Wait for the loading screen to disappear using MutationObserver
     function waitForLoadingToFinish(callback) {
