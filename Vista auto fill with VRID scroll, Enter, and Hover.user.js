@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista auto fill with VRID scroll, Enter, and Hover
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
 // @description  Automatically selects the facility in the dropdown, sets VRID in the filter input, presses Enter, scrolls into view, and hovers over the progress bar.
@@ -124,8 +124,7 @@
         // Create and dispatch a mouseover event
         const mouseOverEvent = new MouseEvent('mouseover', {
             bubbles: true,
-            cancelable: true,
-            view: window
+            cancelable: true
         });
         progressBar.dispatchEvent(mouseOverEvent);
         console.log('Mouseover event dispatched on the progress bar.');
@@ -134,8 +133,7 @@
         setTimeout(() => {
             const mouseLeaveEvent = new MouseEvent('mouseleave', {
                 bubbles: true,
-                cancelable: true,
-                view: window
+                cancelable: true
             });
             progressBar.dispatchEvent(mouseLeaveEvent);
             console.log('Mouseleave event dispatched on the progress bar.');
