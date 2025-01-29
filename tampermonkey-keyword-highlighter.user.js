@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.6.7
+// @version      2.0.6.8
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -724,18 +724,16 @@ function observeWIMAlerts() {
                         if (node.nodeType === 1) {
                             //console.log("Node added:", node);
                             const assignButton = node.querySelector('.btn-primary.btn-block.btn.btn-info');
+                            const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
                             if (assignButton) {
                                 console.log("Assign to me button detected.");
                                 const selectedSound = document.getElementById('soundSelect').value;
                                 console.log("Selected sound:", selectedSound);
                                 playSound(selectedSound);
-    
-                                // Check if auto-assign is enabled
-                                const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
                                 if (autoAssignEnabled) {
                                     setTimeout(() => {
                                         clickAssignButton(assignButton);
-                                    }, 5000); // Wait for 5 seconds before clicking the button
+                                    }, 5000);
                                 }
                             } else {
                                 console.log("Assign to me button not found in the added node.");
@@ -751,6 +749,26 @@ function observeWIMAlerts() {
     } else {
         console.log("URL does not match WIMS page.");
     }
+}
+
+// Function to click the assign button with retry mechanism
+function clickAssignButton(button) {
+    const maxRetries = 5;
+    let retries = 0;
+
+    const interval = setInterval(() => {
+        if (button) {
+            button.click();
+            console.log("Assign button clicked.");
+            clearInterval(interval);
+        } else if (retries >= maxRetries) {
+            console.log("Failed to find the assign button after multiple attempts.");
+            clearInterval(interval);
+        } else {
+            console.log("Retrying to find the assign button...");
+            retries++;
+        }
+    }, 1000); // Retry every second
 }
 
 // Ensure the page is fully loaded before trying to access elements
