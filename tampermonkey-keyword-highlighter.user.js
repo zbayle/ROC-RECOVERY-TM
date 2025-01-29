@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.6.8
+// @version      2.0.6.9
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -655,6 +655,11 @@ function highlightKeywords(keywords) {
         const parent = node.parentNode;
         const text = node.nodeValue;
 
+        // Skip nodes that are already highlighted
+        if (parent && parent.classList && parent.classList.contains('highlighted-keyword')) {
+            return;
+        }
+
         keywords.forEach(keyword => {
             const regex = new RegExp(`(${keyword.keyword})`, 'gi');
             const parts = text.split(regex);
@@ -677,12 +682,7 @@ function highlightKeywords(keywords) {
 
                 // Check if the node is still a child of its parent before replacing
                 if (parent && node.parentNode === parent) {
-                    // Check if the parent already has the highlighted class
-                    if (!parent.querySelector('.highlighted-keyword')) {
-                        parent.replaceChild(fragment, node);
-                    } else {
-                        console.warn("Node already has highlighted keyword. Skipping replacement.");
-                    }
+                    parent.replaceChild(fragment, node);
                 } else {
                     console.warn("Node is no longer a child of its parent. Skipping replacement.");
                 }
