@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.6.5
+// @version      2.0.6.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -665,6 +665,7 @@ function highlightKeywords(keywords) {
                 parts.forEach(part => {
                     if (regex.test(part)) {
                         const span = document.createElement('span');
+                        span.className = 'highlighted-keyword';
                         span.style.border = `2px solid ${keyword.color}`;
                         span.style.padding = '2px';
                         span.textContent = part;
@@ -676,7 +677,12 @@ function highlightKeywords(keywords) {
 
                 // Check if the node is still a child of its parent before replacing
                 if (parent && node.parentNode === parent) {
-                    parent.replaceChild(fragment, node);
+                    // Check if the parent already has the highlighted class
+                    if (!parent.querySelector('.highlighted-keyword')) {
+                        parent.replaceChild(fragment, node);
+                    } else {
+                        console.warn("Node already has highlighted keyword. Skipping replacement.");
+                    }
                 } else {
                     console.warn("Node is no longer a child of its parent. Skipping replacement.");
                 }
@@ -684,7 +690,6 @@ function highlightKeywords(keywords) {
         });
     });
 }
-
 // Function to download the audio file
 function downloadAudioFile(url, callback) {
     console.log("Starting download of audio file from URL:", url);
@@ -717,7 +722,7 @@ function observeWIMAlerts() {
                 if (mutation.addedNodes.length) {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1) {
-                            console.log("Node added:", node);
+                            //console.log("Node added:", node);
                             const assignButton = node.querySelector('.btn-primary.btn-block.btn.btn-info');
                             if (assignButton) {
                                 console.log("Assign to me button detected.");
