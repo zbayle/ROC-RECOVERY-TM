@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.6.2
+// @version      2.0.6.3
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -271,6 +271,19 @@ function createFloatingMenu() {
     };
     alertsTabContent.appendChild(testButton);
 
+    // Add the checkbox for auto-assigning WIM
+    const autoAssignLabel = document.createElement('label');
+    autoAssignLabel.textContent = 'Auto-Assign WIM: ';
+    autoAssignLabel.style.display = 'block'; // Block display for better spacing
+    autoAssignLabel.style.marginBottom = '5px'; // Added margin
+    alertsTabContent.appendChild(autoAssignLabel);
+
+    const autoAssignCheckbox = document.createElement('input');
+    autoAssignCheckbox.type = 'checkbox';
+    autoAssignCheckbox.id = 'autoAssignCheckbox';
+    autoAssignCheckbox.style.marginBottom = '15px'; // Increased margin
+    alertsTabContent.appendChild(autoAssignCheckbox);
+
     menuContent.appendChild(tabs);
     menuContent.appendChild(keywordsTab);
     menuContent.appendChild(alertsTabContent);
@@ -307,6 +320,13 @@ function createFloatingMenu() {
     volumeSlider.value = volume;
     volumeSlider.addEventListener('input', () => {
         GM_setValue('volume', volumeSlider.value);
+    });
+
+    // Load the auto-assign checkbox state
+    const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
+    autoAssignCheckbox.checked = autoAssignEnabled;
+    autoAssignCheckbox.addEventListener('change', () => {
+        GM_setValue('autoAssignEnabled', autoAssignCheckbox.checked);
     });
 
     // Add an audio element for the alert sound
@@ -703,6 +723,15 @@ function observeWIMAlerts() {
                                 const selectedSound = document.getElementById('soundSelect').value;
                                 console.log("Selected sound:", selectedSound);
                                 playSound(selectedSound);
+
+                                // Check if auto-assign is enabled
+                                const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
+                                if (autoAssignEnabled) {
+                                    setTimeout(() => {
+                                        assignButton.click();
+                                        console.log("Assign button clicked.");
+                                    }, 10000); // Wait for 10 seconds before clicking the button
+                                }
                             } else {
                                 console.log("Assign to me button not found in the added node.");
                             }
