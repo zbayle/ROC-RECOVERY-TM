@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.6.4
+// @version      2.0.6.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
 // @match        https://trans-logistics.amazon.com/*
 // @grant        GM_setValue
+// @grant        GM_getValue
 // @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 // @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
 
@@ -723,13 +724,12 @@ function observeWIMAlerts() {
                                 const selectedSound = document.getElementById('soundSelect').value;
                                 console.log("Selected sound:", selectedSound);
                                 playSound(selectedSound);
-
+    
                                 // Check if auto-assign is enabled
                                 const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
                                 if (autoAssignEnabled) {
                                     setTimeout(() => {
-                                        assignButton.click();
-                                        console.log("Assign button clicked.");
+                                        clickAssignButton(assignButton);
                                     }, 5000); // Wait for 5 seconds before clicking the button
                                 }
                             } else {
