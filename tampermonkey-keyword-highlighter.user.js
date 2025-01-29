@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.6.9
+// @version      2.0.7.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -731,9 +731,15 @@ function observeWIMAlerts() {
                                 console.log("Selected sound:", selectedSound);
                                 playSound(selectedSound);
                                 if (autoAssignEnabled) {
-                                    setTimeout(() => {
-                                        clickAssignButton(assignButton);
-                                    }, 5000);
+                                    let countdown = 5;
+                                    const interval = setInterval(() => {
+                                        console.log(`Assign button will be clicked in ${countdown} seconds...`);
+                                        countdown--;
+                                        if (countdown < 0) {
+                                            clearInterval(interval);
+                                            clickAssignButton(assignButton);
+                                        }
+                                    }, 1000); // Log countdown every second
                                 }
                             } else {
                                 console.log("Assign to me button not found in the added node.");
