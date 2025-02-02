@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.7.4
+// @version      2.0.7.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -524,37 +524,54 @@ function loadKeywords() {
 
     let keywords = [];
     try {
-        keywords = GM_getValue('keywords', []);
+        const storedKeywords = GM_getValue('keywords', '[]');
+        keywords = JSON.parse(storedKeywords);
         console.log("Keywords retrieved from storage:", keywords); // Debug log
     } catch (e) {
-        console.error('Error reading from storage. Resetting keywords.');
+        console.error('Error reading from storage. Resetting keywords.', e);
+        keywords = [];
     }
 
-    keywords = validateKeywords(keywords);
+    if (!Array.isArray(keywords)) {
+        console.warn("Keywords are not stored as an array. Resetting to an empty array.");
+        keywords = [];
+    }
+
     console.log("Validated keywords:", keywords); // Debug log
 
     const list = document.getElementById('keywordList');
-    list.innerHTML = '';
+    if (list) {
+        list.innerHTML = '';
 
-    keywords.forEach((item, index) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${item.keyword}: ${item.color}`;
-        listItem.style.color = item.color;
+        keywords.forEach((item, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${item.keyword}: ${item.color}`;
+            listItem.style.color = item.color;
 
-        const editButton = document.createElement('button');
-        editButton.textContent = 'Edit';
-        editButton.onclick = () => editKeyword(index);
-        listItem.appendChild(editButton);
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.onclick = () => editKeyword(index);
+            listItem.appendChild(editButton);
 
-        const removeButton = document.createElement('button');
-        removeButton.textContent = 'Remove';
-        removeButton.onclick = () => removeKeyword(index);
-        listItem.appendChild(removeButton);
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.onclick = () => removeKeyword(index);
+            listItem.appendChild(removeButton);
 
-        list.appendChild(listItem);
-    });
+            list.appendChild(listItem);
+        });
+    }
 
     highlightKeywords(keywords);
+}
+
+// Function to save keywords to storage
+function saveKeywords(keywords) {
+    if (Array.isArray(keywords)) {
+        GM_setValue('keywords', JSON.stringify(keywords));
+    } else {
+        console.error("Keywords are not an array. Not saving.");
+    }
 }
 
 // Add or update keyword and color
