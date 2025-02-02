@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.7.5
+// @version      1.7.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -247,6 +247,12 @@
                 console.log('Assets container found!');
                 clearInterval(retryInterval);
     
+                // Check if the "Open Vista" button already exists
+                if (document.querySelector('button#vistaButton')) {
+                    console.log('Vista button already exists!');
+                    return;
+                }
+    
                 // Check for "OutboundAmazonManaged" and show the button if found
                 const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
                 if (outboundAmazonManagedText) {
@@ -254,6 +260,7 @@
     
                     // Create a new button element
                     const vistaButton = document.createElement('button');
+                    vistaButton.id = 'vistaButton'; // Add an ID to the button
                     vistaButton.textContent = 'Open Vista';
                     vistaButton.style.backgroundColor = '#FF9900';
                     vistaButton.style.color = 'black';
@@ -325,7 +332,6 @@
             }
         }, 500);
     }
-
     // Function to redesign the table with responsive design
     function redesignTable() {
         const table = document.querySelector('#fmc-execution-plans-vrs');
