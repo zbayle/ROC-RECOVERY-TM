@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.7.3
+// @version      2.0.7.4
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -33,33 +33,6 @@ if (typeof GM_setValue === 'undefined') {
     };
 }
 
-// Dynamically load required scripts based on the current URL
-const scripts = [
-    {
-        url: 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js',
-        match: ['https://optimus-internal.amazon.com/*']
-    },
-    {
-        url: 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js',
-        match: ['https://trans-logistics.amazon.com/*']
-    },
-    {
-        url: 'https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS%20and%20FMC%20Interaction.user.js',
-        match: ['https://optimus-internal.amazon.com/*', 'https://trans-logistics.amazon.com/*']
-    }
-];
-
-const currentUrl = window.location.href;
-
-scripts.forEach(script => {
-    script.match.forEach(match => {
-        if (currentUrl.includes(match.replace('*', ''))) {
-            const scriptElement = document.createElement('script');
-            scriptElement.src = script.url;
-            document.head.appendChild(scriptElement);
-        }
-    });
-});
 
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
