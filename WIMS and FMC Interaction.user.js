@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.7.6
+// @version      1.7.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -475,16 +475,16 @@ if (window.location.pathname.includes('/fmc/execution/')) {
         setTimeout(() => {
             window.location.pathname = '/wims';
         }, 5000);
-    } else {
-        createTimer();
-        waitForLoadingToFinish(() => {
-            checkAndSelectOptions();
-            navigateToTaskDetail();
-            const { fcOrigin, fcFinal } = fetchFacilityData();
-            console.log('Origin Facility:', fcOrigin);
-            console.log('Final Facility:', fcFinal);
-        });
     }
+} else if (window.location.pathname.includes('/wims')) {
+    createTimer();
+    waitForLoadingToFinish(() => {
+        checkAndSelectOptions();
+        navigateToTaskDetail();
+        const { fcOrigin, fcFinal } = fetchFacilityData();
+        console.log('Origin Facility:', fcOrigin);
+        console.log('Final Facility:', fcFinal);
+    });
 }
 
     setInterval(updateCounter, 1000);
