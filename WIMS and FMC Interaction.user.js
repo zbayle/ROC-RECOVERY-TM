@@ -462,7 +462,7 @@ if (window.location.pathname.includes('/fmc/execution/')) {
     redesignTable();
     addVistaButton();
     document.addEventListener("DOMContentLoaded", addFacilityClasses);
-} else if (window.location.pathname.includes('/wims/related/SCAC/*')) {
+} else if (window.location.pathname.includes('/wims/related/SCAC*')) {
     const relatedScacPattern = /\/wims\/related\/SCAC\/[^/]+/;
     if (relatedScacPattern.test(window.location.pathname)) {
         // Wait for 5 seconds and then redirect to /wims
