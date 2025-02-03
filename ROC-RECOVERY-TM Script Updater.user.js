@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.2.5
+// @version      1.2.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -29,12 +29,6 @@
             match: ['https://trans-logistics.amazon.com/sortcenter/vista/*']
         },
         {
-            name: "Display Hover Box",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box.user.js",
-            key: "Display Hover Box Version",
-            match: ['https://trans-logistics.amazon.com/sortcenter/vista/*']
-        },
-        {
             name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js",
             key: "Vista Auto Fill with VRID Scroll, Enter, and Hover Version",
@@ -47,29 +41,11 @@
             match: ['https://optimus-internal.amazon.com/wims*', 'https://trans-logistics.amazon.com/fmc/execution/*', 'https://trans-logistics.amazon.com/sortcenter/vista/*']
         },
         {
-            name: "WIMS and FMC",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC.user.js",
-            key: "WIMS and FMC Version",
-            match: ['https://optimus-internal.amazon.com/wims*', 'https://trans-logistics.amazon.com/fmc/execution/*', 'https://trans-logistics.amazon.com/sortcenter/vista/*']
-        },
-        {
-            name: "ROC Tools with Floating Menu",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
-            key: "ROC Tools with Floating Menu Version",
-            match: ['https://optimus-internal.amazon.com/*', 'https://trans-logistics.amazon.com/*']
-        },
-        {
             name: "Tampermonkey Keyword Highlighter",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
             key: "Tampermonkey Keyword Highlighter Version",
             match: ['https://optimus-internal.amazon.com/*', 'https://trans-logistics.amazon.com/*']
         },
-        {
-            name: "Vista Auto Fill",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20Auto%20Fill.user.js",
-            key: "Vista Auto Fill Version",
-            match: ['https://trans-logistics.amazon.com/sortcenter/vista/*']
-        }
     ];
 
     // Compare versions
