@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.2.4
+// @version      1.2.5
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -25,18 +25,30 @@
         {
             name: "Display Hover Box Data with Time and Packages",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js",
+            key: "Display Hover Box Data with Time and Packages Version",
+            match: ['https://trans-logistics.amazon.com/sortcenter/vista/*']
+        },
+        {
+            name: "Display Hover Box",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Display%20Hover%20Box.user.js",
             key: "Display Hover Box Version",
             match: ['https://trans-logistics.amazon.com/sortcenter/vista/*']
         },
         {
             name: "Vista Auto Fill with VRID Scroll, Enter, and Hover",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js",
-            key: "Vista Auto Fill Version",
+            key: "Vista Auto Fill with VRID Scroll, Enter, and Hover Version",
             match: ['https://trans-logistics.amazon.com/sortcenter/vista/*']
         },
         {
             name: "WIMS and FMC Interaction",
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC%20Interaction.user.js",
+            key: "WIMS and FMC Interaction Version",
+            match: ['https://optimus-internal.amazon.com/wims*', 'https://trans-logistics.amazon.com/fmc/execution/*', 'https://trans-logistics.amazon.com/sortcenter/vista/*']
+        },
+        {
+            name: "WIMS and FMC",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIMS%20and%20FMC.user.js",
             key: "WIMS and FMC Version",
             match: ['https://optimus-internal.amazon.com/wims*', 'https://trans-logistics.amazon.com/fmc/execution/*', 'https://trans-logistics.amazon.com/sortcenter/vista/*']
         },
@@ -45,6 +57,18 @@
             url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
             key: "ROC Tools with Floating Menu Version",
             match: ['https://optimus-internal.amazon.com/*', 'https://trans-logistics.amazon.com/*']
+        },
+        {
+            name: "Tampermonkey Keyword Highlighter",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
+            key: "Tampermonkey Keyword Highlighter Version",
+            match: ['https://optimus-internal.amazon.com/*', 'https://trans-logistics.amazon.com/*']
+        },
+        {
+            name: "Vista Auto Fill",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/Vista%20Auto%20Fill.user.js",
+            key: "Vista Auto Fill Version",
+            match: ['https://trans-logistics.amazon.com/sortcenter/vista/*']
         }
     ];
 
@@ -62,7 +86,7 @@
     // Function to dynamically inject the script into Tampermonkey
     function injectScript(content) {
         const scriptElement = document.createElement('script');
-        scriptElement.textContent = content;
+        scriptElement.textContent = `(function() { ${content} })();`;
         document.head.appendChild(scriptElement);
     }
 
@@ -86,8 +110,11 @@
                         url: script.url,
                         onload: function (response) {
                             const remoteVersion = /@version\s+([\d.]+)/.exec(response.responseText)?.[1];
-                            if (remoteVersion && isNewVersion(GM_getValue(script.key, "0.0"), remoteVersion)) {
-                                console.log(`Updating ${script.name} from version ${GM_getValue(script.key, "0.0")} to ${remoteVersion}`);
+                            const currentVersion = GM_getValue(script.key, "0.0");
+                            console.log(`Current version of ${script.name}: ${currentVersion}`);
+                            console.log(`Remote version of ${script.name}: ${remoteVersion}`);
+                            if (remoteVersion && isNewVersion(currentVersion, remoteVersion)) {
+                                console.log(`Updating ${script.name} from version ${currentVersion} to ${remoteVersion}`);
                                 updateScript(script, remoteVersion, response.responseText);
                             } else {
                                 console.log(`${script.name} is already up to date.`);
@@ -111,5 +138,17 @@
 
     // Initial check on load
     checkForUpdates();
+
+    // Log the stored versions
+    console.log('Stored versions:', {
+        "Display Hover Box Data with Time and Packages Version": GM_getValue('Display Hover Box Data with Time and Packages Version'),
+        "Display Hover Box Version": GM_getValue('Display Hover Box Version'),
+        "ROC Tools with Floating Menu Version": GM_getValue('ROC Tools with Floating Menu Version'),
+        "Tampermonkey Keyword Highlighter Version": GM_getValue('Tampermonkey Keyword Highlighter Version'),
+        "Vista Auto Fill Version": GM_getValue('Vista Auto Fill Version'),
+        "Vista Auto Fill with VRID Scroll, Enter, and Hover Version": GM_getValue('Vista Auto Fill with VRID Scroll, Enter, and Hover Version'),
+        "WIMS and FMC Interaction Version": GM_getValue('WIMS and FMC Interaction Version'),
+        "WIMS and FMC Version": GM_getValue('WIMS and FMC Version')
+    });
 
 })();
