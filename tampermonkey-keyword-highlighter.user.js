@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools with Floating Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0.7.6
+// @version      2.0.7.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -23,15 +23,17 @@
 // Ensure GM functions are available
 if (typeof GM_getValue === 'undefined') {
     GM_getValue = function (key, defaultValue) {
-        return localStorage.getItem(key) || defaultValue;
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : defaultValue;
     };
 }
 
 if (typeof GM_setValue === 'undefined') {
     GM_setValue = function (key, value) {
-        localStorage.setItem(key, value);
+        localStorage.setItem(key, JSON.stringify(value));
     };
 }
+
 
 
 
@@ -530,11 +532,13 @@ function loadKeywords() {
     } catch (e) {
         console.error('Error reading from storage. Resetting keywords.', e);
         keywords = [];
+        GM_setValue('keywords', JSON.stringify(keywords)); // Reset keywords in storage
     }
 
     if (!Array.isArray(keywords)) {
         console.warn("Keywords are not stored as an array. Resetting to an empty array.");
         keywords = [];
+        GM_setValue('keywords', JSON.stringify(keywords)); // Reset keywords in storage
     }
 
     console.log("Validated keywords:", keywords); // Debug log
@@ -567,11 +571,8 @@ function loadKeywords() {
 
 // Function to save keywords to storage
 function saveKeywords(keywords) {
-    if (Array.isArray(keywords)) {
-        GM_setValue('keywords', JSON.stringify(keywords));
-    } else {
-        console.error("Keywords are not an array. Not saving.");
-    }
+    GM_setValue('keywords', keywords);
+    console.log('Updated keywords in storage:', keywords);
 }
 // Add or update keyword and color
 function addOrUpdateKeyword() {
