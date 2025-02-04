@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.2.6.1
+// @version      1.2.6.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -50,6 +50,7 @@
 
     // Compare versions
     function isNewVersion(current, latest) {
+        console.log(`Comparing versions: current=${current}, latest=${latest}`);
         const currentParts = current.split('.').map(Number);
         const latestParts = latest.split('.').map(Number);
         for (let i = 0; i < latestParts.length; i++) {
