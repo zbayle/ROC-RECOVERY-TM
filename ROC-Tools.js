@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.0.3
+// @version      3.0.4
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -42,6 +42,32 @@ console.log("ROC Tools script loaded.");
 
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function loadSettings() {
+    const defaultSettings = {
+        alertEnabled: false,
+        alerts: [],
+        autoAssignEnabled: false,
+        keywords: [],
+        selectedSound: 'beep',
+        volume: '0.5'
+    };
+
+    let settings = GM_getValue('settings', JSON.stringify(defaultSettings));
+    try {
+        settings = JSON.parse(settings);
+    } catch (e) {
+        console.error('Error parsing settings from storage. Resetting to default settings.', e);
+        settings = defaultSettings;
+        GM_setValue('settings', JSON.stringify(settings));
+    }
+
+    return settings;
+}
+
+function saveSettings(settings) {
+    GM_setValue('settings', JSON.stringify(settings));
+}
 
 // Function to create and insert the floating icon
 function createFloatingIcon() {
@@ -351,13 +377,14 @@ function createFloatingMenu() {
 
 // Define the loadAlerts function
 function loadAlerts() {
-    // Load the alert toggle state
-    const alertEnabled = GM_getValue('alertEnabled', false);
+    const settings = loadSettings();
+
     const alertToggle = document.getElementById('alertToggle');
     if (alertToggle) {
-        alertToggle.checked = alertEnabled;
+        alertToggle.checked = settings.alertEnabled;
         alertToggle.addEventListener('change', () => {
-            GM_setValue('alertEnabled', alertToggle.checked);
+            settings.alertEnabled = alertToggle.checked;
+            saveSettings(settings);
             if (alertToggle.checked) {
                 observeWIMAlerts();
             } else {
@@ -366,22 +393,30 @@ function loadAlerts() {
         });
     }
 
-    // Load the selected sound and volume
-    const selectedSound = GM_getValue('selectedSound', 'beep');
     const soundSelect = document.getElementById('soundSelect');
     if (soundSelect) {
-        soundSelect.value = selectedSound;
+        soundSelect.value = settings.selectedSound;
         soundSelect.addEventListener('change', () => {
-            GM_setValue('selectedSound', soundSelect.value);
+            settings.selectedSound = soundSelect.value;
+            saveSettings(settings);
         });
     }
 
-    const volume = GM_getValue('volume', 0.5);
     const volumeSlider = document.getElementById('volumeSlider');
     if (volumeSlider) {
-        volumeSlider.value = volume;
+        volumeSlider.value = settings.volume;
         volumeSlider.addEventListener('input', () => {
-            GM_setValue('volume', volumeSlider.value);
+            settings.volume = volumeSlider.value;
+            saveSettings(settings);
+        });
+    }
+
+    const autoAssignCheckbox = document.getElementById('autoAssignCheckbox');
+    if (autoAssignCheckbox) {
+        autoAssignCheckbox.checked = settings.autoAssignEnabled;
+        autoAssignCheckbox.addEventListener('change', () => {
+            settings.autoAssignEnabled = autoAssignCheckbox.checked;
+            saveSettings(settings);
         });
     }
 }
@@ -528,22 +563,8 @@ function validateKeywords(keywords) {
 function loadKeywords() {
     console.log("Loading keywords..."); // Debug log
 
-    let keywords = [];
-    try {
-        const storedKeywords = GM_getValue('keywords', '[]');
-        keywords = JSON.parse(storedKeywords);
-        console.log("Keywords retrieved from storage:", keywords); // Debug log
-    } catch (e) {
-        console.error('Error reading from storage. Resetting keywords.', e);
-        keywords = [];
-    }
-
-    if (!Array.isArray(keywords)) {
-        console.warn("Keywords are not stored as an array. Resetting to an empty array.");
-        keywords = [];
-    }
-
-    console.log("Validated keywords:", keywords); // Debug log
+    const settings = loadSettings();
+    const keywords = settings.keywords;
 
     const list = document.getElementById('keywordList');
     if (list) {
@@ -586,13 +607,8 @@ function addOrUpdateKeyword() {
 
     if (keyword === '') return; // Don't allow empty keywords
 
-    let keywords = GM_getValue('keywords', []);
-
-    // Ensure keywords is an array
-    if (!Array.isArray(keywords)) {
-        console.error('Keywords are stored incorrectly. Resetting to an empty array.');
-        keywords = [];
-    }
+    const settings = loadSettings();
+    let keywords = settings.keywords;
 
     // Check if the keyword already exists
     const existingIndex = keywords.findIndex(item => item.keyword === keyword);
@@ -611,17 +627,16 @@ function addOrUpdateKeyword() {
         keywords.push({ keyword, color });
     }
 
-    // Store keywords as an array
-    GM_setValue('keywords', keywords);
-    console.log("Updated keywords in storage:", GM_getValue('keywords'));
+    settings.keywords = keywords;
+    saveSettings(settings);
     loadKeywords();
     highlightKeywords(keywords); // Ensure keywords are highlighted after adding/updating
 }
 
 // Edit keyword and color
 function editKeyword(index) {
-    const keywords = GM_getValue('keywords', []);
-    const keyword = keywords[index];
+    const settings = loadSettings();
+    const keyword = settings.keywords[index];
 
     document.getElementById('keywordInput').value = keyword.keyword;
     document.getElementById('colorInput').value = keyword.color;
@@ -639,24 +654,24 @@ function updateKeyword(index) {
 
     if (keyword === '') return;
 
-    let keywords = GM_getValue('keywords', []);
-    keywords[index] = { keyword, color };
+    const settings = loadSettings();
+    settings.keywords[index] = { keyword, color };
 
-    GM_setValue('keywords', keywords);
+    saveSettings(settings);
     loadKeywords();
-    highlightKeywords(keywords); // Ensure keywords are highlighted after updating
+    highlightKeywords(settings.keywords); // Ensure keywords are highlighted after updating
 
     document.getElementById('addButton').textContent = 'Add/Update Keyword';
     document.getElementById('addButton').onclick = addOrUpdateKeyword;
 }
-
 // Remove keyword
 function removeKeyword(index) {
-    let keywords = GM_getValue('keywords', []);
-    keywords.splice(index, 1);
-    GM_setValue('keywords', keywords);
+    const settings = loadSettings();
+    settings.keywords.splice(index, 1);
+
+    saveSettings(settings);
     loadKeywords();
-    highlightKeywords(keywords); // Ensure keywords are highlighted after removing
+    highlightKeywords(settings.keywords); // Ensure keywords are highlighted after removing
 }
 
 // Highlight keywords in page content
@@ -833,8 +848,8 @@ window.addEventListener('load', function () {
 
     // Highlight keywords every 15 seconds
     setInterval(() => {
-        const keywords = GM_getValue('keywords', []);
-        highlightKeywords(keywords);
+        const settings = loadSettings();
+        highlightKeywords(settings.keywords);
     }, 15000);
 });
 
