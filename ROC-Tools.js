@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.0.1
+// @version      3.0.2
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -21,16 +21,22 @@
 
     // Ensure GM functions are available
     if (typeof GM_getValue === 'undefined') {
+        console.warn('GM_getValue is not defined. Using localStorage as fallback.');
         GM_getValue = function (key, defaultValue) {
             const value = localStorage.getItem(key);
             return value ? JSON.parse(value) : defaultValue;
         };
+    } else {
+        console.log('GM_getValue is available.');
     }
 
     if (typeof GM_setValue === 'undefined') {
+        console.warn('GM_setValue is not defined. Using localStorage as fallback.');
         GM_setValue = function (key, value) {
             localStorage.setItem(key, JSON.stringify(value));
         };
+    } else {
+        console.log('GM_setValue is available.');
     }
 
     console.log("ROC Tools script loaded.");
