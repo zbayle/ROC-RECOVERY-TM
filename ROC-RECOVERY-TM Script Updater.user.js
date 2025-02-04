@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.2.6.0
+// @version      1.2.6.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -41,9 +41,9 @@
             match: ['https://optimus-internal.amazon.com/wims*', 'https://trans-logistics.amazon.com/fmc/execution/*', 'https://trans-logistics.amazon.com/sortcenter/vista/*']
         },
         {
-            name: "Tampermonkey Keyword Highlighter",
-            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js",
-            key: "Tampermonkey Keyword Highlighter Version",
+            name: "ROC Tools",
+            url: "https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-Tools.js",
+            key: "ROC Tools Version",
             match: ['https://optimus-internal.amazon.com/*', 'https://trans-logistics.amazon.com/*']
         },
     ];
@@ -118,13 +118,9 @@
     // Log the stored versions
     console.log('Stored versions:', {
         "Display Hover Box Data with Time and Packages Version": GM_getValue('Display Hover Box Data with Time and Packages Version'),
-        "Display Hover Box Version": GM_getValue('Display Hover Box Version'),
-        "ROC Tools with Floating Menu Version": GM_getValue('ROC Tools with Floating Menu Version'),
-        "Tampermonkey Keyword Highlighter Version": GM_getValue('Tampermonkey Keyword Highlighter Version'),
-        "Vista Auto Fill Version": GM_getValue('Vista Auto Fill Version'),
         "Vista Auto Fill with VRID Scroll, Enter, and Hover Version": GM_getValue('Vista Auto Fill with VRID Scroll, Enter, and Hover Version'),
         "WIMS and FMC Interaction Version": GM_getValue('WIMS and FMC Interaction Version'),
-        "WIMS and FMC Version": GM_getValue('WIMS and FMC Version')
+        "ROC Tools Version": GM_getValue('ROC Tools Version')
     });
 
 })();

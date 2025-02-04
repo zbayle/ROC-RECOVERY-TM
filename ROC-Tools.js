@@ -12,8 +12,8 @@
 // @grant        GM_log
 // @grant        GM_registerMenuCommand
 // @connect      raw.githubusercontent.com
-// @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
-// @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/tampermonkey-keyword-highlighter.user.js
+// @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-Tools.js
+// @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-Tools.js
 // ==/UserScript==
 
 (function () {
