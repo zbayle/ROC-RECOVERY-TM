@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC-RECOVERY-TM Script Updater
 // @namespace    http://tampermonkey.net/
-// @version      1.2.6.2
+// @version      1.2.6.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/ROC-RECOVERY-TM%20Script%20Updater.user.js
 // @description  Automatically updates scripts from the ROC-RECOVERY-TM GitHub repository.
@@ -117,11 +117,11 @@
     checkForUpdates();
 
     // Log the stored versions
-    console.log('Stored versions:', {
-        "Display Hover Box Data with Time and Packages Version": GM_getValue('Display Hover Box Data with Time and Packages Version'),
-        "Vista Auto Fill with VRID Scroll, Enter, and Hover Version": GM_getValue('Vista Auto Fill with VRID Scroll, Enter, and Hover Version'),
-        "WIMS and FMC Interaction Version": GM_getValue('WIMS and FMC Interaction Version'),
-        "ROC Tools Version": GM_getValue('ROC Tools Version')
-    });
+    // console.log('Stored versions:', {
+    //     "Display Hover Box Data with Time and Packages Version": GM_getValue('Display Hover Box Data with Time and Packages Version'),
+    //     "Vista Auto Fill with VRID Scroll, Enter, and Hover Version": GM_getValue('Vista Auto Fill with VRID Scroll, Enter, and Hover Version'),
+    //     "WIMS and FMC Interaction Version": GM_getValue('WIMS and FMC Interaction Version'),
+    //     "ROC Tools Version": GM_getValue('ROC Tools Version')
+    // });
 
 })();
