@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         ROC Tools with Floating Menu
+// @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      2.0.7.7
+// @version      3.0.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
