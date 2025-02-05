@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover.
@@ -55,9 +55,11 @@
             mutations.forEach(mutation => {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === 1 && node.classList.contains('tooltipTitle')) {
+                        console.log('Tooltip detected:', node);
                         // Grab the data from the tooltip
                         const list = node.querySelector('.listWithoutStyle.slamCptList');
                         if (list) {
+                            console.log('List found in tooltip:', list);
                             // Extract and format the time and package info
                             let content = '';
                             let cumulativePackages = 0;
@@ -83,6 +85,7 @@
                                     const container = document.getElementById('hoverDataContainer');
                                     if (container) {
                                         container.style.border = '2px solid green';
+                                        console.log('Green border added to hoverDataContainer');
                                     }
                                 }
 
@@ -90,6 +93,8 @@
                             });
 
                             updateHoverDataContainer(content);
+                        } else {
+                            console.log('List not found in tooltip');
                         }
                     }
                 });
