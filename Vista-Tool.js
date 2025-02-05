@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover.
@@ -70,9 +70,9 @@
                                 const time = item.querySelector('.cpt') ? item.querySelector('.cpt').innerText : '';
                                 const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
                                 const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
-
+                            
                                 cumulativePackages += pkgs;
-
+                            
                                 // Check if threshold is met and highlight the row
                                 if (!thresholdMet && cumulativePackages >= 300) {
                                     item.classList.add('cptEntry');
@@ -80,18 +80,14 @@
                                     item.style.backgroundColor = 'white';
                                     item.style.fontWeight = 'bold';
                                     thresholdMet = true;
-
-                                    // Add green border to the display container
-                                    const container = document.getElementById('hoverDataContainer');
-                                    if (container) {
-                                        container.style.border = '2px solid green';
-                                        console.log('Green border added to hoverDataContainer');
-                                    }
+                            
+                                    // Add green border to the specific li element in the hoverDataContainer
+                                    content += `<li style="margin-bottom: 5px;color:black;border: 2px solid green;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                                } else {
+                                    content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                                 }
-
-                                content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                             });
-
+                            
                             updateHoverDataContainer(content);
                         } else {
                             console.log('List not found in tooltip');
