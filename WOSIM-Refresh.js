@@ -1,12 +1,10 @@
 // ==UserScript==
 // @name         WOSIM Refresh
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  A script to refresh WOSIM page with an on-screen timer
 // @author       zbbayle
 // @match        https://t.corp.amazon.com/issues/*
-// @grant        GM_setValue
-// @grant        GM_getValue
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WOSIM-Refresh.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WOSIM-Refresh.js
 // ==/UserScript==
