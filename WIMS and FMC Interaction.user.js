@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.8.6
+// @version      1.8.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -398,7 +398,7 @@
         const resultDate = new Date(entryDate.getTime() - totalTime);
     
         console.log('Calculated Time:', resultDate);
-        displayCalculatedTime(resultDate);
+        displayCalculatedTime(resultDate); // Call to display the calculated time
         return resultDate;
     }
     
