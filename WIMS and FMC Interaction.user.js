@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.8.1
+// @version      1.8.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -243,10 +243,18 @@
     // Function to create and append an iframe
     function createIframe(url, callback) {
         const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
+        iframe.style.width = '100%';
+        iframe.style.height = '500px';
         iframe.src = url;
         iframe.onload = () => callback(iframe);
-        document.body.appendChild(iframe);
+    
+        const container = document.querySelector('#expanded-plan-execution-details-container');
+        const referenceElement = document.querySelector('#expanded-child-table-container');
+        if (container && referenceElement) {
+            container.insertBefore(iframe, referenceElement.nextSibling);
+        } else {
+            console.error('Container or reference element not found!');
+        }
     }
 
     // Function to retrieve data from the iframe
