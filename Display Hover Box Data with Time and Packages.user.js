@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Display Hover Box Data with Time and Packages
 // @namespace    http://tampermonkey.net/
-// @version      1.7.3
+// @version      1.7.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @description  Extract and display time and package data from tooltip in a floating container, highlighting the first cumulative threshold.
@@ -29,7 +29,6 @@
     container.style.maxHeight = '90vh';
     container.style.width = '300px';
     container.style.color = 'black';
-    container.style.fontWeight = 'bold';
     container.style.fontWeight = 'bold';
     document.body.appendChild(container);
 
@@ -65,10 +64,15 @@
                             cumulativePackages += pkgs;
 
                             // Check if threshold is met and highlight the row
-                            const highlightStyle = (!thresholdMet && cumulativePackages >= 300) ? 'border: 4px ridge #50ff64;,background-color: white; font-weight: bold;' : '';
-                            if (cumulativePackages >= 300) thresholdMet = true;
+                            if (!thresholdMet && cumulativePackages >= 300) {
+                                item.classList.add('cptEntry');
+                                item.style.border = '4px ridge #50ff64';
+                                item.style.backgroundColor = 'white';
+                                item.style.fontWeight = 'bold';
+                                thresholdMet = true;
+                            }
 
-                            content += `<li style="margin-bottom: 5px;color:black; ${highlightStyle}"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                            content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                         });
 
                         updateContainer(content);

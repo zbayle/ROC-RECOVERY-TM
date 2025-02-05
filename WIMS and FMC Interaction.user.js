@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.7.8
+// @version      1.7.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -247,20 +247,17 @@
                 console.log('Assets container found!');
                 clearInterval(retryInterval);
     
-                // Check if the "Open Vista" button already exists
                 if (document.querySelector('button#vistaButton')) {
                     console.log('Vista button already exists!');
                     return;
                 }
     
-                // Check for "OutboundAmazonManaged" and show the button if found
                 const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
                 if (outboundAmazonManagedText) {
                     console.log('OutboundAmazonManaged text found!');
     
-                    // Create a new button element
                     const vistaButton = document.createElement('button');
-                    vistaButton.id = 'vistaButton'; // Add an ID to the button
+                    vistaButton.id = 'vistaButton';
                     vistaButton.textContent = 'Open Vista';
                     vistaButton.style.backgroundColor = '#FF9900';
                     vistaButton.style.color = 'black';
@@ -270,11 +267,9 @@
                     vistaButton.style.borderRadius = '5px';
                     vistaButton.style.fontSize = '16px';
     
-                    // Add an event listener to open the Vista URL
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
     
-                        // Select the second 'span.vr-stop-name' element
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
     
@@ -291,11 +286,9 @@
                             return;
                         }
     
-                        // Store the facilityId in localStorage
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
     
-                        // Locate the VRID element and retrieve its value
                         const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
                         if (!vridElement) {
                             console.error('VRID element not found!');
@@ -308,11 +301,35 @@
                             return;
                         }
     
-                        // Store the VRID in localStorage
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
     
-                        // Open the Vista page in a new tab
+                        // Retrieve destinationID from the element with class 'cptEntry'
+                        const destinationElement = document.querySelector('.cptEntry');
+                        if (!destinationElement) {
+                            console.error('Destination element not found!');
+                            return;
+                        }
+    
+                        const destinationID = destinationElement.textContent.trim();
+                        localStorage.setItem('destinationID', destinationID);
+                        console.log('Stored Destination ID:', destinationID);
+    
+                        // Retrieve entryDateTime from the page
+                        const entryDateTimeElement = destinationElement.querySelector('strong');
+                        if (!entryDateTimeElement) {
+                            console.error('Entry DateTime element not found!');
+                            return;
+                        }
+    
+                        const entryDateTime = entryDateTimeElement.textContent.trim();
+                        if (!entryDateTime) {
+                            console.error('Entry DateTime not found!');
+                            return;
+                        }
+    
+                        await calculateTime(entryDateTime);
+    
                         const link = document.createElement('a');
                         link.href = `https://trans-logistics.amazon.com/sortcenter/vista/?facility=${facilityId}`;
                         link.target = '_blank';
@@ -321,7 +338,6 @@
                         document.body.removeChild(link);
                     });
     
-                    // Append the button to the assets container
                     assetsContainer.appendChild(vistaButton);
                     console.log('Vista button added to the page.');
                 } else {
@@ -331,6 +347,52 @@
                 console.warn('Assets container not found. Retrying...');
             }
         }, 500);
+    }
+    async function fetchDriveTime(vrid, destinationID) {
+        const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${destinationID}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        const driveTime = data.driveTime; // Adjust based on actual response structure
+        return driveTime;
+    }
+
+    async function calculateTime(entryDateTime) {
+        const vrid = localStorage.getItem('vrid');
+        const destinationID = localStorage.getItem('destinationID');
+        if (!vrid || !destinationID) {
+            console.error('VRID or Destination ID not found in localStorage!');
+            return;
+        }
+    
+        const driveTime = await fetchDriveTime(vrid, destinationID);
+        const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+        const totalTime = sixHours + driveTime;
+    
+        const entryDate = new Date(entryDateTime);
+        const resultDate = new Date(entryDate.getTime() - totalTime);
+    
+        console.log('Calculated Time:', resultDate);
+        displayCalculatedTime(resultDate);
+        return resultDate;
+    }
+    
+    function displayCalculatedTime(resultDate) {
+        let displayElement = document.getElementById('calculated-time-display');
+        if (!displayElement) {
+            displayElement = document.createElement('div');
+            displayElement.id = 'calculated-time-display';
+            displayElement.style.position = 'fixed';
+            displayElement.style.bottom = '10px';
+            displayElement.style.right = '10px';
+            displayElement.style.backgroundColor = '#FF9900';
+            displayElement.style.color = 'black';
+            displayElement.style.padding = '10px';
+            displayElement.style.borderRadius = '5px';
+            displayElement.style.fontSize = '16px';
+            displayElement.style.zIndex = '1000';
+            document.body.appendChild(displayElement);
+        }
+        displayElement.innerText = `Calculated Time: ${resultDate.toLocaleString()}`;
     }
     // Function to redesign the table with responsive design
     function redesignTable() {
