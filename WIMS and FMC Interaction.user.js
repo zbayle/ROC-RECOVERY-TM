@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.7.9
+// @version      1.8.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -238,24 +238,64 @@
         });
     }
 
+    
+
+    // Function to create and append an iframe
+    function createIframe(url, callback) {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        iframe.onload = () => callback(iframe);
+        document.body.appendChild(iframe);
+    }
+
+    // Function to retrieve data from the iframe
+    function retrieveDataFromIframe(iframe) {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        const destinationElement = iframeDocument.querySelector('.cptEntry');
+        if (!destinationElement) {
+            console.error('Destination element not found!');
+            return;
+        }
+
+        const destinationID = destinationElement.textContent.trim();
+        localStorage.setItem('destinationID', destinationID);
+        console.log('Stored Destination ID:', destinationID);
+
+        const entryDateTimeElement = destinationElement.querySelector('strong');
+        if (!entryDateTimeElement) {
+            console.error('Entry DateTime element not found!');
+            return;
+        }
+
+        const entryDateTime = entryDateTimeElement.textContent.trim();
+        if (!entryDateTime) {
+            console.error('Entry DateTime not found!');
+            return;
+        }
+
+        calculateTime(entryDateTime);
+    }
+
+    // Function to add the Vista button
     function addVistaButton() {
         const retryInterval = setInterval(() => {
             console.log('Checking for assets container...');
             const assetsContainer = document.querySelector('td.assets');
-    
+
             if (assetsContainer) {
                 console.log('Assets container found!');
                 clearInterval(retryInterval);
-    
+
                 if (document.querySelector('button#vistaButton')) {
                     console.log('Vista button already exists!');
                     return;
                 }
-    
+
                 const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
                 if (outboundAmazonManagedText) {
                     console.log('OutboundAmazonManaged text found!');
-    
+
                     const vistaButton = document.createElement('button');
                     vistaButton.id = 'vistaButton';
                     vistaButton.textContent = 'Open Vista';
@@ -266,78 +306,48 @@
                     vistaButton.style.cursor = 'pointer';
                     vistaButton.style.borderRadius = '5px';
                     vistaButton.style.fontSize = '16px';
-    
+
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
-    
+
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
-    
+
                         if (stopNames.length < 2) {
                             console.error('Not enough stops found!');
                             return;
                         }
-    
+
                         const finalFacilityElement = stopNames[1];
                         const facilityId = finalFacilityElement.textContent.trim();
-    
+
                         if (!facilityId) {
                             console.error('Facility ID not found!');
                             return;
                         }
-    
+
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
-    
+
                         const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
                         if (!vridElement) {
                             console.error('VRID element not found!');
                             return;
                         }
-    
+
                         const vrid = vridElement.textContent.trim();
                         if (!vrid) {
                             console.error('VRID not found!');
                             return;
                         }
-    
+
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
-    
-                        // Retrieve destinationID from the element with class 'cptEntry'
-                        const destinationElement = document.querySelector('.cptEntry');
-                        if (!destinationElement) {
-                            console.error('Destination element not found!');
-                            return;
-                        }
-    
-                        const destinationID = destinationElement.textContent.trim();
-                        localStorage.setItem('destinationID', destinationID);
-                        console.log('Stored Destination ID:', destinationID);
-    
-                        // Retrieve entryDateTime from the page
-                        const entryDateTimeElement = destinationElement.querySelector('strong');
-                        if (!entryDateTimeElement) {
-                            console.error('Entry DateTime element not found!');
-                            return;
-                        }
-    
-                        const entryDateTime = entryDateTimeElement.textContent.trim();
-                        if (!entryDateTime) {
-                            console.error('Entry DateTime not found!');
-                            return;
-                        }
-    
-                        await calculateTime(entryDateTime);
-    
-                        const link = document.createElement('a');
-                        link.href = `https://trans-logistics.amazon.com/sortcenter/vista/?facility=${facilityId}`;
-                        link.target = '_blank';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+
+                        // Create an iframe and retrieve data from it
+                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', retrieveDataFromIframe);
                     });
-    
+
                     assetsContainer.appendChild(vistaButton);
                     console.log('Vista button added to the page.');
                 } else {
@@ -348,6 +358,7 @@
             }
         }, 500);
     }
+
     async function fetchDriveTime(vrid, destinationID) {
         const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${destinationID}`;
         const response = await fetch(url);
@@ -363,19 +374,19 @@
             console.error('VRID or Destination ID not found in localStorage!');
             return;
         }
-    
+
         const driveTime = await fetchDriveTime(vrid, destinationID);
         const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
         const totalTime = sixHours + driveTime;
-    
+
         const entryDate = new Date(entryDateTime);
         const resultDate = new Date(entryDate.getTime() - totalTime);
-    
+
         console.log('Calculated Time:', resultDate);
         displayCalculatedTime(resultDate);
         return resultDate;
     }
-    
+
     function displayCalculatedTime(resultDate) {
         let displayElement = document.getElementById('calculated-time-display');
         if (!displayElement) {
