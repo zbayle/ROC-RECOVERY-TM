@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.8.5
+// @version      1.8.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -320,43 +320,47 @@
     
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
-    
+                    
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
-    
+                    
                         if (stopNames.length < 2) {
                             console.error('Not enough stops found!');
                             return;
                         }
-    
+                    
                         const finalFacilityElement = stopNames[1];
                         const facilityId = finalFacilityElement.textContent.trim();
-    
+                    
                         if (!facilityId) {
                             console.error('Facility ID not found!');
                             return;
                         }
-    
+                    
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
-    
+                    
                         const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
                         if (!vridElement) {
                             console.error('VRID element not found!');
                             return;
                         }
-    
+                    
                         const vrid = vridElement.textContent.trim();
                         if (!vrid) {
                             console.error('VRID not found!');
                             return;
                         }
-    
+                    
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
-    
+                    
                         // Create an iframe and retrieve data from it
-                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', retrieveDataFromIframe);
+                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
+                            retrieveDataFromIframe(iframe);
+                            // Call useStoredThresholdTime after the iframe is loaded and data is retrieved
+                            useStoredThresholdTime();
+                        });
                     });
     
                     assetsContainer.appendChild(vistaButton);
@@ -385,17 +389,38 @@
             console.error('VRID or Destination ID not found in localStorage!');
             return;
         }
-
+    
         const driveTime = await fetchDriveTime(vrid, destinationID);
         const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
         const totalTime = sixHours + driveTime;
-
+    
         const entryDate = new Date(entryDateTime);
         const resultDate = new Date(entryDate.getTime() - totalTime);
-
+    
         console.log('Calculated Time:', resultDate);
         displayCalculatedTime(resultDate);
         return resultDate;
+    }
+    
+    // Function to parse the stored threshold time and use it with calculateTime
+    function useStoredThresholdTime() {
+        const thresholdTime = localStorage.getItem('thresholdTime');
+        if (!thresholdTime) {
+            console.error('Threshold time not found in localStorage!');
+            return;
+        }
+    
+        // Parse the threshold time into a Date object
+        const [time, date] = thresholdTime.split('  ');
+        const [hours, minutes] = time.split(':');
+        const [day, month] = date.split('-');
+        const year = new Date().getFullYear(); // Assuming the current year
+    
+        const entryDateTime = new Date(`${month} ${day}, ${year} ${hours}:${minutes}:00`);
+        console.log('Parsed Entry DateTime:', entryDateTime);
+    
+        // Use the parsed entryDateTime with calculateTime
+        calculateTime(entryDateTime);
     }
 
     function displayCalculatedTime(resultDate) {
