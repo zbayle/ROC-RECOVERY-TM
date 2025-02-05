@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover.
@@ -70,30 +70,31 @@
                                 const time = item.querySelector('.cpt') ? item.querySelector('.cpt').innerText : '';
                                 const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
                                 const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
-
+                            
                                 cumulativePackages += pkgs;
                                 console.log(`Cumulative packages: ${cumulativePackages}`);
-
+                            
                                 // Check if threshold is met and highlight the row
                                 if (!thresholdMet && cumulativePackages >= 300) {
                                     item.classList.add('cptEntry');
-                                    item.style.border = '4px ridge #50ff64';
+                                    item.style.border = '4px groove #50ff64';
+                                    item.style.borderRadius = '10px';
                                     item.style.backgroundColor = 'white';
                                     item.style.fontWeight = 'bold';
                                     thresholdMet = true;
-
+                            
                                     // Add green border to the specific li element in the hoverDataContainer
-                                    content += `<li style="margin-bottom: 5px;color:black;border: 2px solid green;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                                    content += `<li style="margin-bottom: 5px;color:black;border: 4px groove #50ff64;border-radius: 10px;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                                 } else {
                                     content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                                 }
                             });
-
+                            
                             // If the cumulative package count is under 300, add a new li element
                             if (cumulativePackages < 300) {
-                                content += `<li style="margin-bottom: 5px;color:red;"><strong>PACKAGE COUNT UNDER 300</strong></li>`;
+                                content += `<li style="margin-bottom: 5px;color:red;border: 4px groove red;border-radius: 10px;"><strong>PACKAGE COUNT UNDER 300</strong></li>`;
                             }
-
+                            
                             updateHoverDataContainer(content);
                         } else {
                             console.log('List not found in tooltip');
