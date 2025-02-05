@@ -1,23 +1,22 @@
 // ==UserScript==
 // @name         Vista auto fill with VRID scroll, Enter, and Hover
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
 // @description  Automatically selects the facility in the dropdown, sets VRID in the filter input, presses Enter, scrolls into view, and hovers over the progress bar.
 // @author       You
 // @match        https://trans-logistics.amazon.com/sortcenter/vista/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
-// @grant        GM_setValue
-// @grant        GM_getValue
+// @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
 
     // Function to wait for the page to load and then select the facility
-    function selectFacility() {
-        const facilitySelect = document.querySelector('select#availableNodeName');
+    function selectFacility(doc) {
+        const facilitySelect = doc.querySelector('select#availableNodeName');
 
         if (facilitySelect) {
             console.log('Found facility select element!');
@@ -51,7 +50,7 @@
     }
 
     // Function to wait for the VRID field and simulate keystroke
-    function waitForVRIDInputAndSet() {
+    function waitForVRIDInputAndSet(doc) {
         const vrid = localStorage.getItem('vrid'); // Retrieve VRID from localStorage
         if (!vrid) {
             console.error('No VRID found in localStorage!');
@@ -59,7 +58,7 @@
         }
 
         // Locate the Filter input field
-        const filterInput = document.querySelector('#inboundDataTables_filter input[type="text"]');
+        const filterInput = doc.querySelector('#inboundDataTables_filter input[type="text"]');
         if (!filterInput) {
             console.error('Filter input field not found!');
             return;
@@ -110,12 +109,12 @@
         console.log('Filter input field scrolled into view.');
 
         // Emulate a mouseover on the progress bar
-        hoverProgressBar();
+        hoverProgressBar(doc);
     }
 
     // Function to emulate mouseover on the progress bar
-    function hoverProgressBar() {
-        const progressBar = document.querySelector('.progressbarib'); // Locate the progress bar
+    function hoverProgressBar(doc) {
+        const progressBar = doc.querySelector('.progressbarib'); // Locate the progress bar
         if (!progressBar) {
             console.error('Progress bar not found!');
             return;
@@ -141,24 +140,39 @@
     }
 
     // Wait for page load or any other significant loading elements
-    function waitForPageLoad(callback) {
+    function waitForPageLoad(callback, doc) {
         const observer = new MutationObserver(() => {
-            const loadingElement = document.querySelector('#block-ui-container');
+            const loadingElement = doc.querySelector('#block-ui-container');
             if (!loadingElement || loadingElement.classList.contains('hidden')) {
                 callback();
             }
         });
 
-        observer.observe(document.body, {
+        observer.observe(doc.body, {
             childList: true,
             subtree: true
         });
     }
 
     // Main logic that runs after the page is loaded
-    waitForPageLoad(() => {
-        selectFacility();
-        waitForVRIDInputAndSet();
-    });
-})();
+    function main(doc) {
+        waitForPageLoad(() => {
+            selectFacility(doc);
+            waitForVRIDInputAndSet(doc);
+        }, doc);
+    }
 
+    // Check if the script is running inside an iframe or the main window
+    if (window.self !== window.top) {
+        // Running inside an iframe
+        window.addEventListener('load', () => {
+            const iframeDocument = window.document;
+            main(iframeDocument);
+        });
+    } else {
+        // Running in the main window
+        window.addEventListener('load', () => {
+            main(document);
+        });
+    }
+})();
