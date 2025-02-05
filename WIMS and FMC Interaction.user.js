@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.8.0
+// @version      1.8.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -257,23 +257,25 @@
             console.error('Destination element not found!');
             return;
         }
-
+    
         const destinationID = destinationElement.textContent.trim();
         localStorage.setItem('destinationID', destinationID);
         console.log('Stored Destination ID:', destinationID);
-
+    
         const entryDateTimeElement = destinationElement.querySelector('strong');
         if (!entryDateTimeElement) {
             console.error('Entry DateTime element not found!');
             return;
         }
-
+    
         const entryDateTime = entryDateTimeElement.textContent.trim();
         if (!entryDateTime) {
             console.error('Entry DateTime not found!');
             return;
         }
-
+    
+        console.log('Retrieved Entry DateTime:', entryDateTime);
+    
         calculateTime(entryDateTime);
     }
 
@@ -282,20 +284,20 @@
         const retryInterval = setInterval(() => {
             console.log('Checking for assets container...');
             const assetsContainer = document.querySelector('td.assets');
-
+    
             if (assetsContainer) {
                 console.log('Assets container found!');
                 clearInterval(retryInterval);
-
+    
                 if (document.querySelector('button#vistaButton')) {
                     console.log('Vista button already exists!');
                     return;
                 }
-
+    
                 const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
                 if (outboundAmazonManagedText) {
                     console.log('OutboundAmazonManaged text found!');
-
+    
                     const vistaButton = document.createElement('button');
                     vistaButton.id = 'vistaButton';
                     vistaButton.textContent = 'Open Vista';
@@ -306,48 +308,48 @@
                     vistaButton.style.cursor = 'pointer';
                     vistaButton.style.borderRadius = '5px';
                     vistaButton.style.fontSize = '16px';
-
+    
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
-
+    
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
-
+    
                         if (stopNames.length < 2) {
                             console.error('Not enough stops found!');
                             return;
                         }
-
+    
                         const finalFacilityElement = stopNames[1];
                         const facilityId = finalFacilityElement.textContent.trim();
-
+    
                         if (!facilityId) {
                             console.error('Facility ID not found!');
                             return;
                         }
-
+    
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
-
+    
                         const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
                         if (!vridElement) {
                             console.error('VRID element not found!');
                             return;
                         }
-
+    
                         const vrid = vridElement.textContent.trim();
                         if (!vrid) {
                             console.error('VRID not found!');
                             return;
                         }
-
+    
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
-
+    
                         // Create an iframe and retrieve data from it
                         createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', retrieveDataFromIframe);
                     });
-
+    
                     assetsContainer.appendChild(vistaButton);
                     console.log('Vista button added to the page.');
                 } else {
