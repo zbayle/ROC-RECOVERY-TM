@@ -1,29 +1,105 @@
 // ==UserScript==
-// @name         Vista auto fill with VRID scroll, Enter, and Hover
+// @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.4
-// @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
-// @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
-// @description  Automatically selects the facility in the dropdown, sets VRID in the filter input, presses Enter, scrolls into view, and hovers over the progress bar.
-// @author       You
+// @version      1.0
+// @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
+// @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
+// @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover.
+// @author       zbbayle
 // @match        https://trans-logistics.amazon.com/sortcenter/vista/*
-// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    // Function to create a floating container for displaying hover data
+    function createHoverDataContainer() {
+        let container = document.createElement('div');
+        container.id = 'hoverDataContainer';
+        container.style.position = 'fixed';
+        container.style.top = '10px';
+        container.style.right = '10px';
+        container.style.background = '#f9f9f9';
+        container.style.border = '1px solid #ccc';
+        container.style.padding = '10px';
+        container.style.zIndex = '1000';
+        container.style.overflowY = 'auto';
+        container.style.maxHeight = '90vh';
+        container.style.width = '300px';
+        container.style.color = 'black';
+        container.style.fontWeight = 'bold';
+        document.body.appendChild(container);
+
+        // Initialize with a default message
+        updateHoverDataContainer('Hover over an element to see data');
+    }
+
+    // Function to update the hover data container content with time and packages
+    function updateHoverDataContainer(content) {
+        const container = document.getElementById('hoverDataContainer');
+        if (container) {
+            container.innerHTML = `
+                <h3 style="margin-top: 0;">Package Data</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    ${content}
+                </ul>
+            `;
+        }
+    }
+
+    // Function to observe and extract data from tooltips
+    function observeTooltips() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1 && node.classList.contains('tooltipTitle')) {
+                        // Grab the data from the tooltip
+                        const list = node.querySelector('.listWithoutStyle.slamCptList');
+                        if (list) {
+                            // Extract and format the time and package info
+                            let content = '';
+                            let cumulativePackages = 0;
+                            let thresholdMet = false;
+                            const items = list.querySelectorAll('li');
+
+                            items.forEach((item, index) => {
+                                const time = item.querySelector('.cpt') ? item.querySelector('.cpt').innerText : '';
+                                const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
+                                const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
+
+                                cumulativePackages += pkgs;
+
+                                // Check if threshold is met and highlight the row
+                                if (!thresholdMet && cumulativePackages >= 300) {
+                                    item.classList.add('cptEntry');
+                                    item.style.border = '4px ridge #50ff64';
+                                    item.style.backgroundColor = 'white';
+                                    item.style.fontWeight = 'bold';
+                                    thresholdMet = true;
+                                }
+
+                                content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                            });
+
+                            updateHoverDataContainer(content);
+                        }
+                    }
+                });
+            });
+        });
+
+        // Start observing the DOM for new nodes
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
 
     // Function to wait for the page to load and then select the facility
     function selectFacility(doc) {
         const facilitySelect = doc.querySelector('select#availableNodeName');
 
         if (facilitySelect) {
-            //console.log('Found facility select element!');
-
             const facilityId = localStorage.getItem('facilityId');
-            //console.log("Facility ID from localStorage:", facilityId);
-
             if (facilityId) {
                 const optionToSelect = Array.from(facilitySelect.options).find(option => option.id === facilityId);
 
@@ -33,10 +109,6 @@
                         facilitySelect.value = optionToSelect.value;
                         const changeEvent = new Event('change');
                         facilitySelect.dispatchEvent(changeEvent);
-
-                        //console.log('Facility selected:', optionToSelect.textContent);
-                    } else {
-                        //console.log('Facility is already selected.');
                     }
                 } else {
                     console.error('Facility ID not found in the dropdown options.');
@@ -66,7 +138,6 @@
 
         // Stop further VRID setting if it's already set
         if (filterInput.value === vrid) {
-            //console.log('VRID is already set.');
             return;
         }
 
@@ -74,8 +145,6 @@
         filterInput.value = vrid;
         const inputEvent = new Event('input', { bubbles: true, cancelable: true });
         filterInput.dispatchEvent(inputEvent);
-
-        //console.log('VRID set in the filter input field:', vrid);
 
         // Focus on the input field before dispatching Enter key
         filterInput.focus();
@@ -102,11 +171,8 @@
         });
         filterInput.dispatchEvent(keyUpEvent);
 
-        //console.log('Enter key events dispatched for VRID input field.');
-
         // Scroll the input field into view
         filterInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        console.log('Filter input field scrolled into view.');
 
         // Emulate a mouseover on the progress bar
         hoverProgressBar(doc);
@@ -126,7 +192,6 @@
             cancelable: true
         });
         progressBar.dispatchEvent(mouseOverEvent);
-        console.log('Mouseover event dispatched on the progress bar.');
 
         // Set a timeout to dispatch the mouseleave event after 500ms
         setTimeout(() => {
@@ -135,7 +200,6 @@
                 cancelable: true
             });
             progressBar.dispatchEvent(mouseLeaveEvent);
-            console.log('Mouseleave event dispatched on the progress bar.');
         }, 500); // Delay of 500ms
     }
 
@@ -175,4 +239,8 @@
             main(document);
         });
     }
+
+    // Initialize hover data container and observe tooltips
+    createHoverDataContainer();
+    observeTooltips();
 })();
