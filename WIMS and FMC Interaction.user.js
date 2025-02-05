@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.8.7
+// @version      1.8.8
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -320,41 +320,41 @@
     
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
-                    
+    
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
-                    
+    
                         if (stopNames.length < 2) {
                             console.error('Not enough stops found!');
                             return;
                         }
-                    
+    
                         const finalFacilityElement = stopNames[1];
                         const facilityId = finalFacilityElement.textContent.trim();
-                    
+    
                         if (!facilityId) {
                             console.error('Facility ID not found!');
                             return;
                         }
-                    
+    
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
-                    
+    
                         const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
                         if (!vridElement) {
                             console.error('VRID element not found!');
                             return;
                         }
-                    
+    
                         const vrid = vridElement.textContent.trim();
                         if (!vrid) {
                             console.error('VRID not found!');
                             return;
                         }
-                    
+    
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
-                    
+    
                         // Create an iframe and retrieve data from it
                         createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
                             retrieveDataFromIframe(iframe);
@@ -365,6 +365,17 @@
     
                     assetsContainer.appendChild(vistaButton);
                     console.log('Vista button added to the page.');
+    
+                    // Create and append the calculated-time-display element
+                    const calculatedTimeDisplay = document.createElement('div');
+                    calculatedTimeDisplay.id = 'calculated-time-display';
+                    calculatedTimeDisplay.style.marginTop = '10px';
+                    calculatedTimeDisplay.style.padding = '10px';
+                    calculatedTimeDisplay.style.backgroundColor = '#FF9900';
+                    calculatedTimeDisplay.style.color = 'black';
+                    calculatedTimeDisplay.style.borderRadius = '5px';
+                    calculatedTimeDisplay.style.fontSize = '16px';
+                    assetsContainer.appendChild(calculatedTimeDisplay);
                 } else {
                     console.warn('OutboundAmazonManaged text not found.');
                 }
@@ -428,15 +439,12 @@
         if (!displayElement) {
             displayElement = document.createElement('div');
             displayElement.id = 'calculated-time-display';
-            displayElement.style.position = 'fixed';
-            displayElement.style.bottom = '10px';
-            displayElement.style.right = '10px';
+            displayElement.style.marginTop = '10px';
+            displayElement.style.padding = '10px';
             displayElement.style.backgroundColor = '#FF9900';
             displayElement.style.color = 'black';
-            displayElement.style.padding = '10px';
             displayElement.style.borderRadius = '5px';
             displayElement.style.fontSize = '16px';
-            displayElement.style.zIndex = '1000';
             document.body.appendChild(displayElement);
         }
         displayElement.innerText = `Calculated Time: ${resultDate.toLocaleString()}`;
