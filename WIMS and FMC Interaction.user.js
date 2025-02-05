@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.8.8
+// @version      1.8.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -423,11 +423,47 @@
     
         // Parse the threshold time into a Date object
         const [time, date] = thresholdTime.split('  ');
-        const [hours, minutes] = time.split(':');
-        const [day, month] = date.split('-');
-        const year = new Date().getFullYear(); // Assuming the current year
+        if (!time || !date) {
+            console.error('Invalid threshold time format!');
+            return;
+        }
     
-        const entryDateTime = new Date(`${month} ${day}, ${year} ${hours}:${minutes}:00`);
+        const [hours, minutes] = time.split(':');
+        const [day, monthName] = date.split('-');
+        if (!hours || !minutes || !day || !monthName) {
+            console.error('Invalid threshold time components!');
+            return;
+        }
+    
+        // Mapping of month names to their numerical values
+        const monthMapping = {
+            'Jan': '01',
+            'Feb': '02',
+            'Mar': '03',
+            'Apr': '04',
+            'May': '05',
+            'Jun': '06',
+            'Jul': '07',
+            'Aug': '08',
+            'Sep': '09',
+            'Oct': '10',
+            'Nov': '11',
+            'Dec': '12'
+        };
+    
+        const month = monthMapping[monthName];
+        if (!month) {
+            console.error('Invalid month name!');
+            return;
+        }
+    
+        const year = new Date().getFullYear(); // Assuming the current year
+        const entryDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+        if (isNaN(entryDateTime.getTime())) {
+            console.error('Invalid Date object created!');
+            return;
+        }
+    
         console.log('Parsed Entry DateTime:', entryDateTime);
     
         // Use the parsed entryDateTime with calculateTime
