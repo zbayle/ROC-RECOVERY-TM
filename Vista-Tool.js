@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover.
@@ -78,6 +78,12 @@
                                     item.style.backgroundColor = 'white';
                                     item.style.fontWeight = 'bold';
                                     thresholdMet = true;
+
+                                    // Add green border to the display container
+                                    const container = document.getElementById('hoverDataContainer');
+                                    if (container) {
+                                        container.style.border = '2px solid green';
+                                    }
                                 }
 
                                 content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
