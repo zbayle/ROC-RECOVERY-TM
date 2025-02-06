@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.8.9
+// @version      1.9.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -285,6 +285,9 @@
     
         console.log('Retrieved Entry DateTime:', entryDateTime);
     
+        // Store the threshold time in local storage
+        localStorage.setItem('thresholdTime', entryDateTime);
+    
         calculateTime(entryDateTime);
     }
 
@@ -387,12 +390,24 @@
 
     async function fetchDriveTime(vrid, destinationID) {
         const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${destinationID}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        const driveTime = data.driveTime; // Adjust based on actual response structure
-        return driveTime;
+        console.log('Fetching drive time from URL:', url);
+    
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            const driveTime = data.driveTime; // Adjust based on actual response structure
+            console.log('Fetched drive time:', driveTime);
+    
+            return driveTime;
+        } catch (error) {
+            console.error('Error fetching drive time:', error);
+            return null;
+        }
     }
-
     async function calculateTime(entryDateTime) {
         const vrid = localStorage.getItem('vrid');
         const destinationID = localStorage.getItem('destinationID');
@@ -485,6 +500,7 @@
         }
         displayElement.innerText = `Calculated Time: ${resultDate.toLocaleString()}`;
     }
+
     // Function to redesign the table with responsive design
     function redesignTable() {
         const table = document.querySelector('#fmc-execution-plans-vrs');
