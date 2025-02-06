@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.1
+// @version      1.9.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -436,17 +436,19 @@
             return;
         }
     
+        console.log('Retrieved threshold time:', thresholdTime);
+    
         // Parse the threshold time into a Date object
         const [time, date] = thresholdTime.split('  ');
         if (!time || !date) {
-            console.error('Invalid threshold time format!');
+            console.error('Invalid threshold time format!', thresholdTime);
             return;
         }
     
         const [hours, minutes] = time.split(':');
         const [day, monthName] = date.split('-');
         if (!hours || !minutes || !day || !monthName) {
-            console.error('Invalid threshold time components!');
+            console.error('Invalid threshold time components!', { hours, minutes, day, monthName });
             return;
         }
     
@@ -468,14 +470,14 @@
     
         const month = monthMapping[monthName];
         if (!month) {
-            console.error('Invalid month name!');
+            console.error('Invalid month name!', monthName);
             return;
         }
     
         const year = new Date().getFullYear(); // Assuming the current year
         const entryDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
         if (isNaN(entryDateTime.getTime())) {
-            console.error('Invalid Date object created!');
+            console.error('Invalid Date object created!', entryDateTime);
             return;
         }
     
