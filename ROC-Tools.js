@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools 
 // @namespace    http://tampermonkey.net/
-// @version      3.1.9
+// @version      3.2.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -889,7 +889,7 @@ function downloadAudioFile(url, callback) {
 }
 
 let wimObserver;
-// Function to observe WIM alerts
+// Function to observe WIM alerts.
 function observeWIMAlerts() {
     console.log("observeWIMAlerts function called.");
     if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
@@ -928,12 +928,24 @@ function observeWIMAlerts() {
                                             clearInterval(interval);
                                             assignButton.click();
                                             console.log("Assign button clicked automatically. Page URL:", currentPageUrl);
+                                            // Capture the URL of the page that loads
+                                            setTimeout(() => {
+                                                const newPageUrl = window.location.href;
+                                                localStorage.setItem('wimURL', newPageUrl);
+                                                console.log("New page URL after assignment:", newPageUrl);
+                                            }, 1000);
                                         }
                                     }, 1000);
                                 } else {
                                     assignButton.addEventListener('click', () => {
                                         trackWIM(vrid, wimLink);
                                         console.log("Assign button clicked manually. Page URL:", currentPageUrl);
+                                        // Capture the URL of the page that loads
+                                        setTimeout(() => {
+                                            const newPageUrl = window.location.href;
+                                            localStorage.setItem('wimURL', newPageUrl);
+                                            console.log("New page URL after assignment:", newPageUrl);
+                                        }, 1000);
                                     });
                                 }
                             }
@@ -946,6 +958,8 @@ function observeWIMAlerts() {
         wimObserver.observe(document.body, { childList: true, subtree: true });
     }
 }
+
+// ...existing code...
 
 function stopObservingWIMAlerts() {
     if (wimObserver) {
