@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4.4
+// @version      1.9.4.5
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -300,11 +300,31 @@
             return;
         }
     
+        // Reformat the date to MM/DD/YYYY
+        const [day, monthName] = date.split('-').map(part => part.trim());
+        const monthMapping = {
+            'Jan': '01',
+            'Feb': '02',
+            'Mar': '03',
+            'Apr': '04',
+            'May': '05',
+            'Jun': '06',
+            'Jul': '07',
+            'Aug': '08',
+            'Sep': '09',
+            'Oct': '10',
+            'Nov': '11',
+            'Dec': '12'
+        };
+        const month = monthMapping[monthName];
+        const year = new Date().getFullYear(); // Assuming the current year
+        const formattedDate = `${month}/${day}/${year}`;
+    
         localStorage.setItem('thresholdTime', time);
-        localStorage.setItem('thresholdDate', date);
+        localStorage.setItem('thresholdDate', formattedDate);
     
         console.log('Stored threshold time:', time);
-        console.log('Stored threshold date:', date);
+        console.log('Stored threshold date:', formattedDate);
     
         calculateTime(entryDateTime);
     }
