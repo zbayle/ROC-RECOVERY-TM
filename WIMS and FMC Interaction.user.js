@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4.2
+// @version      1.9.4.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -286,9 +286,17 @@
         console.log('Retrieved Entry DateTime:', entryDateTime);
     
         // Split the entryDateTime into time and date
-        const [time, date] = entryDateTime.split('  ').map(part => part.trim());
-        if (!time || !date) {
+        const parts = entryDateTime.split('  ');
+        if (parts.length !== 2) {
             console.error('Invalid entryDateTime format!', entryDateTime);
+            return;
+        }
+    
+        const time = parts[0].trim();
+        const date = parts[1].trim();
+    
+        if (!time || !date) {
+            console.error('Invalid time or date!', { time, date });
             return;
         }
     
