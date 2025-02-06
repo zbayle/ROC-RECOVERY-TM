@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4
+// @version      1.9.4.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -289,6 +289,9 @@
         const [time, date] = entryDateTime.split('  ').map(part => part.trim());
         localStorage.setItem('thresholdTime', time);
         localStorage.setItem('thresholdDate', date);
+    
+        console.log('Stored threshold time:', time);
+        console.log('Stored threshold date:', date);
     
         calculateTime(entryDateTime);
     }
