@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5
+// @version      1.9.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -57,79 +57,88 @@
                     if (node.nodeType === 1 && node.classList.contains('tooltipTitle')) {
                         console.log('Tooltip detected:', node);
                         // Grab the data from the tooltip
-                        const list = node.querySelector('.listWithoutStyle.slamCptList');
-                        if (list) {
-                            console.log('List found in tooltip:', list);
-                            // Extract and format the time and package info
-                            let content = '';
-                            let cumulativePackages = 0;
-                            let thresholdMet = false;
-                            const items = list.querySelectorAll('li');
+                        const lists = node.querySelectorAll('.listWithoutStyle.slamCptList');
+                        if (lists.length > 0) {
+                            lists.forEach((list, listIndex) => {
+                                console.log(`List ${listIndex + 1} found in tooltip:`, list);
+                                // Extract and format the time and package info
+                                let content = '';
+                                let cumulativePackages = 0;
+                                let thresholdMet = false;
+                                const items = list.querySelectorAll('li');
     
-                            items.forEach((item, index) => {
-                                const timeElement = item.querySelector('.cpt');
-                                const dateElement = item.querySelector('.date'); // Assuming there's a date element in the tooltip
-                            
-                                const time = timeElement ? timeElement.innerText : '';
-                                const date = dateElement ? dateElement.innerText : '';
-                            
-                                if (time && date) {
-                                    // Convert date format from "6-Feb" to "02/06/2025"
-                                    const dateParts = date.split('-');
-                                    const day = dateParts[0].padStart(2, '0');
-                                    const monthName = dateParts[1];
-                                    const monthMapping = {
-                                        'Jan': '01',
-                                        'Feb': '02',
-                                        'Mar': '03',
-                                        'Apr': '04',
-                                        'May': '05',
-                                        'Jun': '06',
-                                        'Jul': '07',
-                                        'Aug': '08',
-                                        'Sep': '09',
-                                        'Oct': '10',
-                                        'Nov': '11',
-                                        'Dec': '12'
-                                    };
-                                    const month = monthMapping[monthName];
-                                    const formattedDate = `${month}/${day}/2025`;
-                                
-                                    const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
-                                    const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
-                                
-                                    cumulativePackages += pkgs;
-                                    console.log(`Cumulative packages: ${cumulativePackages}`);
-                                
-                                    // Check if threshold is met and highlight the row
-                                    if (!thresholdMet && cumulativePackages >= 300) {
-                                        item.classList.add('cptEntry');
-                                        item.style.border = '4px groove #50ff64';
-                                        item.style.borderRadius = '10px';
-                                        item.style.backgroundColor = 'white';
-                                        item.style.fontWeight = 'bold';
-                                        thresholdMet = true;
-                                
-                                        // Store the time and date in local storage
-                                        localStorage.setItem('thresholdTime', time);
-                                        localStorage.setItem('thresholdDate', formattedDate);
-                                        console.log(`Stored threshold time: ${time}`);
-                                        console.log(`Stored threshold date: ${formattedDate}`);
-                                
-                                        // Add green border to the specific li element in the hoverDataContainer
-                                        content += `<li style="margin-bottom: 5px;color:black;border: 4px groove #50ff64;border-radius: 10px;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
-                                    } else {
-                                        content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
-                                    }
+                                if (items.length === 0) {
+                                    console.log('No list items found in tooltip');
                                 }
+    
+                                items.forEach((item, index) => {
+                                    console.log('Processing item:', item);
+                                    const timeElement = item.querySelector('.cpt');
+                                    const dateElement = item.querySelector('.date'); // Assuming there's a date element in the tooltip
+                                
+                                    const time = timeElement ? timeElement.innerText : '';
+                                    const date = dateElement ? dateElement.innerText : '';
+                                
+                                    if (time && date) {
+                                        // Convert date format from "6-Feb" to "02/06/2025"
+                                        const dateParts = date.split('-');
+                                        const day = dateParts[0].padStart(2, '0');
+                                        const monthName = dateParts[1];
+                                        const monthMapping = {
+                                            'Jan': '01',
+                                            'Feb': '02',
+                                            'Mar': '03',
+                                            'Apr': '04',
+                                            'May': '05',
+                                            'Jun': '06',
+                                            'Jul': '07',
+                                            'Aug': '08',
+                                            'Sep': '09',
+                                            'Oct': '10',
+                                            'Nov': '11',
+                                            'Dec': '12'
+                                        };
+                                        const month = monthMapping[monthName];
+                                        const formattedDate = `${month}/${day}/2025`;
+                                    
+                                        const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
+                                        const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
+                                    
+                                        cumulativePackages += pkgs;
+                                        console.log(`Cumulative packages: ${cumulativePackages}`);
+                                    
+                                        // Check if threshold is met and highlight the row
+                                        if (!thresholdMet && cumulativePackages >= 300) {
+                                            item.classList.add('cptEntry');
+                                            item.style.border = '4px groove #50ff64';
+                                            item.style.borderRadius = '10px';
+                                            item.style.backgroundColor = 'white';
+                                            item.style.fontWeight = 'bold';
+                                            thresholdMet = true;
+                                    
+                                            // Store the time and date in local storage
+                                            localStorage.setItem('thresholdTime', time);
+                                            localStorage.setItem('thresholdDate', formattedDate);
+                                            console.log(`Stored threshold time: ${time}`);
+                                            console.log(`Stored threshold date: ${formattedDate}`);
+                                    
+                                            // Add green border to the specific li element in the hoverDataContainer
+                                            content += `<li style="margin-bottom: 5px;color:black;border: 4px groove #50ff64;border-radius: 10px;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                                        } else {
+                                            content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                                        }
+                                    } else {
+                                        console.log('Time or date not found in item:', item);
+                                    }
+                                });
+    
+                                // If the cumulative package count is under 300, add a new li element
+                                if (cumulativePackages < 300) {
+                                    content += `<li style="margin-bottom: 5px;color:red;border: 4px groove red;border-radius: 10px;"><strong>PACKAGE COUNT UNDER 300</strong></li>`;
+                                }
+    
+                                updateHoverDataContainer(content);
                             });
-    
-                            // If the cumulative package count is under 300, add a new li element
-                            if (cumulativePackages < 300) {
-                                content += `<li style="margin-bottom: 5px;color:red;border: 4px groove red;border-radius: 10px;"><strong>PACKAGE COUNT UNDER 300</strong></li>`;
-                            }
-    
-                            updateHoverDataContainer(content);
                         } else {
                             console.log('List not found in tooltip');
                         }
