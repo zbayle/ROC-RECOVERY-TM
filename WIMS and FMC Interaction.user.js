@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4.6
+// @version      1.9.4.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -478,51 +478,31 @@
         console.log('Retrieved threshold date:', date);
     
         const [hours, minutes] = time.split(':').map(part => part.trim());
-        const [day, monthName] = date.split('-').map(part => part.trim());
-        if (!hours || !minutes || !day || !monthName) {
-            console.error('Invalid threshold time components!', { hours, minutes, day, monthName });
+        const [month, day, year] = date.split('/').map(part => part.trim());
+    
+        if (!hours || !minutes || !month || !day || !year) {
+            console.error('Invalid threshold time or date components!', { hours, minutes, month, day, year });
             return;
         }
     
-        console.log('Parsed hours:', hours);
-        console.log('Parsed minutes:', minutes);
-        console.log('Parsed day:', day);
-        console.log('Parsed monthName:', monthName);
+        const formattedDate = `${month}/${day}/${year}`;
+        const formattedTime = `${hours}${minutes}`;
     
-        // Mapping of month names to their numerical values
-        const monthMapping = {
-            'Jan': '01',
-            'Feb': '02',
-            'Mar': '03',
-            'Apr': '04',
-            'May': '05',
-            'Jun': '06',
-            'Jul': '07',
-            'Aug': '08',
-            'Sep': '09',
-            'Oct': '10',
-            'Nov': '11',
-            'Dec': '12'
-        };
+        const displayText = `Critical Sort: ${formattedDate} @ ${formattedTime}`;
     
-        const month = monthMapping[monthName];
-        if (!month) {
-            console.error('Invalid month name!', monthName);
-            return;
+        let displayElement = document.getElementById('calculated-time-display');
+        if (!displayElement) {
+            displayElement = document.createElement('div');
+            displayElement.id = 'calculated-time-display';
+            displayElement.style.marginTop = '10px';
+            displayElement.style.padding = '10px';
+            displayElement.style.backgroundColor = '#FF9900';
+            displayElement.style.color = 'black';
+            displayElement.style.borderRadius = '5px';
+            displayElement.style.fontSize = '16px';
+            document.body.appendChild(displayElement);
         }
-    
-        const year = new Date().getFullYear(); // Assuming the current year
-        const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:00`;
-        const entryDateTime = new Date(formattedDate);
-        if (isNaN(entryDateTime.getTime())) {
-            console.error('Invalid Date object created!', entryDateTime);
-            return;
-        }
-    
-        console.log('Parsed Entry DateTime:', entryDateTime);
-    
-        // Use the parsed entryDateTime with calculateTime
-        calculateTime(entryDateTime).then(displayCalculatedTime);
+        displayElement.innerText = displayText;
     }
 
     function displayCalculatedTime() {
