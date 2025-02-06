@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.0.6
+// @version      3.0.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -683,7 +683,7 @@ function removeKeyword(index) {
 
 // Highlight keywords in page content
 function highlightKeywords(keywords) {
-    console.log("Highlighting keywords...", keywords); // Debug log
+    //console.log("Highlighting keywords...", keywords); // Debug log
 
     // Ensure keywords is an array
     if (!Array.isArray(keywords)) {
