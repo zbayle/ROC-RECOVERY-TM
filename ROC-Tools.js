@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.0.7
+// @version      3.1.0
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -171,8 +171,24 @@ function createFloatingMenu() {
     alertsTab.onmouseout = () => alertsTab.style.backgroundColor = '#146eb4';
     alertsTab.onclick = () => showTab('alertsTab');
 
+    const ahtTrackingTab = document.createElement('button');
+    ahtTrackingTab.textContent = 'AHT Tracking';
+    ahtTrackingTab.style.flex = '1';
+    ahtTrackingTab.style.padding = '10px';
+    ahtTrackingTab.style.backgroundColor = '#146eb4';
+    ahtTrackingTab.style.color = '#f2f2f2';
+    ahtTrackingTab.style.border = 'none';
+    ahtTrackingTab.style.borderRadius = '5px';
+    ahtTrackingTab.style.cursor = 'pointer';
+    ahtTrackingTab.style.marginLeft = '5px'; // Added margin between tabs
+    ahtTrackingTab.onmouseover = () => ahtTrackingTab.style.backgroundColor = '#125a9e';
+    ahtTrackingTab.onmouseout = () => ahtTrackingTab.style.backgroundColor = '#146eb4';
+    ahtTrackingTab.onclick = () => showTab('ahtTrackingTab');
+
+
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
+    tabs.appendChild(ahtTrackingTab);
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -246,6 +262,55 @@ function createFloatingMenu() {
     alertToggle.id = 'alertToggle';
     alertToggle.style.marginBottom = '15px'; // Increased margin
     alertsTabContent.appendChild(alertToggle);
+
+    const ahtTrackingTabContent = document.createElement('div');
+    ahtTrackingTabContent.id = 'ahtTrackingTab';
+    ahtTrackingTabContent.style.display = 'none';
+
+    const wimUrlInputLabel = document.createElement('label');
+    wimUrlInputLabel.textContent = 'WIM URL: ';
+    wimUrlInputLabel.style.display = 'block'; // Block display for better spacing
+    wimUrlInputLabel.style.marginBottom = '5px'; // Added margin
+    ahtTrackingTabContent.appendChild(wimUrlInputLabel);
+
+    const wimUrlInput = document.createElement('input');
+    wimUrlInput.type = 'text';
+    wimUrlInput.id = 'wimUrlInput';
+    wimUrlInput.style.marginBottom = '15px'; // Increased margin
+    wimUrlInput.style.padding = '10px';
+    wimUrlInput.style.border = '1px solid #146eb4';
+    wimUrlInput.style.borderRadius = '5px';
+    wimUrlInput.style.width = '100%';
+    ahtTrackingTabContent.appendChild(wimUrlInput);
+
+    const addWimButton = document.createElement('button');
+    addWimButton.textContent = 'Add WIM';
+    addWimButton.style.marginBottom = '15px'; // Increased margin
+    addWimButton.style.padding = '10px';
+    addWimButton.style.backgroundColor = '#ff9900';
+    addWimButton.style.color = '#000000';
+    addWimButton.style.border = 'none';
+    addWimButton.style.borderRadius = '5px';
+    addWimButton.style.cursor = 'pointer';
+    addWimButton.style.width = '100%'; // Full width button
+    addWimButton.style.boxSizing = 'border-box';
+    addWimButton.onmouseover = () => addWimButton.style.backgroundColor = '#e68a00';
+    addWimButton.onmouseout = () => addWimButton.style.backgroundColor = '#ff9900';
+    addWimButton.onclick = () => {
+        const wimUrl = document.getElementById('wimUrlInput').value;
+        if (wimUrl) {
+            const vrid = 'Manual Entry'; // Placeholder for VRID
+            trackWIM(vrid, wimUrl);
+        }
+    };
+    ahtTrackingTabContent.appendChild(addWimButton);
+
+    const ahtTrackingList = document.createElement('ul');
+    ahtTrackingList.id = 'ahtTrackingList';
+    ahtTrackingList.style.padding = '0';
+    ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
+    ahtTrackingTabContent.appendChild(ahtTrackingList);
+    menuContent.appendChild(ahtTrackingTabContent);
 
     const soundSelectLabel = document.createElement('label');
     soundSelectLabel.textContent = ' Sound: ';
@@ -494,13 +559,48 @@ document.addEventListener('click', () => {
 function showTab(tabId) {
     const keywordsTab = document.getElementById('keywordsTab');
     const alertsTabContent = document.getElementById('alertsTab');
+    const ahtTrackingTabContent = document.getElementById('ahtTrackingTab');
 
     if (tabId === 'keywordsTab') {
         keywordsTab.style.display = 'block';
         alertsTabContent.style.display = 'none';
+        ahtTrackingTabContent.style.display = 'none';
     } else if (tabId === 'alertsTab') {
         keywordsTab.style.display = 'none';
         alertsTabContent.style.display = 'block';
+        ahtTrackingTabContent.style.display = 'none';
+    } else if (tabId === 'ahtTrackingTab') {
+        keywordsTab.style.display = 'none';
+        alertsTabContent.style.display = 'none';
+        ahtTrackingTabContent.style.display = 'block';
+    }
+}
+
+function trackWIM(vrid, wimLink) {
+    const ahtTrackingList = document.getElementById('ahtTrackingList');
+    const listItem = document.createElement('li');
+    listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink}`;
+    listItem.dataset.startTime = Date.now();
+    listItem.dataset.vrid = vrid;
+    listItem.dataset.wimLink = wimLink;
+
+    ahtTrackingList.appendChild(listItem);
+
+    const interval = setInterval(() => {
+        const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
+        listItem.textContent = `VRID: ${vrid} | Timer: ${elapsedTime}s | WIM Link: ${wimLink}`;
+    }, 1000);
+
+    listItem.dataset.interval = interval;
+}
+
+function stopTrackingWIM(vrid) {
+    const ahtTrackingList = document.getElementById('ahtTrackingList');
+    const listItem = Array.from(ahtTrackingList.children).find(item => item.dataset.vrid === vrid);
+
+    if (listItem) {
+        clearInterval(listItem.dataset.interval);
+        listItem.textContent += ' | Resolved';
     }
 }
 
@@ -772,7 +872,6 @@ function observeWIMAlerts() {
                 if (mutation.addedNodes.length) {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1) {
-                            //console.log("Node added:", node);
                             const assignButton = node.querySelector('.btn-primary.btn-block.btn.btn-info');
                             const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
                             if (assignButton) {
@@ -780,19 +879,25 @@ function observeWIMAlerts() {
                                 const selectedSound = document.getElementById('soundSelect').value;
                                 console.log("Selected sound:", selectedSound);
                                 playSound(selectedSound);
+
+                                const vrid = node.querySelector('.vr-audit-dialog').textContent; // Corrected selector for VRID
+                                const wimLink = node.querySelector('.wim-link-class').href; // Adjust the selector as needed
+                                trackWIM(vrid, wimLink);
+
                                 if (autoAssignEnabled) {
                                     let countdown = 5;
                                     const interval = setInterval(() => {
-                                        console.log(`Assign button will be clicked in ${countdown} seconds...`);
                                         countdown--;
                                         if (countdown < 0) {
                                             clearInterval(interval);
-                                            clickAssignButton(assignButton);
+                                            assignButton.click();
                                         }
-                                    }, 1000); // Log countdown every second
+                                    }, 1000);
+                                } else {
+                                    assignButton.addEventListener('click', () => {
+                                        trackWIM(vrid, wimLink);
+                                    });
                                 }
-                            } else {
-                                console.log("Assign to me button not found in the added node.");
                             }
                         }
                     });
@@ -801,9 +906,6 @@ function observeWIMAlerts() {
         });
 
         observer.observe(document.body, { childList: true, subtree: true });
-        console.log("MutationObserver is now observing the DOM.");
-    } else {
-        console.log("URL does not match WIMS page.");
     }
 }
 
