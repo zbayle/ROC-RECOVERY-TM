@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4.5
+// @version      1.9.4.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -326,7 +326,7 @@
         console.log('Stored threshold time:', time);
         console.log('Stored threshold date:', formattedDate);
     
-        calculateTime(entryDateTime);
+        calculateTime(entryDateTime).then(displayCalculatedTime);
     }
 
     // Function to add the Vista button
@@ -462,7 +462,6 @@
         const resultDate = new Date(entryDate.getTime() - totalTime);
     
         console.log('Calculated Time:', resultDate);
-        displayCalculatedTime(resultDate); // Call to display the calculated time
         return resultDate;
     }
     
@@ -523,10 +522,35 @@
         console.log('Parsed Entry DateTime:', entryDateTime);
     
         // Use the parsed entryDateTime with calculateTime
-        calculateTime(entryDateTime);
+        calculateTime(entryDateTime).then(displayCalculatedTime);
     }
 
-    function displayCalculatedTime(resultDate) {
+    function displayCalculatedTime() {
+        const time = localStorage.getItem('thresholdTime');
+        const date = localStorage.getItem('thresholdDate');
+        if (!time || !date) {
+            console.error('Threshold time or date not found in localStorage!');
+            return;
+        }
+    
+        console.log('Retrieved threshold time:', time);
+        console.log('Retrieved threshold date:', date);
+    
+        // Parse the time and date
+        const [hours, minutes] = time.split(':').map(part => part.trim());
+        const [month, day, year] = date.split('/').map(part => part.trim());
+    
+        if (!hours || !minutes || !month || !day || !year) {
+            console.error('Invalid threshold time or date components!', { hours, minutes, month, day, year });
+            return;
+        }
+    
+        // Format the date and time
+        const formattedDate = `${month}/${day}/${year}`;
+        const formattedTime = `${hours}${minutes}`;
+    
+        const displayText = `Critical Sort: ${formattedDate} @ ${formattedTime}`;
+    
         let displayElement = document.getElementById('calculated-time-display');
         if (!displayElement) {
             displayElement = document.createElement('div');
@@ -539,8 +563,9 @@
             displayElement.style.fontSize = '16px';
             document.body.appendChild(displayElement);
         }
-        displayElement.innerText = `Calculated Time: ${resultDate.toLocaleString()}`;
+        displayElement.innerText = displayText;
     }
+    
 
     // Function to redesign the table with responsive design
     function redesignTable() {
