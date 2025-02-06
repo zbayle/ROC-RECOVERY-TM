@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.1.8
+// @version      3.1.9
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -338,6 +338,7 @@ function createFloatingMenu() {
     autoAssignCheckbox.style.marginBottom = '15px'; // Increased margin
     alertsTabContent.appendChild(autoAssignCheckbox);
 
+
     const ahtTrackingTabContent = document.createElement('div');
     ahtTrackingTabContent.id = 'ahtTrackingTab';
     ahtTrackingTabContent.style.display = 'none';
@@ -392,6 +393,7 @@ function createFloatingMenu() {
     autoAssignCheckbox.checked = autoAssignEnabled;
     autoAssignCheckbox.addEventListener('change', () => {
         GM_setValue('autoAssignEnabled', autoAssignCheckbox.checked);
+        console.log(`Auto-assign enabled: ${autoAssignCheckbox.checked}`);
     });
 
     // Add an audio element for the alert sound
