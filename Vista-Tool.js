@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.9.3
+// @version      1.9.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -65,7 +65,7 @@
                             let cumulativePackages = 0;
                             let thresholdMet = false;
                             const items = list.querySelectorAll('li');
-
+    
                             items.forEach((item, index) => {
                                 const timeElement = item.querySelector('.cpt');
                                 const dateElement = item.querySelector('.date'); // Assuming there's a date element in the tooltip
@@ -121,12 +121,12 @@
                                     content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                                 }
                             });
-
+    
                             // If the cumulative package count is under 300, add a new li element
                             if (cumulativePackages < 300) {
                                 content += `<li style="margin-bottom: 5px;color:red;border: 4px groove red;border-radius: 10px;"><strong>PACKAGE COUNT UNDER 300</strong></li>`;
                             }
-
+    
                             updateHoverDataContainer(content);
                         } else {
                             console.log('List not found in tooltip');
@@ -135,7 +135,7 @@
                 });
             });
         });
-
+    
         // Start observing the DOM for new nodes
         observer.observe(document.body, { childList: true, subtree: true });
     }
