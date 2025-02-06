@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.1.0
+// @version      3.1.1
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -584,11 +584,23 @@ function trackWIM(vrid, wimLink) {
     listItem.dataset.vrid = vrid;
     listItem.dataset.wimLink = wimLink;
 
+    const stopButton = document.createElement('button');
+    stopButton.textContent = 'Stop';
+    stopButton.style.marginLeft = '10px';
+    stopButton.style.padding = '5px';
+    stopButton.style.backgroundColor = '#ff0000';
+    stopButton.style.color = '#ffffff';
+    stopButton.style.border = 'none';
+    stopButton.style.borderRadius = '5px';
+    stopButton.style.cursor = 'pointer';
+    stopButton.onclick = () => stopTrackingWIM(vrid);
+
+    listItem.appendChild(stopButton);
     ahtTrackingList.appendChild(listItem);
 
     const interval = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
-        listItem.textContent = `VRID: ${vrid} | Timer: ${elapsedTime}s | WIM Link: ${wimLink}`;
+        listItem.firstChild.textContent = `VRID: ${vrid} | Timer: ${elapsedTime}s | WIM Link: ${wimLink}`;
     }, 1000);
 
     listItem.dataset.interval = interval;
@@ -862,12 +874,13 @@ function downloadAudioFile(url, callback) {
     xhr.send();
 }
 
+let wimObserver;
 // Function to observe WIM alerts
 function observeWIMAlerts() {
     console.log("observeWIMAlerts function called.");
     if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
         console.log("URL matches WIMS page.");
-        const observer = new MutationObserver((mutations) => {
+        wimObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.addedNodes.length) {
                     mutation.addedNodes.forEach((node) => {
@@ -905,7 +918,14 @@ function observeWIMAlerts() {
             });
         });
 
-        observer.observe(document.body, { childList: true, subtree: true });
+        wimObserver.observe(document.body, { childList: true, subtree: true });
+    }
+}
+
+function stopObservingWIMAlerts() {
+    if (wimObserver) {
+        wimObserver.disconnect();
+        console.log("Stopped observing WIM alerts.");
     }
 }
 
