@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.9.6
+// @version      1.9.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -74,11 +74,14 @@
                                 items.forEach((item, index) => {
                                     console.log('Processing item:', item);
                                     const timeElement = item.querySelector('.cpt');
-                                    const dateElement = item.querySelector('.date'); // Assuming there's a date element in the tooltip
-                                
-                                    const time = timeElement ? timeElement.innerText : '';
-                                    const date = dateElement ? dateElement.innerText : '';
-                                
+                                    const pkgsElement = item.querySelector('.pkgs');
+                                    
+                                    const timeAndDate = timeElement ? timeElement.innerText.split('  ') : ['', ''];
+                                    const time = timeAndDate[0];
+                                    const date = timeAndDate[1];
+                                    const pkgsText = pkgsElement ? pkgsElement.innerText : '0';
+                                    const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
+    
                                     if (time && date) {
                                         // Convert date format from "6-Feb" to "02/06/2025"
                                         const dateParts = date.split('-');
@@ -100,13 +103,10 @@
                                         };
                                         const month = monthMapping[monthName];
                                         const formattedDate = `${month}/${day}/2025`;
-                                    
-                                        const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
-                                        const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
-                                    
+    
                                         cumulativePackages += pkgs;
                                         console.log(`Cumulative packages: ${cumulativePackages}`);
-                                    
+    
                                         // Check if threshold is met and highlight the row
                                         if (!thresholdMet && cumulativePackages >= 300) {
                                             item.classList.add('cptEntry');
@@ -115,13 +115,13 @@
                                             item.style.backgroundColor = 'white';
                                             item.style.fontWeight = 'bold';
                                             thresholdMet = true;
-                                    
+    
                                             // Store the time and date in local storage
                                             localStorage.setItem('thresholdTime', time);
                                             localStorage.setItem('thresholdDate', formattedDate);
                                             console.log(`Stored threshold time: ${time}`);
                                             console.log(`Stored threshold date: ${formattedDate}`);
-                                    
+    
                                             // Add green border to the specific li element in the hoverDataContainer
                                             content += `<li style="margin-bottom: 5px;color:black;border: 4px groove #50ff64;border-radius: 10px;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                                         } else {
