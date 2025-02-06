@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.1.7
+// @version      3.1.8
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -565,6 +565,9 @@ function trackWIM(vrid, wimLink) {
     }, 1000);
 
     listItem.dataset.interval = interval;
+
+    // Save the entry to Tampermonkey storage
+    saveWIMEntries();
 }
 
 function stopTrackingWIM(vrid) {
@@ -574,7 +577,55 @@ function stopTrackingWIM(vrid) {
     if (listItem) {
         clearInterval(listItem.dataset.interval);
         listItem.textContent += ' | Resolved';
+        saveWIMEntries(); // Save the updated entries to Tampermonkey storage
     }
+}
+
+function saveWIMEntries() {
+    const ahtTrackingList = document.getElementById('ahtTrackingList');
+    const entries = Array.from(ahtTrackingList.children).map(item => ({
+        vrid: item.dataset.vrid,
+        wimLink: item.dataset.wimLink,
+        startTime: item.dataset.startTime,
+        resolved: item.textContent.includes(' | Resolved')
+    }));
+    GM_setValue('wimEntries', JSON.stringify(entries));
+}
+
+function loadWIMEntries() {
+    const entries = JSON.parse(GM_getValue('wimEntries', '[]'));
+    entries.forEach(entry => {
+        const ahtTrackingList = document.getElementById('ahtTrackingList');
+        const listItem = document.createElement('li');
+        listItem.textContent = `VRID: ${entry.vrid} | Timer: 0s | WIM Link: ${entry.wimLink}`;
+        listItem.dataset.startTime = entry.startTime;
+        listItem.dataset.vrid = entry.vrid;
+        listItem.dataset.wimLink = entry.wimLink;
+
+        const stopButton = document.createElement('button');
+        stopButton.textContent = 'Stop';
+        stopButton.style.marginLeft = '10px';
+        stopButton.style.padding = '5px';
+        stopButton.style.backgroundColor = '#ff0000';
+        stopButton.style.color = '#ffffff';
+        stopButton.style.border = 'none';
+        stopButton.style.borderRadius = '5px';
+        stopButton.style.cursor = 'pointer';
+        stopButton.onclick = () => stopTrackingWIM(entry.vrid);
+
+        listItem.appendChild(stopButton);
+        ahtTrackingList.appendChild(listItem);
+
+        if (!entry.resolved) {
+            const interval = setInterval(() => {
+                const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
+                listItem.firstChild.textContent = `VRID: ${entry.vrid} | Timer: ${elapsedTime}s | WIM Link: ${entry.wimLink}`;
+            }, 1000);
+            listItem.dataset.interval = interval;
+        } else {
+            listItem.textContent += ' | Resolved';
+        }
+    });
 }
 
 // Function to make an element draggable using a handle
@@ -929,6 +980,7 @@ window.addEventListener('load', function () {
     createFloatingMenu();
     loadKeywords();
     loadAlerts();
+    loadWIMEntries(); 
 
     const addButton = document.getElementById('addButton');
     if (addButton) {
