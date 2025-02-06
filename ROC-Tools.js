@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.1.3
+// @version      3.1.4
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -185,7 +185,6 @@ function createFloatingMenu() {
     ahtTrackingTab.onmouseout = () => ahtTrackingTab.style.backgroundColor = '#146eb4';
     ahtTrackingTab.onclick = () => showTab('ahtTrackingTab');
 
-
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
     tabs.appendChild(ahtTrackingTab);
@@ -263,55 +262,6 @@ function createFloatingMenu() {
     alertToggle.style.marginBottom = '15px'; // Increased margin
     alertsTabContent.appendChild(alertToggle);
 
-    const ahtTrackingTabContent = document.createElement('div');
-    ahtTrackingTabContent.id = 'ahtTrackingTab';
-    ahtTrackingTabContent.style.display = 'none';
-
-    const wimUrlInputLabel = document.createElement('label');
-    wimUrlInputLabel.textContent = 'WIM URL: ';
-    wimUrlInputLabel.style.display = 'block'; // Block display for better spacing
-    wimUrlInputLabel.style.marginBottom = '5px'; // Added margin
-    ahtTrackingTabContent.appendChild(wimUrlInputLabel);
-
-    const wimUrlInput = document.createElement('input');
-    wimUrlInput.type = 'text';
-    wimUrlInput.id = 'wimUrlInput';
-    wimUrlInput.style.marginBottom = '15px'; // Increased margin
-    wimUrlInput.style.padding = '10px';
-    wimUrlInput.style.border = '1px solid #146eb4';
-    wimUrlInput.style.borderRadius = '5px';
-    wimUrlInput.style.width = '100%';
-    ahtTrackingTabContent.appendChild(wimUrlInput);
-
-    const addWimButton = document.createElement('button');
-    addWimButton.textContent = 'Add WIM';
-    addWimButton.style.marginBottom = '15px'; // Increased margin
-    addWimButton.style.padding = '10px';
-    addWimButton.style.backgroundColor = '#ff9900';
-    addWimButton.style.color = '#000000';
-    addWimButton.style.border = 'none';
-    addWimButton.style.borderRadius = '5px';
-    addWimButton.style.cursor = 'pointer';
-    addWimButton.style.width = '100%'; // Full width button
-    addWimButton.style.boxSizing = 'border-box';
-    addWimButton.onmouseover = () => addWimButton.style.backgroundColor = '#e68a00';
-    addWimButton.onmouseout = () => addWimButton.style.backgroundColor = '#ff9900';
-    addWimButton.onclick = () => {
-        const wimUrl = document.getElementById('wimUrlInput').value;
-        if (wimUrl) {
-            const vrid = 'Manual Entry'; // Placeholder for VRID
-            trackWIM(vrid, wimUrl);
-        }
-    };
-    ahtTrackingTabContent.appendChild(addWimButton);
-
-    const ahtTrackingList = document.createElement('ul');
-    ahtTrackingList.id = 'ahtTrackingList';
-    ahtTrackingList.style.padding = '0';
-    ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
-    ahtTrackingTabContent.appendChild(ahtTrackingList);
-    menuContent.appendChild(ahtTrackingTabContent);
-
     const soundSelectLabel = document.createElement('label');
     soundSelectLabel.textContent = ' Sound: ';
     soundSelectLabel.style.display = 'block'; // Block display for better spacing
@@ -388,9 +338,20 @@ function createFloatingMenu() {
     autoAssignCheckbox.style.marginBottom = '15px'; // Increased margin
     alertsTabContent.appendChild(autoAssignCheckbox);
 
+    const ahtTrackingTabContent = document.createElement('div');
+    ahtTrackingTabContent.id = 'ahtTrackingTab';
+    ahtTrackingTabContent.style.display = 'none';
+
+    const ahtTrackingList = document.createElement('ul');
+    ahtTrackingList.id = 'ahtTrackingList';
+    ahtTrackingList.style.padding = '0';
+    ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
+    ahtTrackingTabContent.appendChild(ahtTrackingList);
+
     menuContent.appendChild(tabs);
     menuContent.appendChild(keywordsTab);
     menuContent.appendChild(alertsTabContent);
+    menuContent.appendChild(ahtTrackingTabContent);
 
     menu.appendChild(handle);
     menu.appendChild(button);
