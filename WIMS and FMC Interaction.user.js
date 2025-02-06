@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.3.0
+// @version      1.9.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -285,8 +285,10 @@
     
         console.log('Retrieved Entry DateTime:', entryDateTime);
     
-        // Store the threshold time in local storage
-        localStorage.setItem('thresholdTime', entryDateTime);
+        // Split the entryDateTime into time and date
+        const [time, date] = entryDateTime.split('  ').map(part => part.trim());
+        localStorage.setItem('thresholdTime', time);
+        localStorage.setItem('thresholdDate', date);
     
         calculateTime(entryDateTime);
     }
@@ -430,27 +432,27 @@
     
     // Function to parse the stored threshold time and use it with calculateTime
     function useStoredThresholdTime() {
-        const thresholdTime = localStorage.getItem('thresholdTime');
-        if (!thresholdTime) {
-            console.error('Threshold time not found in localStorage!');
-            return;
-        }
-    
-        console.log('Retrieved threshold time:', thresholdTime);
-    
-        // Parse the threshold time into a Date object
-        const [time, date] = thresholdTime.split('  ');
+        const time = localStorage.getItem('thresholdTime');
+        const date = localStorage.getItem('thresholdDate');
         if (!time || !date) {
-            console.error('Invalid threshold time format!', thresholdTime);
+            console.error('Threshold time or date not found in localStorage!');
             return;
         }
     
-        const [hours, minutes] = time.split(':');
-        const [day, monthName] = date.split('-');
+        console.log('Retrieved threshold time:', time);
+        console.log('Retrieved threshold date:', date);
+    
+        const [hours, minutes] = time.split(':').map(part => part.trim());
+        const [day, monthName] = date.split('-').map(part => part.trim());
         if (!hours || !minutes || !day || !monthName) {
             console.error('Invalid threshold time components!', { hours, minutes, day, monthName });
             return;
         }
+    
+        console.log('Parsed hours:', hours);
+        console.log('Parsed minutes:', minutes);
+        console.log('Parsed day:', day);
+        console.log('Parsed monthName:', monthName);
     
         // Mapping of month names to their numerical values
         const monthMapping = {
