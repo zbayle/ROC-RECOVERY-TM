@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.1.4
+// @version      3.1.5
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -565,24 +565,6 @@ function trackWIM(vrid, wimLink) {
     }, 1000);
 
     listItem.dataset.interval = interval;
-
-    // Create and append the WIM URL text field
-    const wimUrlInputLabel = document.createElement('label');
-    wimUrlInputLabel.textContent = 'WIM URL: ';
-    wimUrlInputLabel.style.display = 'block'; // Block display for better spacing
-    wimUrlInputLabel.style.marginBottom = '5px'; // Added margin
-    listItem.appendChild(wimUrlInputLabel);
-
-    const wimUrlInput = document.createElement('input');
-    wimUrlInput.type = 'text';
-    wimUrlInput.id = 'wimUrlInput';
-    wimUrlInput.value = wimLink;
-    wimUrlInput.style.marginBottom = '15px'; // Increased margin
-    wimUrlInput.style.padding = '10px';
-    wimUrlInput.style.border = '1px solid #146eb4';
-    wimUrlInput.style.borderRadius = '5px';
-    wimUrlInput.style.width = '100%';
-    listItem.appendChild(wimUrlInput);
 }
 
 function stopTrackingWIM(vrid) {
@@ -873,8 +855,12 @@ function observeWIMAlerts() {
                                 playSound(selectedSound);
 
                                 const vrid = node.querySelector('.vr-audit-dialog').textContent; // Corrected selector for VRID
-                                const wimLink = node.querySelector('.wim-link-class').href; // Adjust the selector as needed
+                                const wimLink = localStorage.getItem('wimURL'); // Get the WIM URL from local storage
                                 trackWIM(vrid, wimLink);
+
+                                const currentPageUrl = window.location.href;
+                                localStorage.setItem('wimURL', currentPageUrl);
+                                console.log("Current page URL:", currentPageUrl);
 
                                 if (autoAssignEnabled) {
                                     let countdown = 5;
@@ -883,11 +869,13 @@ function observeWIMAlerts() {
                                         if (countdown < 0) {
                                             clearInterval(interval);
                                             assignButton.click();
+                                            console.log("Assign button clicked automatically. Page URL:", currentPageUrl);
                                         }
                                     }, 1000);
                                 } else {
                                     assignButton.addEventListener('click', () => {
                                         trackWIM(vrid, wimLink);
+                                        console.log("Assign button clicked manually. Page URL:", currentPageUrl);
                                     });
                                 }
                             }
