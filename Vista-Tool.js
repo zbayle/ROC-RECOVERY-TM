@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.9.2
+// @version      1.9.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -76,8 +76,23 @@
                                 // Convert date format from "6-Feb" to "02/06/2025"
                                 const dateParts = date.split('-');
                                 const day = dateParts[0].padStart(2, '0');
-                                const month = new Date(Date.parse(dateParts[1] + " 1, 2025")).getMonth() + 1;
-                                const formattedDate = `${month.toString().padStart(2, '0')}/${day}/2025`;
+                                const monthName = dateParts[1];
+                                const monthMapping = {
+                                    'Jan': '01',
+                                    'Feb': '02',
+                                    'Mar': '03',
+                                    'Apr': '04',
+                                    'May': '05',
+                                    'Jun': '06',
+                                    'Jul': '07',
+                                    'Aug': '08',
+                                    'Sep': '09',
+                                    'Oct': '10',
+                                    'Nov': '11',
+                                    'Dec': '12'
+                                };
+                                const month = monthMapping[monthName];
+                                const formattedDate = `${month}/${day}/2025`;
                             
                                 const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
                                 const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
