@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools
 // @namespace    http://tampermonkey.net/
-// @version      3.1.6
+// @version      3.1.7
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -854,7 +854,7 @@ function observeWIMAlerts() {
                                 console.log("Selected sound:", selectedSound);
                                 playSound(selectedSound);
 
-                                const vridElement = node.querySelector('.vr-audit-dialog');
+                                const vridElement = node.querySelector('.td.borderless-fix span.vr-audit-dialog');
                                 if (!vridElement) {
                                     console.error("VRID element not found.");
                                     return;
