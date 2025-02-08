@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8
+// @version      1.9.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -187,54 +187,64 @@
             console.error('No VRID found in localStorage!');
             return;
         }
-
-        // Locate the Filter input field
-        const filterInput = doc.querySelector('#inboundDataTables_filter input[type="text"]');
-        if (!filterInput) {
-            console.error('Filter input field not found!');
-            return;
-        }
-
-        // Stop further VRID setting if it's already set
-        if (filterInput.value === vrid) {
-            return;
-        }
-
-        // Set the VRID value into the input field
-        filterInput.value = vrid;
-        const inputEvent = new Event('input', { bubbles: true, cancelable: true });
-        filterInput.dispatchEvent(inputEvent);
-
-        // Focus on the input field before dispatching Enter key
-        filterInput.focus();
-
-        // Simulate pressing the Enter key directly on the VRID input field
-        const enterKeyEvent = new KeyboardEvent('keydown', {
-            key: 'Enter',
-            code: 'Enter',
-            keyCode: 13,
-            bubbles: true,
-            cancelable: true
-        });
-
-        // Dispatch the Enter key event
-        filterInput.dispatchEvent(enterKeyEvent);
-
-        // Optionally, dispatch 'keyup' and 'input' events to trigger full form submission logic if needed
-        const keyUpEvent = new KeyboardEvent('keyup', {
-            key: 'Enter',
-            code: 'Enter',
-            keyCode: 13,
-            bubbles: true,
-            cancelable: true
-        });
-        filterInput.dispatchEvent(keyUpEvent);
-
-        // Scroll the input field into view
-        filterInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Emulate a mouseover on the progress bar
-        hoverProgressBar(doc);
+    
+        const intervalId = setInterval(() => {
+            // Locate the Filter input field
+            const filterInput = doc.querySelector('#inboundDataTables_filter input[type="text"]');
+            if (!filterInput) {
+                console.error('Filter input field not found!');
+                return;
+            }
+    
+            // Stop further VRID setting if it's already set
+            if (filterInput.value === vrid) {
+                console.log('VRID is already set.');
+                clearInterval(intervalId); // Stop the interval
+                return;
+            }
+    
+            // Set the VRID value into the input field
+            filterInput.value = vrid;
+            const inputEvent = new Event('input', { bubbles: true, cancelable: true });
+            filterInput.dispatchEvent(inputEvent);
+    
+            console.log('VRID set in the filter input field:', vrid);
+    
+            // Focus on the input field before dispatching Enter key
+            filterInput.focus();
+    
+            // Simulate pressing the Enter key directly on the VRID input field
+            const enterKeyEvent = new KeyboardEvent('keydown', {
+                key: 'Enter',
+                code: 'Enter',
+                keyCode: 13,
+                bubbles: true,
+                cancelable: true
+            });
+    
+            // Dispatch the Enter key event
+            filterInput.dispatchEvent(enterKeyEvent);
+    
+            // Optionally, dispatch 'keyup' and 'input' events to trigger full form submission logic if needed
+            const keyUpEvent = new KeyboardEvent('keyup', {
+                key: 'Enter',
+                code: 'Enter',
+                keyCode: 13,
+                bubbles: true,
+                cancelable: true
+            });
+            filterInput.dispatchEvent(keyUpEvent);
+    
+            console.log('Enter key events dispatched for VRID input field.');
+    
+            // Scroll the input field into view
+            filterInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+            // Emulate a mouseover on the progress bar
+            hoverProgressBar(doc);
+    
+            clearInterval(intervalId); // Stop the interval after setting the VRID
+        }, 4000); // Check every 4 seconds
     }
 
     // Function to emulate mouseover on the progress bar
