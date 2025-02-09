@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Display Hover Box Data with Time and Packages
 // @namespace    http://tampermonkey.net/
-// @version      1.7.6
+// @version      1.7.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @description  Extract and display time and package data from tooltip in a floating container, highlighting the first cumulative threshold.
@@ -67,22 +67,13 @@
     
                             // Check if threshold is met and highlight the row
                             if (!thresholdMet && cumulativePackages >= 300) {
-                                item.classList.add('cptEntry');
-                                item.style.border = '4px ridge #50ff64';
-                                item.style.backgroundColor = 'white';
-                                item.style.fontWeight = 'bold';
                                 thresholdMet = true;
                                 console.log('Threshold met at item:', item); // Debugging log
-                                console.log('Item styles:', {
-                                    border: item.style.border,
-                                    backgroundColor: item.style.backgroundColor,
-                                    fontWeight: item.style.fontWeight
-                                }); // Debugging log
+                                content += `<li style="margin-bottom: 5px;color:black;border: 4px ridge #50ff64; background-color: white; font-weight: bold;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                             } else {
                                 console.log('Threshold not met at item:', item); // Debugging log
+                                content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                             }
-    
-                            content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                         });
     
                         updateContainer(content);
