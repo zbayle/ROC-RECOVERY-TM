@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4.9
+// @version      1.9.5.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -266,81 +266,6 @@ function createIframe(url, callback) {
         console.error('Container not found!');
     }
 }
-
-// Function to retrieve data from the iframe
-// function retrieveDataFromIframe(iframe) {
-//     try {
-//         const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-//         const destinationElement = iframeDocument.querySelector('.cptEntry');
-//         if (!destinationElement) {
-//             console.error('Destination element not found!');
-//             return;
-//         }
-
-//         const destinationID = destinationElement.textContent.trim();
-//         localStorage.setItem('destinationID', destinationID);
-//         console.log('Stored Destination ID:', destinationID);
-
-//         const entryDateTimeElement = destinationElement.querySelector('strong');
-//         if (!entryDateTimeElement) {
-//             console.error('Entry DateTime element not found!');
-//             return;
-//         }
-
-//         const entryDateTime = entryDateTimeElement.textContent.trim();
-//         if (!entryDateTime) {
-//             console.error('Entry DateTime not found!');
-//             return;
-//         }
-
-//         console.log('Retrieved Entry DateTime:', entryDateTime);
-
-//         // Split the entryDateTime into time and date
-//         const parts = entryDateTime.split('  ').map(part => part.trim());
-//         if (parts.length !== 2) {
-//             console.error('Invalid entryDateTime format!', entryDateTime);
-//             return;
-//         }
-
-//         const time = parts[0];
-//         const date = parts[1];
-
-//         if (!time || !date) {
-//             console.error('Invalid time or date!', { time, date });
-//             return;
-//         }
-
-//         // Reformat the date to MM/DD/YYYY
-//         const [day, monthName] = date.split('-').map(part => part.trim());
-//         const monthMapping = {
-//             'Jan': '01',
-//             'Feb': '02',
-//             'Mar': '03',
-//             'Apr': '04',
-//             'May': '05',
-//             'Jun': '06',
-//             'Jul': '07',
-//             'Aug': '08',
-//             'Sep': '09',
-//             'Oct': '10',
-//             'Nov': '11',
-//             'Dec': '12'
-//         };
-//         const month = monthMapping[monthName];
-//         const year = new Date().getFullYear(); // Assuming the current year
-//         const formattedDate = `${month}/${day}/${year}`;
-
-//         localStorage.setItem('thresholdTime', time);
-//         localStorage.setItem('thresholdDate', formattedDate);
-
-//         console.log('Stored threshold time:', time);
-//         console.log('Stored threshold date:', formattedDate);
-
-//         calculateTime(entryDateTime).then(displayCalculatedTime);
-//     } catch (error) {
-//         console.error('Error retrieving data from iframe:', error);
-//     }
-// }
     // Function to add the Vista button
     function addVistaButton() {
         const retryInterval = setInterval(() => {
@@ -458,6 +383,8 @@ function createIframe(url, callback) {
             return null;
         }
     }
+
+
     async function calculateTime(entryDateTime) {
         const vrid = localStorage.getItem('vrid');
         const destinationID = localStorage.getItem('destinationID');
@@ -477,30 +404,40 @@ function createIframe(url, callback) {
         return resultDate;
     }
     
-    // Function to parse the stored threshold time and use it with calculateTime
-    function useStoredThresholdTime() {
-        const time = localStorage.getItem('thresholdTime');
-        const date = localStorage.getItem('thresholdDate');
+    // Function to parse the stored vista time and date and use it with calculateTime
+    function useStoredVistaTime() {
+        const time = localStorage.getItem('vistaTime');
+        const date = localStorage.getItem('vistaDate');
         if (!time || !date) {
-            console.error('Threshold time or date not found in localStorage!');
+            console.error('Vista time or date not found in localStorage!');
             return;
         }
     
-        console.log('Retrieved threshold time:', time);
-        console.log('Retrieved threshold date:', date);
+        console.log('Retrieved vista time:', time);
+        console.log('Retrieved vista date:', date);
     
         const [hours, minutes] = time.split(':').map(part => part.trim());
         const [month, day, year] = date.split('/').map(part => part.trim());
     
         if (!hours || !minutes || !month || !day || !year) {
-            console.error('Invalid threshold time or date components!', { hours, minutes, month, day, year });
+            console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
             return;
         }
     
-        const formattedDate = `${month}/${day}/${year}`;
-        const formattedTime = `${hours}${minutes}`;
+        // Create a Date object from the stored time and date
+        const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+        console.log('Vista DateTime:', vistaDateTime);
     
-        const displayText = `Critical Sort: ${formattedDate} @ ${formattedTime}`;
+        // Subtract 6 hours from the vistaDateTime
+        const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+        const adjustedDateTime = new Date(vistaDateTime.getTime() - sixHours);
+        console.log('Adjusted DateTime:', adjustedDateTime);
+    
+        // Format the adjusted date and time
+        const adjustedDate = adjustedDateTime.toLocaleDateString('en-US');
+        const adjustedTime = adjustedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+        const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
     
         let displayElement = document.getElementById('calculated-time-display');
         if (!displayElement) {
@@ -516,32 +453,41 @@ function createIframe(url, callback) {
         }
         displayElement.innerText = displayText;
     }
-
+    
     function displayCalculatedTime() {
-        const time = localStorage.getItem('thresholdTime');
-        const date = localStorage.getItem('thresholdDate');
+        const time = localStorage.getItem('vistaTime');
+        const date = localStorage.getItem('vistaDate');
         if (!time || !date) {
-            console.error('Threshold time or date not found in localStorage!');
+            console.error('Vista time or date not found in localStorage!');
             return;
         }
     
-        console.log('Retrieved threshold time:', time);
-        console.log('Retrieved threshold date:', date);
+        console.log('Retrieved vista time:', time);
+        console.log('Retrieved vista date:', date);
     
         // Parse the time and date
         const [hours, minutes] = time.split(':').map(part => part.trim());
         const [month, day, year] = date.split('/').map(part => part.trim());
     
         if (!hours || !minutes || !month || !day || !year) {
-            console.error('Invalid threshold time or date components!', { hours, minutes, month, day, year });
+            console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
             return;
         }
     
-        // Format the date and time
-        const formattedDate = `${month}/${day}/${year}`;
-        const formattedTime = `${hours}${minutes}`;
+        // Create a Date object from the stored time and date
+        const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+        console.log('Vista DateTime:', vistaDateTime);
     
-        const displayText = `Critical Sort: ${formattedDate} @ ${formattedTime}`;
+        // Subtract 6 hours from the vistaDateTime
+        const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+        const adjustedDateTime = new Date(vistaDateTime.getTime() - sixHours);
+        console.log('Adjusted DateTime:', adjustedDateTime);
+    
+        // Format the adjusted date and time
+        const adjustedDate = adjustedDateTime.toLocaleDateString('en-US');
+        const adjustedTime = adjustedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+        const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
     
         let displayElement = document.getElementById('calculated-time-display');
         if (!displayElement) {
