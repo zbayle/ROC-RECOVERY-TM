@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.4
+// @version      1.9.5.5
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -248,12 +248,12 @@
         }, 2000);
     }
 
-    function removeGreenBorders() {
-        const runStructureLinks = document.querySelectorAll('td a[href*="run-structure"]');
-        runStructureLinks.forEach(link => {
-            link.style.border = '';
-        });
-    }
+    // function removeGreenBorders() {
+    //     const runStructureLinks = document.querySelectorAll('td a[href*="run-structure"]');
+    //     runStructureLinks.forEach(link => {
+    //         link.style.border = '';
+    //     });
+    // }
 
     
 
@@ -482,59 +482,6 @@
             }
             displayElement.innerText = displayText;
         });
-    }
-    
-    function displayCalculatedTime() {
-        const time = localStorage.getItem('vistaTime');
-        const date = localStorage.getItem('vistaDate');
-        if (!time || !date) {
-            console.error('Vista time or date not found in localStorage!');
-            return;
-        }
-    
-        console.log('Retrieved vista time:', time);
-        console.log('Retrieved vista date:', date);
-    
-        // Parse the time and date
-        const [hours, minutes] = time.split(':').map(part => part.trim());
-        const [month, day, year] = date.split('/').map(part => part.trim());
-    
-        if (!hours || !minutes || !month || !day || !year) {
-            console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
-            return;
-        }
-    
-        // Create a Date object from the stored time and date
-        const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
-        console.log('Vista DateTime:', vistaDateTime);
-    
-        // Subtract 6 hours from the vistaDateTime
-        const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-        const adjustedDateTime = new Date(vistaDateTime.getTime() - sixHours);
-        console.log('Adjusted DateTime:', adjustedDateTime);
-    
-        // Format the adjusted date and time
-        const adjustedDate = adjustedDateTime.toLocaleDateString('en-US');
-        const adjustedTime = adjustedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
-        console.log('Adjusted Date:', adjustedDate);
-        console.log('Adjusted Time:', adjustedTime);
-    
-        const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
-    
-        let displayElement = document.getElementById('calculated-time-display');
-        if (!displayElement) {
-            displayElement = document.createElement('div');
-            displayElement.id = 'calculated-time-display';
-            displayElement.style.marginTop = '10px';
-            displayElement.style.padding = '10px';
-            displayElement.style.backgroundColor = '#FF9900';
-            displayElement.style.color = 'black';
-            displayElement.style.borderRadius = '5px';
-            displayElement.style.fontSize = '16px';
-            document.body.appendChild(displayElement);
-        }
-        displayElement.innerText = displayText;
     }
     
 
