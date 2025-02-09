@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.1
+// @version      1.9.5.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -392,7 +392,13 @@
             return;
         }
     
+        console.log('Calling fetchDriveTime with VRID:', vrid, 'and Destination ID:', destinationID);
         const driveTime = await fetchDriveTime(vrid, destinationID);
+        if (driveTime === null) {
+            console.error('Failed to fetch drive time');
+            return;
+        }
+    
         const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
         const totalTime = sixHours + driveTime;
     
