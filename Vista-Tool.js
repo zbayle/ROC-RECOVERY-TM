@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.11.5
+// @version      1.11.6
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -17,12 +17,16 @@
     // Function to retrieve data from the iframe
     function retrieveDataFromIframe(iframe) {
         try {
+            console.log('Attempting to retrieve data from iframe...');
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            console.log('Iframe document accessed:', iframeDocument);
+
             const destinationElement = iframeDocument.querySelector('.cptEntry');
             if (!destinationElement) {
                 console.error('Destination element not found!');
                 return;
             }
+            console.log('Destination element found:', destinationElement);
 
             const destinationID = destinationElement.textContent.trim();
             localStorage.setItem('destinationID', destinationID);
@@ -33,13 +37,13 @@
                 console.error('Entry DateTime element not found!');
                 return;
             }
+            console.log('Entry DateTime element found:', entryDateTimeElement);
 
             const entryDateTime = entryDateTimeElement.textContent.trim();
             if (!entryDateTime) {
                 console.error('Entry DateTime not found!');
                 return;
             }
-
             console.log('Retrieved Entry DateTime:', entryDateTime);
 
             // Split the entryDateTime into time and date
@@ -48,6 +52,7 @@
                 console.error('Invalid entryDateTime format!', entryDateTime);
                 return;
             }
+            console.log('Entry DateTime split into parts:', parts);
 
             const time = parts[0];
             const date = parts[1];
@@ -56,6 +61,7 @@
                 console.error('Invalid time or date!', { time, date });
                 return;
             }
+            console.log('Time and date extracted:', { time, date });
 
             // Reformat the date to MM/DD/YYYY
             const [day, monthName] = date.split('-').map(part => part.trim());
@@ -123,6 +129,7 @@
 
     // Function to wait for the iframe to be available
     function waitForIframe(callback) {
+        console.log('Waiting for iframe to be available...');
         const iframe = document.querySelector('iframe[src="https://trans-logistics.amazon.com/sortcenter/vista/"]');
         if (iframe) {
             iframe.onload = () => {
@@ -153,6 +160,7 @@
 
     // Function to set the VRID in the filter input field
     function setFilterInput(vrid) {
+        console.log('Setting VRID in filter input:', vrid);
         const filterInput = document.querySelector('#inboundDataTables_filter input[type="text"]');
         if (filterInput) {
             filterInput.value = vrid;
@@ -164,6 +172,7 @@
 
     // Main logic that runs after the page is loaded
     function main(doc) {
+        console.log('Main function started...');
         waitForIframe((iframe) => {
             retrieveDataFromIframe(iframe);
         });
@@ -171,6 +180,7 @@
 
     // Run the main function after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded event fired...');
         main(document);
     });
 })();
