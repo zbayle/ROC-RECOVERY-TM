@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4.7
+// @version      1.9.4.8
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -241,65 +241,75 @@
     
 
     // Function to create and append an iframe
-    function createIframe(url, callback) {
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '500px';
-        iframe.src = url;
-        iframe.onload = () => callback(iframe);
-    
-        const container = document.querySelector('.expanded-child-table-container');
-    
-        console.log('Container:', container);
-    
-        if (container) {
-            container.appendChild(iframe);
-        } else {
-            console.error('Container not found!');
-        }
+function createIframe(url, callback) {
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '500px';
+    iframe.src = url;
+
+    iframe.onload = () => {
+        console.log('Iframe loaded successfully.');
+        callback(iframe);
+    };
+
+    iframe.onerror = (error) => {
+        console.error('Error loading iframe:', error);
+    };
+
+    const container = document.querySelector('.expanded-child-table-container');
+
+    console.log('Container:', container);
+
+    if (container) {
+        container.appendChild(iframe);
+    } else {
+        console.error('Container not found!');
     }
-    // Function to retrieve data from the iframe
-    function retrieveDataFromIframe(iframe) {
+}
+
+// Function to retrieve data from the iframe
+function retrieveDataFromIframe(iframe) {
+    try {
         const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
         const destinationElement = iframeDocument.querySelector('.cptEntry');
         if (!destinationElement) {
             console.error('Destination element not found!');
             return;
         }
-    
+
         const destinationID = destinationElement.textContent.trim();
         localStorage.setItem('destinationID', destinationID);
         console.log('Stored Destination ID:', destinationID);
-    
+
         const entryDateTimeElement = destinationElement.querySelector('strong');
         if (!entryDateTimeElement) {
             console.error('Entry DateTime element not found!');
             return;
         }
-    
+
         const entryDateTime = entryDateTimeElement.textContent.trim();
         if (!entryDateTime) {
             console.error('Entry DateTime not found!');
             return;
         }
-    
+
         console.log('Retrieved Entry DateTime:', entryDateTime);
-    
+
         // Split the entryDateTime into time and date
         const parts = entryDateTime.split('  ').map(part => part.trim());
         if (parts.length !== 2) {
             console.error('Invalid entryDateTime format!', entryDateTime);
             return;
         }
-    
+
         const time = parts[0];
         const date = parts[1];
-    
+
         if (!time || !date) {
             console.error('Invalid time or date!', { time, date });
             return;
         }
-    
+
         // Reformat the date to MM/DD/YYYY
         const [day, monthName] = date.split('-').map(part => part.trim());
         const monthMapping = {
@@ -319,16 +329,18 @@
         const month = monthMapping[monthName];
         const year = new Date().getFullYear(); // Assuming the current year
         const formattedDate = `${month}/${day}/${year}`;
-    
+
         localStorage.setItem('thresholdTime', time);
         localStorage.setItem('thresholdDate', formattedDate);
-    
+
         console.log('Stored threshold time:', time);
         console.log('Stored threshold date:', formattedDate);
-    
-        calculateTime(entryDateTime).then(displayCalculatedTime);
-    }
 
+        calculateTime(entryDateTime).then(displayCalculatedTime);
+    } catch (error) {
+        console.error('Error retrieving data from iframe:', error);
+    }
+}
     // Function to add the Vista button
     function addVistaButton() {
         const retryInterval = setInterval(() => {
