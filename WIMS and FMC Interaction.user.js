@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.5
+// @version      1.9.5.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -349,6 +349,22 @@
     
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
+    
+                        // Assuming destinationID is also available on the page
+                        const destinationIDElement = document.querySelector('td.destination-id');
+                        if (!destinationIDElement) {
+                            console.error('Destination ID element not found!');
+                            return;
+                        }
+    
+                        const destinationID = destinationIDElement.textContent.trim();
+                        if (!destinationID) {
+                            console.error('Destination ID not found!');
+                            return;
+                        }
+    
+                        localStorage.setItem('destinationID', destinationID);
+                        console.log('Stored Destination ID:', destinationID);
     
                         // Create an iframe and retrieve data from it
                         createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
