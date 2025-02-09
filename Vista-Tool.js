@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.10.5
+// @version      1.10.7
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -13,38 +13,6 @@
 
 (function() {
     'use strict';
-
-    // Function to create and append an iframe
-    function createIframe(url, callback) {
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '500px';
-        iframe.src = url;
-
-        iframe.onload = () => {
-            console.log('Iframe loaded successfully.');
-            callback(iframe);
-        };
-
-        iframe.onerror = (error) => {
-            console.error('Error loading iframe:', error);
-        };
-
-        function appendIframe() {
-            const container = document.querySelector('.expanded-plan-execution-details-container');
-            console.log('Container:', container);
-
-            if (container) {
-                container.appendChild(iframe);
-                console.log('Iframe appended to container.');
-            } else {
-                console.error('Container not found! Retrying in 1 second...');
-                setTimeout(appendIframe, 1000); // Retry after 1 second
-            }
-        }
-
-        appendIframe();
-    }
 
     // Function to retrieve data from the iframe
     function retrieveDataFromIframe(iframe) {
@@ -149,9 +117,13 @@
 
     // Main logic that runs after the page is loaded
     function main(doc) {
-        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', (iframe) => {
+        const iframe = document.querySelector('iframe[src="https://trans-logistics.amazon.com/sortcenter/vista/"]');
+        if (iframe) {
+            console.log('Iframe found:', iframe);
             retrieveDataFromIframe(iframe);
-        });
+        } else {
+            console.error('Iframe not found!');
+        }
     }
 
     // Check if the script is running inside an iframe or the main window
