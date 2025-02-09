@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Display Hover Box Data with Time and Packages
 // @namespace    http://tampermonkey.net/
-// @version      1.7.4
+// @version      1.7.5
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @description  Extract and display time and package data from tooltip in a floating container, highlighting the first cumulative threshold.
@@ -47,22 +47,24 @@
         mutations.forEach(mutation => {
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === 1 && node.classList.contains('tooltipTitle')) {
+                    console.log('tooltipTitle element added:', node); // Debugging log
                     // Grab the data from the tooltip
                     const list = node.querySelector('.listWithoutStyle.slamCptList');
                     if (list) {
+                        console.log('List found in tooltipTitle:', list); // Debugging log
                         // Extract and format the time and package info
                         let content = '';
                         let cumulativePackages = 0;
                         let thresholdMet = false;
                         const items = list.querySelectorAll('li');
-
+    
                         items.forEach((item, index) => {
                             const time = item.querySelector('.cpt') ? item.querySelector('.cpt').innerText : '';
                             const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
                             const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
-
+    
                             cumulativePackages += pkgs;
-
+    
                             // Check if threshold is met and highlight the row
                             if (!thresholdMet && cumulativePackages >= 300) {
                                 item.classList.add('cptEntry');
@@ -70,12 +72,17 @@
                                 item.style.backgroundColor = 'white';
                                 item.style.fontWeight = 'bold';
                                 thresholdMet = true;
+                                console.log('Threshold met at item:', item); // Debugging log
+                            } else {
+                                console.log('Threshold not met at item:', item); // Debugging log
                             }
-
+    
                             content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                         });
-
+    
                         updateContainer(content);
+                    } else {
+                        console.log('List not found in tooltipTitle'); // Debugging log
                     }
                 }
             });
