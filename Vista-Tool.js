@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.11.0
+// @version      1.11.2
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -137,17 +137,8 @@
         });
     }
 
-    // Check if the script is running inside an iframe or the main window
-    if (window.self !== window.top) {
-        // Running inside an iframe
-        window.addEventListener('load', () => {
-            const iframeDocument = window.document;
-            main(iframeDocument);
-        });
-    } else {
-        // Running in the main window
-        window.addEventListener('load', () => {
-            main(document);
-        });
-    }
+    // Run the main function after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        main(document);
+    });
 })();
