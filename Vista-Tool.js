@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.11.4
+// @version      1.11.5
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -90,6 +90,9 @@
 
             // Simulate mouse over event on .progressbarib
             simulateMouseOver(iframeDocument.querySelector('.progressbarib'));
+
+            // Set the VRID in the filter input field
+            setFilterInput(destinationID);
         } catch (error) {
             console.error('Error retrieving data from iframe:', error);
         }
@@ -145,6 +148,17 @@
             console.log('Mouse over event simulated on:', element);
         } else {
             console.error('Element .progressbarib not found!');
+        }
+    }
+
+    // Function to set the VRID in the filter input field
+    function setFilterInput(vrid) {
+        const filterInput = document.querySelector('#inboundDataTables_filter input[type="text"]');
+        if (filterInput) {
+            filterInput.value = vrid;
+            console.log('Set VRID in filter input:', vrid);
+        } else {
+            console.error('Filter input not found!');
         }
     }
 
