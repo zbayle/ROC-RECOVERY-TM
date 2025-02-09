@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.0
+// @version      1.9.5.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -241,31 +241,31 @@
     
 
     // Function to create and append an iframe
-function createIframe(url, callback) {
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '100%';
-    iframe.style.height = '500px';
-    iframe.src = url;
-
-    iframe.onload = () => {
-        console.log('Iframe loaded successfully.');
-        callback(iframe);
-    };
-
-    iframe.onerror = (error) => {
-        console.error('Error loading iframe:', error);
-    };
-
-    const container = document.querySelector('.expanded-child-table-container');
-
-    console.log('Container:', container);
-
-    if (container) {
-        container.appendChild(iframe);
-    } else {
-        console.error('Container not found!');
+    function createIframe(url, callback) {
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '500px';
+        iframe.src = url;
+    
+        iframe.onload = () => {
+            console.log('Iframe loaded successfully.');
+            callback(iframe);
+        };
+    
+        iframe.onerror = (error) => {
+            console.error('Error loading iframe:', error);
+        };
+    
+        const container = document.querySelector('.expanded-child-table-container');
+    
+        console.log('Container:', container);
+    
+        if (container) {
+            container.appendChild(iframe);
+        } else {
+            console.error('Container not found!');
+        }
     }
-}
     // Function to add the Vista button
     function addVistaButton() {
         const retryInterval = setInterval(() => {
@@ -335,9 +335,8 @@ function createIframe(url, callback) {
     
                         // Create an iframe and retrieve data from it
                         createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
-                            retrieveDataFromIframe(iframe);
-                            // Call useStoredThresholdTime after the iframe is loaded and data is retrieved
-                            useStoredThresholdTime();
+                            // Call useStoredVistaTime after the iframe is loaded and data is retrieved
+                            useStoredVistaTime();
                         });
                     });
     
@@ -437,6 +436,9 @@ function createIframe(url, callback) {
         const adjustedDate = adjustedDateTime.toLocaleDateString('en-US');
         const adjustedTime = adjustedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
+        console.log('Adjusted Date:', adjustedDate);
+        console.log('Adjusted Time:', adjustedTime);
+    
         const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
     
         let displayElement = document.getElementById('calculated-time-display');
@@ -486,6 +488,9 @@ function createIframe(url, callback) {
         // Format the adjusted date and time
         const adjustedDate = adjustedDateTime.toLocaleDateString('en-US');
         const adjustedTime = adjustedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+        console.log('Adjusted Date:', adjustedDate);
+        console.log('Adjusted Time:', adjustedTime);
     
         const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
     
