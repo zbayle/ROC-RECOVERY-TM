@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.10.9
+// @version      1.11.0
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -117,10 +117,13 @@
 
     // Function to wait for the iframe to be available
     function waitForIframe(callback) {
-        const iframe = document.querySelector('iframe');
+        const iframe = document.querySelector('iframe[src="https://trans-logistics.amazon.com/sortcenter/vista/"]');
         if (iframe) {
-            console.log('Iframe found:', iframe);
-            callback(iframe);
+            iframe.onload = () => {
+                console.log('Iframe loaded:', iframe);
+                callback(iframe);
+            };
+            console.log('Iframe found, waiting for it to load:', iframe);
         } else {
             console.error('Iframe not found! Retrying in 1 second...');
             setTimeout(() => waitForIframe(callback), 1000); // Retry after 1 second
