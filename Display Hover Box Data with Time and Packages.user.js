@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Display Hover Box Data with Time and Packages
 // @namespace    http://tampermonkey.net/
-// @version      1.7.8
+// @version      1.7.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @description  Extract and display time and package data from tooltip in a floating container, highlighting the first cumulative threshold.
@@ -59,8 +59,10 @@
                         const items = list.querySelectorAll('li');
     
                         items.forEach((item, index) => {
-                            const time = item.querySelector('.cpt') ? item.querySelector('.cpt').innerText.trim() : '';
-                            const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText.trim() : '0';
+                            const timeElement = item.querySelector('.cpt');
+                            const pkgsElement = item.querySelector('.pkgs');
+                            const time = timeElement ? timeElement.innerText.trim() : '';
+                            const pkgsText = pkgsElement ? pkgsElement.innerText.trim() : '0';
                             const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
     
                             cumulativePackages += pkgs;
@@ -71,34 +73,39 @@
                                 console.log('Threshold met at item:', item); // Debugging log
     
                                 // Extract and format the date
-                                const datePart = time.split('  ')[1].trim();
-                                const [day, monthName] = datePart.split('-').map(part => part.trim());
-                                const monthMapping = {
-                                    'Jan': '01',
-                                    'Feb': '02',
-                                    'Mar': '03',
-                                    'Apr': '04',
-                                    'May': '05',
-                                    'Jun': '06',
-                                    'Jul': '07',
-                                    'Aug': '08',
-                                    'Sep': '09',
-                                    'Oct': '10',
-                                    'Nov': '11',
-                                    'Dec': '12'
-                                };
-                                const month = monthMapping[monthName];
-                                const year = new Date().getFullYear(); // Assuming the current year
-                                const formattedDate = `${month}/${day}/${year}`;
+                                const timeParts = time.split('  ');
+                                if (timeParts.length === 2) {
+                                    const datePart = timeParts[1].trim();
+                                    const [day, monthName] = datePart.split('-').map(part => part.trim());
+                                    const monthMapping = {
+                                        'Jan': '01',
+                                        'Feb': '02',
+                                        'Mar': '03',
+                                        'Apr': '04',
+                                        'May': '05',
+                                        'Jun': '06',
+                                        'Jul': '07',
+                                        'Aug': '08',
+                                        'Sep': '09',
+                                        'Oct': '10',
+                                        'Nov': '11',
+                                        'Dec': '12'
+                                    };
+                                    const month = monthMapping[monthName];
+                                    const year = new Date().getFullYear(); // Assuming the current year
+                                    const formattedDate = `${month}/${day}/${year}`;
     
-                                // Store the time and date in local storage
-                                localStorage.setItem('vistaTime', time.split('  ')[0].trim());
-                                localStorage.setItem('vistaDate', formattedDate);
+                                    // Store the time and date in local storage
+                                    localStorage.setItem('vistaTime', timeParts[0].trim());
+                                    localStorage.setItem('vistaDate', formattedDate);
     
-                                console.log('Stored vistaTime:', time.split('  ')[0].trim());
-                                console.log('Stored vistaDate:', formattedDate);
+                                    console.log('Stored vistaTime:', timeParts[0].trim());
+                                    console.log('Stored vistaDate:', formattedDate);
     
-                                content += `<li style="margin-bottom: 5px;color:black;border: 4px ridge #50ff64; background-color: white; font-weight: bold;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                                    content += `<li style="margin-bottom: 5px;color:black;border: 4px ridge #50ff64; background-color: white; font-weight: bold;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                                } else {
+                                    console.error('Invalid time format:', time); // Debugging log
+                                }
                             } else {
                                 console.log('Threshold not met at item:', item); // Debugging log
                                 content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
