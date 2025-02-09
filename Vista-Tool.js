@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.11.6
+// @version      1.11.7
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -10,7 +10,6 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // ==/UserScript==
-
 
 (function() {
     'use strict';
@@ -170,6 +169,62 @@
             console.error('Filter input not found!');
         }
     }
+
+    // Function to update the container with the extracted content
+    function updateContainer(content) {
+        const container = document.getElementById('calculated-time-display');
+        if (container) {
+            container.innerHTML = content;
+            console.log('Updated container with content:', content);
+        } else {
+            console.error('Container not found!');
+        }
+    }
+
+    // Watch for the addition of the tooltipTitle element
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1 && node.classList.contains('tooltipTitle')) {
+                    console.log('tooltipTitle element added:', node);
+                    // Grab the data from the tooltip
+                    const list = node.querySelector('.listWithoutStyle.slamCptList');
+                    if (list) {
+                        console.log('List found in tooltipTitle:', list);
+                        // Extract and format the time and package info
+                        let content = '';
+                        let cumulativePackages = 0;
+                        let thresholdMet = false;
+                        const items = list.querySelectorAll('li');
+
+                        items.forEach((item, index) => {
+                            const time = item.querySelector('.cpt') ? item.querySelector('.cpt').innerText : '';
+                            const pkgsText = item.querySelector('.pkgs') ? item.querySelector('.pkgs').innerText : '0';
+                            const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
+
+                            cumulativePackages += pkgs;
+
+                            // Check if threshold is met and highlight the row
+                            if (!thresholdMet && cumulativePackages >= 300) {
+                                item.classList.add('cptEntry');
+                                item.style.border = '4px ridge #50ff64';
+                                item.style.backgroundColor = 'white';
+                                item.style.fontWeight = 'bold';
+                                thresholdMet = true;
+                            }
+
+                            content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
+                        });
+
+                        updateContainer(content);
+                    }
+                }
+            });
+        });
+    });
+
+    // Start observing the DOM for new nodes
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // Main logic that runs after the page is loaded
     function main(doc) {
