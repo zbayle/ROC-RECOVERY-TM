@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/  
-// @version      1.12.1
+// @version      1.12.2
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -22,92 +22,92 @@
             console.log('Iframe document accessed:', iframeDocument);
 
             // Set the facility in the iframe document
-            selectFacility(iframeDocument);
+            selectFacility(iframeDocument, () => {
+                // Simulate mouse over event on .progressbarib
+                simulateMouseOver(iframeDocument.querySelector('.progressbarib'));
 
-            // Simulate mouse over event on .progressbarib
-            simulateMouseOver(iframeDocument.querySelector('.progressbarib'));
+                // Retry mechanism to wait for the destination element to be available
+                function waitForDestinationElement() {
+                    const destinationElement = iframeDocument.querySelector('.cptEntry');
+                    if (!destinationElement) {
+                        console.error('Destination element not found! Retrying in 1 second...');
+                        setTimeout(waitForDestinationElement, 1000); // Retry after 1 second
+                        return;
+                    }
+                    console.log('Destination element found:', destinationElement);
 
-            // Retry mechanism to wait for the destination element to be available
-            function waitForDestinationElement() {
-                const destinationElement = iframeDocument.querySelector('.cptEntry');
-                if (!destinationElement) {
-                    console.error('Destination element not found! Retrying in 1 second...');
-                    setTimeout(waitForDestinationElement, 1000); // Retry after 1 second
-                    return;
+                    const destinationID = destinationElement.textContent.trim();
+                    localStorage.setItem('destinationID', destinationID);
+                    console.log('Stored Destination ID:', destinationID);
+
+                    const entryDateTimeElement = destinationElement.querySelector('strong');
+                    if (!entryDateTimeElement) {
+                        console.error('Entry DateTime element not found!');
+                        return;
+                    }
+                    console.log('Entry DateTime element found:', entryDateTimeElement);
+
+                    const entryDateTime = entryDateTimeElement.textContent.trim();
+                    if (!entryDateTime) {
+                        console.error('Entry DateTime not found!');
+                        return;
+                    }
+                    console.log('Retrieved Entry DateTime:', entryDateTime);
+
+                    // Split the entryDateTime into time and date
+                    const parts = entryDateTime.split('  ').map(part => part.trim());
+                    if (parts.length !== 2) {
+                        console.error('Invalid entryDateTime format!', entryDateTime);
+                        return;
+                    }
+                    console.log('Entry DateTime split into parts:', parts);
+
+                    const time = parts[0];
+                    const date = parts[1];
+
+                    if (!time || !date) {
+                        console.error('Invalid time or date!', { time, date });
+                        return;
+                    }
+                    console.log('Time and date extracted:', { time, date });
+
+                    // Reformat the date to MM/DD/YYYY
+                    const [day, monthName] = date.split('-').map(part => part.trim());
+                    const monthMapping = {
+                        'Jan': '01',
+                        'Feb': '02',
+                        'Mar': '03',
+                        'Apr': '04',
+                        'May': '05',
+                        'Jun': '06',
+                        'Jul': '07',
+                        'Aug': '08',
+                        'Sep': '09',
+                        'Oct': '10',
+                        'Nov': '11',
+                        'Dec': '12'
+                    };
+                    const month = monthMapping[monthName];
+                    const year = new Date().getFullYear(); // Assuming the current year
+                    const formattedDate = `${month}/${day}/${year}`;
+
+                    localStorage.setItem('thresholdTime', time);
+                    localStorage.setItem('thresholdDate', formattedDate);
+
+                    console.log('Stored threshold time:', time);
+                    console.log('Stored threshold date:', formattedDate);
+
+                    // Reintroduce the following line with additional logging and error handling
+                    calculateTime(entryDateTime).then(displayCalculatedTime).catch(error => {
+                        console.error('Error in calculateTime or displayCalculatedTime:', error);
+                    });
+
+                    // Set the VRID in the filter input field
+                    setFilterInput(destinationID);
                 }
-                console.log('Destination element found:', destinationElement);
 
-                const destinationID = destinationElement.textContent.trim();
-                localStorage.setItem('destinationID', destinationID);
-                console.log('Stored Destination ID:', destinationID);
-
-                const entryDateTimeElement = destinationElement.querySelector('strong');
-                if (!entryDateTimeElement) {
-                    console.error('Entry DateTime element not found!');
-                    return;
-                }
-                console.log('Entry DateTime element found:', entryDateTimeElement);
-
-                const entryDateTime = entryDateTimeElement.textContent.trim();
-                if (!entryDateTime) {
-                    console.error('Entry DateTime not found!');
-                    return;
-                }
-                console.log('Retrieved Entry DateTime:', entryDateTime);
-
-                // Split the entryDateTime into time and date
-                const parts = entryDateTime.split('  ').map(part => part.trim());
-                if (parts.length !== 2) {
-                    console.error('Invalid entryDateTime format!', entryDateTime);
-                    return;
-                }
-                console.log('Entry DateTime split into parts:', parts);
-
-                const time = parts[0];
-                const date = parts[1];
-
-                if (!time || !date) {
-                    console.error('Invalid time or date!', { time, date });
-                    return;
-                }
-                console.log('Time and date extracted:', { time, date });
-
-                // Reformat the date to MM/DD/YYYY
-                const [day, monthName] = date.split('-').map(part => part.trim());
-                const monthMapping = {
-                    'Jan': '01',
-                    'Feb': '02',
-                    'Mar': '03',
-                    'Apr': '04',
-                    'May': '05',
-                    'Jun': '06',
-                    'Jul': '07',
-                    'Aug': '08',
-                    'Sep': '09',
-                    'Oct': '10',
-                    'Nov': '11',
-                    'Dec': '12'
-                };
-                const month = monthMapping[monthName];
-                const year = new Date().getFullYear(); // Assuming the current year
-                const formattedDate = `${month}/${day}/${year}`;
-
-                localStorage.setItem('thresholdTime', time);
-                localStorage.setItem('thresholdDate', formattedDate);
-
-                console.log('Stored threshold time:', time);
-                console.log('Stored threshold date:', formattedDate);
-
-                // Reintroduce the following line with additional logging and error handling
-                calculateTime(entryDateTime).then(displayCalculatedTime).catch(error => {
-                    console.error('Error in calculateTime or displayCalculatedTime:', error);
-                });
-
-                // Set the VRID in the filter input field
-                setFilterInput(destinationID);
-            }
-
-            waitForDestinationElement();
+                waitForDestinationElement();
+            });
         } catch (error) {
             console.error('Error retrieving data from iframe:', error);
         }
@@ -245,7 +245,7 @@
     observer.observe(document.body, { childList: true, subtree: true });
 
     // Function to select the facility
-    function selectFacility(doc) {
+    function selectFacility(doc, callback) {
         const facilitySelect = doc.querySelector('select#availableNodeName');
 
         if (facilitySelect) {
@@ -259,6 +259,9 @@
                         facilitySelect.value = optionToSelect.value;
                         const changeEvent = new Event('change');
                         facilitySelect.dispatchEvent(changeEvent);
+                        console.log('Facility selected:', optionToSelect.value);
+                    } else {
+                        console.log('Facility already selected:', optionToSelect.value);
                     }
                 } else {
                     console.error('Facility ID not found in the dropdown options.');
@@ -268,6 +271,10 @@
             }
         } else {
             console.error('Facility select element not found.');
+        }
+
+        if (callback) {
+            callback();
         }
     }
 
@@ -384,8 +391,9 @@
     // Main logic that runs after the page is loaded
     function main(doc) {
         waitForPageLoad(() => {
-            selectFacility(doc);
-            waitForVRIDInputAndSet(doc);
+            selectFacility(doc, () => {
+                waitForVRIDInputAndSet(doc);
+            });
         }, doc);
     }
 
