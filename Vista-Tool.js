@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista-Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.10.2
+// @version      1.10.3
 // @updateURL    https://github.com/zbbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista-Tool.js
 // @description  Combines the functionality of displaying hover box data with time and packages and auto-filling VRID with scroll, enter, and hover, and stores the time and date of the entry that reaches 300 packages in local storage.
@@ -110,10 +110,35 @@
             console.log('Stored threshold time:', time);
             console.log('Stored threshold date:', formattedDate);
 
-            // Temporarily comment out the following line to isolate the issue
-            // calculateTime(entryDateTime).then(displayCalculatedTime);
+            // Reintroduce the following line with additional logging and error handling
+            calculateTime(entryDateTime).then(displayCalculatedTime).catch(error => {
+                console.error('Error in calculateTime or displayCalculatedTime:', error);
+            });
         } catch (error) {
             console.error('Error retrieving data from iframe:', error);
+        }
+    }
+
+    // Dummy implementation of calculateTime for testing purposes
+    function calculateTime(entryDateTime) {
+        return new Promise((resolve, reject) => {
+            console.log('Calculating time for:', entryDateTime);
+            // Simulate some asynchronous operation
+            setTimeout(() => {
+                const calculatedTime = 'Calculated Time: ' + entryDateTime;
+                resolve(calculatedTime);
+            }, 1000);
+        });
+    }
+
+    // Dummy implementation of displayCalculatedTime for testing purposes
+    function displayCalculatedTime(calculatedTime) {
+        console.log('Displaying calculated time:', calculatedTime);
+        const displayElement = document.getElementById('calculated-time-display');
+        if (displayElement) {
+            displayElement.textContent = calculatedTime;
+        } else {
+            console.error('Display element not found!');
         }
     }
 
