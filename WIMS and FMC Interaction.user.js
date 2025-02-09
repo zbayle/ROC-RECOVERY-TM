@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4.8
+// @version      1.9.4.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -268,79 +268,79 @@ function createIframe(url, callback) {
 }
 
 // Function to retrieve data from the iframe
-function retrieveDataFromIframe(iframe) {
-    try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        const destinationElement = iframeDocument.querySelector('.cptEntry');
-        if (!destinationElement) {
-            console.error('Destination element not found!');
-            return;
-        }
+// function retrieveDataFromIframe(iframe) {
+//     try {
+//         const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+//         const destinationElement = iframeDocument.querySelector('.cptEntry');
+//         if (!destinationElement) {
+//             console.error('Destination element not found!');
+//             return;
+//         }
 
-        const destinationID = destinationElement.textContent.trim();
-        localStorage.setItem('destinationID', destinationID);
-        console.log('Stored Destination ID:', destinationID);
+//         const destinationID = destinationElement.textContent.trim();
+//         localStorage.setItem('destinationID', destinationID);
+//         console.log('Stored Destination ID:', destinationID);
 
-        const entryDateTimeElement = destinationElement.querySelector('strong');
-        if (!entryDateTimeElement) {
-            console.error('Entry DateTime element not found!');
-            return;
-        }
+//         const entryDateTimeElement = destinationElement.querySelector('strong');
+//         if (!entryDateTimeElement) {
+//             console.error('Entry DateTime element not found!');
+//             return;
+//         }
 
-        const entryDateTime = entryDateTimeElement.textContent.trim();
-        if (!entryDateTime) {
-            console.error('Entry DateTime not found!');
-            return;
-        }
+//         const entryDateTime = entryDateTimeElement.textContent.trim();
+//         if (!entryDateTime) {
+//             console.error('Entry DateTime not found!');
+//             return;
+//         }
 
-        console.log('Retrieved Entry DateTime:', entryDateTime);
+//         console.log('Retrieved Entry DateTime:', entryDateTime);
 
-        // Split the entryDateTime into time and date
-        const parts = entryDateTime.split('  ').map(part => part.trim());
-        if (parts.length !== 2) {
-            console.error('Invalid entryDateTime format!', entryDateTime);
-            return;
-        }
+//         // Split the entryDateTime into time and date
+//         const parts = entryDateTime.split('  ').map(part => part.trim());
+//         if (parts.length !== 2) {
+//             console.error('Invalid entryDateTime format!', entryDateTime);
+//             return;
+//         }
 
-        const time = parts[0];
-        const date = parts[1];
+//         const time = parts[0];
+//         const date = parts[1];
 
-        if (!time || !date) {
-            console.error('Invalid time or date!', { time, date });
-            return;
-        }
+//         if (!time || !date) {
+//             console.error('Invalid time or date!', { time, date });
+//             return;
+//         }
 
-        // Reformat the date to MM/DD/YYYY
-        const [day, monthName] = date.split('-').map(part => part.trim());
-        const monthMapping = {
-            'Jan': '01',
-            'Feb': '02',
-            'Mar': '03',
-            'Apr': '04',
-            'May': '05',
-            'Jun': '06',
-            'Jul': '07',
-            'Aug': '08',
-            'Sep': '09',
-            'Oct': '10',
-            'Nov': '11',
-            'Dec': '12'
-        };
-        const month = monthMapping[monthName];
-        const year = new Date().getFullYear(); // Assuming the current year
-        const formattedDate = `${month}/${day}/${year}`;
+//         // Reformat the date to MM/DD/YYYY
+//         const [day, monthName] = date.split('-').map(part => part.trim());
+//         const monthMapping = {
+//             'Jan': '01',
+//             'Feb': '02',
+//             'Mar': '03',
+//             'Apr': '04',
+//             'May': '05',
+//             'Jun': '06',
+//             'Jul': '07',
+//             'Aug': '08',
+//             'Sep': '09',
+//             'Oct': '10',
+//             'Nov': '11',
+//             'Dec': '12'
+//         };
+//         const month = monthMapping[monthName];
+//         const year = new Date().getFullYear(); // Assuming the current year
+//         const formattedDate = `${month}/${day}/${year}`;
 
-        localStorage.setItem('thresholdTime', time);
-        localStorage.setItem('thresholdDate', formattedDate);
+//         localStorage.setItem('thresholdTime', time);
+//         localStorage.setItem('thresholdDate', formattedDate);
 
-        console.log('Stored threshold time:', time);
-        console.log('Stored threshold date:', formattedDate);
+//         console.log('Stored threshold time:', time);
+//         console.log('Stored threshold date:', formattedDate);
 
-        calculateTime(entryDateTime).then(displayCalculatedTime);
-    } catch (error) {
-        console.error('Error retrieving data from iframe:', error);
-    }
-}
+//         calculateTime(entryDateTime).then(displayCalculatedTime);
+//     } catch (error) {
+//         console.error('Error retrieving data from iframe:', error);
+//     }
+// }
     // Function to add the Vista button
     function addVistaButton() {
         const retryInterval = setInterval(() => {
