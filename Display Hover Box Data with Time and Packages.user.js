@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Display Hover Box Data with Time and Packages
 // @namespace    http://tampermonkey.net/
-// @version      1.7.9
+// @version      1.8.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Display%20Hover%20Box%20Data%20with%20Time%20and%20Packages.user.js
 // @description  Extract and display time and package data from tooltip in a floating container, highlighting the first cumulative threshold.
@@ -57,23 +57,23 @@
                         let cumulativePackages = 0;
                         let thresholdMet = false;
                         const items = list.querySelectorAll('li');
-    
+
                         items.forEach((item, index) => {
                             const timeElement = item.querySelector('.cpt');
                             const pkgsElement = item.querySelector('.pkgs');
                             const time = timeElement ? timeElement.innerText.trim() : '';
                             const pkgsText = pkgsElement ? pkgsElement.innerText.trim() : '0';
                             const pkgs = parseInt(pkgsText.replace(/[^0-9]/g, '')) || 0;
-    
+
                             cumulativePackages += pkgs;
-    
+
                             // Check if threshold is met and highlight the row
                             if (!thresholdMet && cumulativePackages >= 300) {
                                 thresholdMet = true;
                                 console.log('Threshold met at item:', item); // Debugging log
-    
+
                                 // Extract and format the date
-                                const timeParts = time.split('  ');
+                                const timeParts = time.split(/\s{2,}/); // Split by two or more spaces
                                 if (timeParts.length === 2) {
                                     const datePart = timeParts[1].trim();
                                     const [day, monthName] = datePart.split('-').map(part => part.trim());
@@ -94,14 +94,14 @@
                                     const month = monthMapping[monthName];
                                     const year = new Date().getFullYear(); // Assuming the current year
                                     const formattedDate = `${month}/${day}/${year}`;
-    
+
                                     // Store the time and date in local storage
                                     localStorage.setItem('vistaTime', timeParts[0].trim());
                                     localStorage.setItem('vistaDate', formattedDate);
-    
+
                                     console.log('Stored vistaTime:', timeParts[0].trim());
                                     console.log('Stored vistaDate:', formattedDate);
-    
+
                                     content += `<li style="margin-bottom: 5px;color:black;border: 4px ridge #50ff64; background-color: white; font-weight: bold;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                                 } else {
                                     console.error('Invalid time format:', time); // Debugging log
@@ -111,7 +111,7 @@
                                 content += `<li style="margin-bottom: 5px;color:black;"><strong>${time}</strong> - Packages: ${pkgs}</li>`;
                             }
                         });
-    
+
                         updateContainer(content);
                     } else {
                         console.log('List not found in tooltipTitle'); // Debugging log
