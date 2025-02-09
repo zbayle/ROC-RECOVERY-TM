@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.2
+// @version      1.9.5.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -433,33 +433,38 @@
         const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
         console.log('Vista DateTime:', vistaDateTime);
     
-        // Subtract 6 hours from the vistaDateTime
-        const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-        const adjustedDateTime = new Date(vistaDateTime.getTime() - sixHours);
-        console.log('Adjusted DateTime:', adjustedDateTime);
+        // Call calculateTime with the vistaDateTime
+        calculateTime(vistaDateTime).then(resultDate => {
+            if (!resultDate) {
+                console.error('Failed to calculate time');
+                return;
+            }
     
-        // Format the adjusted date and time
-        const adjustedDate = adjustedDateTime.toLocaleDateString('en-US');
-        const adjustedTime = adjustedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            console.log('Calculated Time:', resultDate);
     
-        console.log('Adjusted Date:', adjustedDate);
-        console.log('Adjusted Time:', adjustedTime);
+            // Format the adjusted date and time
+            const adjustedDate = resultDate.toLocaleDateString('en-US');
+            const adjustedTime = resultDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
-        const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
+            console.log('Adjusted Date:', adjustedDate);
+            console.log('Adjusted Time:', adjustedTime);
     
-        let displayElement = document.getElementById('calculated-time-display');
-        if (!displayElement) {
-            displayElement = document.createElement('div');
-            displayElement.id = 'calculated-time-display';
-            displayElement.style.marginTop = '10px';
-            displayElement.style.padding = '10px';
-            displayElement.style.backgroundColor = '#FF9900';
-            displayElement.style.color = 'black';
-            displayElement.style.borderRadius = '5px';
-            displayElement.style.fontSize = '16px';
-            document.body.appendChild(displayElement);
-        }
-        displayElement.innerText = displayText;
+            const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
+    
+            let displayElement = document.getElementById('calculated-time-display');
+            if (!displayElement) {
+                displayElement = document.createElement('div');
+                displayElement.id = 'calculated-time-display';
+                displayElement.style.marginTop = '10px';
+                displayElement.style.padding = '10px';
+                displayElement.style.backgroundColor = '#FF9900';
+                displayElement.style.color = 'black';
+                displayElement.style.borderRadius = '5px';
+                displayElement.style.fontSize = '16px';
+                document.body.appendChild(displayElement);
+            }
+            displayElement.innerText = displayText;
+        });
     }
     
     function displayCalculatedTime() {
