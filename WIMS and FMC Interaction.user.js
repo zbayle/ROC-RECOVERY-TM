@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.3
+// @version      1.9.5.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -166,13 +166,30 @@
         if (fmcLink) {
             window.open(fmcLink.href, '_blank');
         }
-
+    
         setTimeout(() => {
             const runStructureCell = findElementByText('td a', 'run-structure');
             if (runStructureCell) {
                 runStructureCell.parentElement.style.border = '4px solid #3cff00';
             }
         }, 2000);
+    
+        // Retrieve VRID and Destination ID from local storage
+        const vrid = localStorage.getItem('vrid');
+        const destinationID = localStorage.getItem('destinationID');
+    
+        if (vrid && destinationID) {
+            console.log('Testing fetchDriveTime with VRID:', vrid, 'and Destination ID:', destinationID);
+            fetchDriveTime(vrid, destinationID).then(driveTime => {
+                if (driveTime !== null) {
+                    console.log('Test fetchDriveTime result:', driveTime);
+                } else {
+                    console.error('Test fetchDriveTime failed');
+                }
+            });
+        } else {
+            console.error('VRID or Destination ID not found in local storage');
+        }
     }
 
     // Function to highlight "AZNG" in dynamically added spans
