@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8.0
+// @version      1.9.8.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -380,41 +380,44 @@
     // Function to extract the drive time from the iframe
     function extractDriveTime(url) {
         console.log('Fetching drive time from URL:', url);
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: url,
-            onload: function(response) {
-                console.log('Response status:', response.status);
-                if (response.status === 200) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(response.responseText, 'text/html');
-                    console.log('Parsed document:', doc.documentElement.innerHTML); // Log the entire HTML content
-                    const driveTimeElement = doc.querySelector('.css-mn4iko'); // Adjust the selector as needed
-                    console.log('Drive time element:', driveTimeElement);
-                    if (driveTimeElement) {
-                        const driveTime = driveTimeElement.textContent.trim();
-                        console.log('Extracted Drive Time:', driveTime);
     
-                        // Store the extracted drive time in local storage
-                        localStorage.setItem('driveTime', driveTime);
-                        console.log('Stored Drive Time in local storage:', driveTime);
-                    } else {
-                        console.error('Drive time element not found in the response.');
-                    }
+        // Create an iframe to load the URL
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        iframe.src = url;
+    
+        iframe.onload = () => {
+            console.log('Iframe loaded successfully.');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            console.log('Iframe document:', iframeDoc.documentElement.innerHTML); // Log the entire HTML content
+    
+            // Wait for the content to be fully loaded and rendered
+            setTimeout(() => {
+                const driveTimeElement = iframeDoc.querySelector('.css-mn4iko'); // Adjust the selector as needed
+                console.log('Drive time element:', driveTimeElement);
+                if (driveTimeElement) {
+                    const driveTime = driveTimeElement.textContent.trim();
+                    console.log('Extracted Drive Time:', driveTime);
+    
+                    // Store the extracted drive time in local storage
+                    localStorage.setItem('driveTime', driveTime);
+                    console.log('Stored Drive Time in local storage:', driveTime);
                 } else {
-                    console.error('Failed to fetch drive time:', response.status, response.statusText);
+                    console.error('Drive time element not found in the iframe.');
                 }
-            },
-            onerror: function(error) {
-                console.error('Error fetching drive time:', error);
-            },
-            onabort: function() {
-                console.error('Request aborted');
-            },
-            ontimeout: function() {
-                console.error('Request timed out');
-            }
-        });
+    
+                // Remove the iframe after processing
+                document.body.removeChild(iframe);
+            }, 2000); // Adjust the timeout as needed to ensure the content is fully loaded
+        };
+    
+        iframe.onerror = (error) => {
+            console.error('Error loading iframe:', error);
+        };
+    
+        document.body.appendChild(iframe);
     }
 
     function fetchDriveTime(vrid, facilityId) {
