@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.6.8
+// @version      1.9.6.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -394,7 +394,7 @@ console.log('Vista button added to the page.');
         // Simulate some asynchronous operation to calculate the time
         return new Promise((resolve) => {
             setTimeout(() => {
-                const resultDate = new Date(entryDateTime.getTime() + 60 * 60 * 1000); // Add 1 hour for example
+                const resultDate = new Date(entryDateTime.getTime()); // No additional time added
                 resolve(resultDate);
             }, 1000);
         });
