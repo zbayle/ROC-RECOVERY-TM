@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.7.6
+// @version      1.9.7.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -379,14 +379,18 @@
 
     // Function to extract the drive time from the iframe
     function extractDriveTime(url) {
+        console.log('Fetching drive time from URL:', url);
         GM_xmlhttpRequest({
             method: 'GET',
             url: url,
             onload: function(response) {
+                console.log('Response status:', response.status);
                 if (response.status === 200) {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, 'text/html');
+                    console.log('Parsed document:', doc);
                     const driveTimeElement = doc.querySelector('.css-mn4iko'); // Adjust the selector as needed
+                    console.log('Drive time element:', driveTimeElement);
                     if (driveTimeElement) {
                         const driveTime = driveTimeElement.textContent.trim();
                         console.log('Extracted Drive Time:', driveTime);
