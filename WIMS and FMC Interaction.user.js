@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.7.8
+// @version      1.9.8.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -350,9 +350,9 @@
                             useStoredVistaTime();
                         });
 
-                        // Create a second iframe to fetch drive time
+                        // Fetch drive time using GM_xmlhttpRequest
                         const driveTimeUrl = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
-                        createIframe(driveTimeUrl, extractDriveTime, 'driveTimeIframe');
+                        extractDriveTime(driveTimeUrl);
                     });
 
                     assetsContainer.appendChild(vistaButton);
@@ -388,7 +388,7 @@
                 if (response.status === 200) {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, 'text/html');
-                    console.log('Parsed document:', doc);
+                    console.log('Parsed document:', doc.documentElement.innerHTML); // Log the entire HTML content
                     const driveTimeElement = doc.querySelector('.css-mn4iko'); // Adjust the selector as needed
                     console.log('Drive time element:', driveTimeElement);
                     if (driveTimeElement) {
