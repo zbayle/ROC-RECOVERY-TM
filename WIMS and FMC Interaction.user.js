@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.6.6
+// @version      1.9.6.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -383,38 +383,14 @@ console.log('Vista button added to the page.');
 
     function fetchDriveTime(vrid, facilityId) {
         const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
-        console.log('Fetching drive time from URL:', url);
+        console.log('Opening drive time URL in a new tab:', url);
     
-        return new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-                method: 'GET',
-                url: url,
-                onload: function(response) {
-                    if (response.status >= 200 && response.status < 300) {
-                        try {
-                            const data = JSON.parse(response.responseText);
-                            const driveTime = data.driveTime; // Adjust based on actual response structure
-                            console.log('Fetched drive time:', driveTime);
-                            resolve(driveTime);
-                        } catch (error) {
-                            console.error('Error parsing response:', error);
-                            reject(error);
-                        }
-                    } else {
-                        console.error('HTTP error! status:', response.status);
-                        reject(new Error(`HTTP error! status: ${response.status}`));
-                    }
-                },
-                onerror: function(error) {
-                    console.error('Error fetching drive time:', error);
-                    reject(error);
-                }
-            });
-        });
+        // Open the URL in a new tab
+        window.open(url, '_blank');
     }
 
 
-    async function calculateTime(entryDateTime) {
+    async function calculateTime(entryDateTime) {  //TODO grab drive time from the iframe
         const vrid = localStorage.getItem('vrid');
         const facilityId = localStorage.getItem('facilityId');
         if (!vrid || !facilityId) {
@@ -422,21 +398,9 @@ console.log('Vista button added to the page.');
             return;
         }
     
-        console.log('Calling fetchDriveTime with VRID:', vrid, 'and Facility ID:', facilityId);
-        const driveTime = await fetchDriveTime(vrid, facilityId);
-        if (driveTime === null) {
-            console.error('Failed to fetch drive time');
-            return;
-        }
+        console.log('Opening fetchDriveTime with VRID:', vrid, 'and Facility ID:', facilityId);
+        fetchDriveTime(vrid, facilityId);
     
-        const sixHours = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-        const totalTime = sixHours + driveTime;
-    
-        const entryDate = new Date(entryDateTime);
-        const resultDate = new Date(entryDate.getTime() - totalTime);
-    
-        console.log('Calculated Time:', resultDate);
-        return resultDate;
     }
     
     // Function to parse the stored vista time and date and use it with calculateTime
