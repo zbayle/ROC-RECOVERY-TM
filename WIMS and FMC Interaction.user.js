@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.7.0
+// @version      1.9.7.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -249,21 +249,12 @@
         }, 2000);
     }
 
-    // function removeGreenBorders() {
-    //     const runStructureLinks = document.querySelectorAll('td a[href*="run-structure"]');
-    //     runStructureLinks.forEach(link => {
-    //         link.style.border = '';
-    //     });
-    // }
-
-    
-
     // Function to create and append an iframe
     function createIframe(url, callback, id = '') {
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
         iframe.style.height = '500px';
-        iframe.style.display = 'none';
+        iframe.style.display = 'block';
         iframe.src = url;
         if (id) iframe.id = id;
 
