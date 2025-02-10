@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.8
+// @version      1.9.5.9
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -11,6 +11,7 @@
 // @match        https://trans-logistics.amazon.com/sortcenter/vista/*
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 (function () {
@@ -379,25 +380,36 @@ console.log('Vista button added to the page.');
         }, 500);
     }
 
-    async function fetchDriveTime(vrid, facilityId) {
+    function fetchDriveTime(vrid, facilityId) {
         const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
         console.log('Fetching drive time from URL:', url);
-    
-        try {
-            const response = await fetch(url, { mode: 'no-cors' });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const data = await response.json();
-            const driveTime = data.driveTime; // Adjust based on actual response structure
-            console.log('Fetched drive time:', driveTime);
-    
-            return driveTime;
-        } catch (error) {
-            console.error('Error fetching drive time:', error);
-            return null;
-        }
+
+        return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: url,
+                onload: function (response) {
+                    if (response.status >= 200 && response.status < 300) {
+                        try {
+                            const data = JSON.parse(response.responseText);
+                            const driveTime = data.driveTime; // Adjust based on actual response structure
+                            console.log('Fetched drive time:', driveTime);
+                            resolve(driveTime);
+                        } catch (error) {
+                            console.error('Error parsing response:', error);
+                            reject(error);
+                        }
+                    } else {
+                        console.error('HTTP error! status:', response.status);
+                        reject(new Error(`HTTP error! status: ${response.status}`));
+                    }
+                },
+                onerror: function (error) {
+                    console.error('Error fetching drive time:', error);
+                    reject(error);
+                }
+            });
+        });
     }
 
 
