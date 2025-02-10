@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.6.5
+// @version      1.9.6.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -386,37 +386,30 @@ console.log('Vista button added to the page.');
         console.log('Fetching drive time from URL:', url);
     
         return new Promise((resolve, reject) => {
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '500px';
-            iframe.style.border = 'none';
-            iframe.style.display = 'block'; // Temporarily set to block for visibility
-            iframe.src = url;
-    
-            iframe.onload = () => {
-                console.log('Iframe loaded successfully.');
-                try {
-                    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                    const data = JSON.parse(iframeDocument.body.innerText);
-                    const driveTime = data.driveTime; // Adjust based on actual response structure
-                    console.log('Fetched drive time:', driveTime);
-                    resolve(driveTime);
-                } catch (error) {
-                    console.error('Error parsing response:', error);
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: url,
+                onload: function(response) {
+                    if (response.status >= 200 && response.status < 300) {
+                        try {
+                            const data = JSON.parse(response.responseText);
+                            const driveTime = data.driveTime; // Adjust based on actual response structure
+                            console.log('Fetched drive time:', driveTime);
+                            resolve(driveTime);
+                        } catch (error) {
+                            console.error('Error parsing response:', error);
+                            reject(error);
+                        }
+                    } else {
+                        console.error('HTTP error! status:', response.status);
+                        reject(new Error(`HTTP error! status: ${response.status}`));
+                    }
+                },
+                onerror: function(error) {
+                    console.error('Error fetching drive time:', error);
                     reject(error);
-                } finally {
-                    document.body.removeChild(iframe);
                 }
-            };
-    
-            iframe.onerror = (error) => {
-                console.error('Error loading iframe:', error);
-                reject(error);
-                document.body.removeChild(iframe);
-            };
-    
-            document.body.appendChild(iframe);
-            console.log('Iframe appended to the document.');
+            });
         });
     }
 
