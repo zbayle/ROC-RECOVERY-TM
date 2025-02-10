@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.6.9
+// @version      1.9.7.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -259,26 +259,27 @@
     
 
     // Function to create and append an iframe
-    function createIframe(url, callback) {
+    function createIframe(url, callback, id = '') {
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
         iframe.style.height = '500px';
         iframe.style.display = 'none';
         iframe.src = url;
-    
+        if (id) iframe.id = id;
+
         iframe.onload = () => {
             console.log('Iframe loaded successfully.');
             callback(iframe);
         };
-    
+
         iframe.onerror = (error) => {
             console.error('Error loading iframe:', error);
         };
-    
+
         const container = document.querySelector('.expanded-child-table-container');
-    
+
         console.log('Container:', container);
-    
+
         if (container) {
             container.appendChild(iframe);
         } else {
@@ -290,20 +291,20 @@
         const retryInterval = setInterval(() => {
             console.log('Checking for assets container...');
             const assetsContainer = document.querySelector('td.assets');
-    
+
             if (assetsContainer) {
                 console.log('Assets container found!');
                 clearInterval(retryInterval);
-    
+
                 if (document.querySelector('button#vistaButton')) {
                     console.log('Vista button already exists!');
                     return;
                 }
-    
+
                 const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
                 if (outboundAmazonManagedText) {
                     console.log('OutboundAmazonManaged text found!');
-    
+
                     const vistaButton = document.createElement('button');
                     vistaButton.id = 'vistaButton';
                     vistaButton.textContent = 'Open Vista';
@@ -313,55 +314,59 @@
                     vistaButton.style.border = 'none';
                     vistaButton.style.cursor = 'pointer';
                     vistaButton.style.borderRadius = '5px';
-vistaButton.style.fontSize = '16px';
+                    vistaButton.style.fontSize = '16px';
 
-vistaButton.addEventListener('click', async function () {
-    console.log('Vista button clicked!');
+                    vistaButton.addEventListener('click', async function () {
+                        console.log('Vista button clicked!');
 
-    const stopNames = document.querySelectorAll('span.vr-stop-name');
-    console.log('Stop names detected:', stopNames);
+                        const stopNames = document.querySelectorAll('span.vr-stop-name');
+                        console.log('Stop names detected:', stopNames);
 
-    if (stopNames.length < 2) {
-        console.error('Not enough stops found!');
-        return;
-    }
+                        if (stopNames.length < 2) {
+                            console.error('Not enough stops found!');
+                            return;
+                        }
 
-    const finalFacilityElement = stopNames[1];
-    const facilityId = finalFacilityElement.textContent.trim();
+                        const finalFacilityElement = stopNames[1];
+                        const facilityId = finalFacilityElement.textContent.trim();
 
-    if (!facilityId) {
-        console.error('Facility ID not found!');
-        return;
-    }
+                        if (!facilityId) {
+                            console.error('Facility ID not found!');
+                            return;
+                        }
 
-    localStorage.setItem('facilityId', facilityId);
-    console.log('Stored Facility ID:', facilityId);
+                        localStorage.setItem('facilityId', facilityId);
+                        console.log('Stored Facility ID:', facilityId);
 
-    const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
-    if (!vridElement) {
-        console.error('VRID element not found!');
-        return;
-    }
+                        const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
+                        if (!vridElement) {
+                            console.error('VRID element not found!');
+                            return;
+                        }
 
-    const vrid = vridElement.textContent.trim();
-    if (!vrid) {
-        console.error('VRID not found!');
-        return;
-    }
+                        const vrid = vridElement.textContent.trim();
+                        if (!vrid) {
+                            console.error('VRID not found!');
+                            return;
+                        }
 
-    localStorage.setItem('vrid', vrid);
-    console.log('Stored VRID:', vrid);
+                        localStorage.setItem('vrid', vrid);
+                        console.log('Stored VRID:', vrid);
 
-    // Create an iframe and retrieve data from it
-    createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
-        // Call useStoredVistaTime after the iframe is loaded and data is retrieved
-        useStoredVistaTime();
-    });
-});
+                        // Create an iframe and retrieve data from it
+                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
+                            // Call useStoredVistaTime after the iframe is loaded and data is retrieved
+                            useStoredVistaTime();
+                        });
 
-assetsContainer.appendChild(vistaButton);
-console.log('Vista button added to the page.');
-    
+                        // Create a second iframe to fetch drive time
+                        const driveTimeUrl = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
+                        createIframe(driveTimeUrl, extractDriveTime, 'driveTimeIframe');
+                    });
+
+                    assetsContainer.appendChild(vistaButton);
+                    console.log('Vista button added to the page.');
+
                     // Create and append the calculated-time-display element
                     const calculatedTimeDisplay = document.createElement('div');
                     calculatedTimeDisplay.id = 'calculated-time-display';
@@ -381,6 +386,21 @@ console.log('Vista button added to the page.');
         }, 500);
     }
 
+    function extractDriveTime(iframe) {
+        try {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            const driveTimeElement = iframeDocument.querySelector('.css-mn4iko'); // Adjust the selector as needed
+            if (driveTimeElement) {
+                const driveTime = driveTimeElement.textContent.trim();
+                console.log('Extracted Drive Time:', driveTime);
+                // Do something with the extracted drive time
+            } else {
+                console.error('Drive time element not found in the iframe.');
+            }
+        } catch (error) {
+            console.error('Error extracting drive time from iframe:', error);
+        }
+    }
     function fetchDriveTime(vrid, facilityId) {
         const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
         console.log('Opening drive time URL in a new tab:', url);
