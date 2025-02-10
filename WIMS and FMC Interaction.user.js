@@ -277,6 +277,7 @@
             console.error('Container not found!');
         }
     }
+    
     // Function to add the Vista button
     function addVistaButton() {
         const retryInterval = setInterval(() => {
@@ -438,40 +439,40 @@
             console.error('Vista time or date not found in localStorage!');
             return;
         }
-    
+
         console.log('Retrieved vista time:', time);
         console.log('Retrieved vista date:', date);
-    
+
         const [hours, minutes] = time.split(':').map(part => part.trim());
         const [month, day, year] = date.split('/').map(part => part.trim());
-    
+
         if (!hours || !minutes || !month || !day || !year) {
             console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
             return;
         }
-    
+
         // Create a Date object from the stored time and date
         const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
         console.log('Vista DateTime:', vistaDateTime);
-    
+
         // Call calculateTime with the vistaDateTime
         calculateTime(vistaDateTime).then(resultDate => {
             if (!resultDate) {
                 console.error('Failed to calculate time');
                 return;
             }
-    
+
             console.log('Calculated Time:', resultDate);
-    
+
             // Format the adjusted date and time
             const adjustedDate = resultDate.toLocaleDateString('en-US');
             const adjustedTime = resultDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
+
             console.log('Adjusted Date:', adjustedDate);
             console.log('Adjusted Time:', adjustedTime);
-    
+
             const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
-    
+
             let displayElement = document.getElementById('calculated-time-display');
             if (!displayElement) {
                 displayElement = document.createElement('div');
