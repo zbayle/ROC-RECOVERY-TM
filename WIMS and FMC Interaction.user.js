@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.6.7
+// @version      1.9.6.8
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -390,17 +390,14 @@ console.log('Vista button added to the page.');
     }
 
 
-    async function calculateTime(entryDateTime) {  //TODO grab drive time from the iframe
-        const vrid = localStorage.getItem('vrid');
-        const facilityId = localStorage.getItem('facilityId');
-        if (!vrid || !facilityId) {
-            console.error('VRID or Facility ID not found in localStorage!');
-            return;
-        }
-    
-        console.log('Opening fetchDriveTime with VRID:', vrid, 'and Facility ID:', facilityId);
-        fetchDriveTime(vrid, facilityId);
-    
+    async function calculateTime(entryDateTime) {
+        // Simulate some asynchronous operation to calculate the time
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const resultDate = new Date(entryDateTime.getTime() + 60 * 60 * 1000); // Add 1 hour for example
+                resolve(resultDate);
+            }, 1000);
+        });
     }
     
     // Function to parse the stored vista time and date and use it with calculateTime
