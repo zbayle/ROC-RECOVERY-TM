@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.7.5
+// @version      1.9.7.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -386,7 +386,7 @@
                 if (response.status === 200) {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, 'text/html');
-                    const driveTimeElement = doc.querySelector('.css-1sgq4ck .css-mn4iko'); // Adjust the selector as needed
+                    const driveTimeElement = doc.querySelector('.css-mn4iko'); // Adjust the selector as needed
                     if (driveTimeElement) {
                         const driveTime = driveTimeElement.textContent.trim();
                         console.log('Extracted Drive Time:', driveTime);
@@ -406,6 +406,7 @@
             }
         });
     }
+
     function fetchDriveTime(vrid, facilityId) {
         const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
         console.log('Opening drive time URL in a new tab:', url);
