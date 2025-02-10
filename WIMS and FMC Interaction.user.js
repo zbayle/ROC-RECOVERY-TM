@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8.1
+// @version      1.9.8.2
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -390,27 +390,37 @@
     
         iframe.onload = () => {
             console.log('Iframe loaded successfully.');
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            console.log('Iframe document:', iframeDoc.documentElement.innerHTML); // Log the entire HTML content
+            const iframeWindow = iframe.contentWindow;
     
-            // Wait for the content to be fully loaded and rendered
-            setTimeout(() => {
-                const driveTimeElement = iframeDoc.querySelector('.css-mn4iko'); // Adjust the selector as needed
-                console.log('Drive time element:', driveTimeElement);
-                if (driveTimeElement) {
-                    const driveTime = driveTimeElement.textContent.trim();
-                    console.log('Extracted Drive Time:', driveTime);
+            // Inject a script into the iframe to observe DOM changes
+            const script = document.createElement('script');
+            script.textContent = `
+                (function() {
+                    const observer = new MutationObserver((mutationsList) => {
+                        for (const mutation of mutationsList) {
+                            if (mutation.type === 'childList') {
+                                const driveTimeElement = document.querySelector('.css-mn4iko'); // Adjust the selector as needed
+                                if (driveTimeElement) {
+                                    const driveTime = driveTimeElement.textContent.trim();
+                                    console.log('Extracted Drive Time:', driveTime);
     
-                    // Store the extracted drive time in local storage
-                    localStorage.setItem('driveTime', driveTime);
-                    console.log('Stored Drive Time in local storage:', driveTime);
-                } else {
-                    console.error('Drive time element not found in the iframe.');
-                }
+                                    // Store the extracted drive time in local storage
+                                    localStorage.setItem('driveTime', driveTime);
+                                    console.log('Stored Drive Time in local storage:', driveTime);
     
-                // Remove the iframe after processing
-                document.body.removeChild(iframe);
-            }, 2000); // Adjust the timeout as needed to ensure the content is fully loaded
+                                    // Disconnect the observer once the drive time is found
+                                    observer.disconnect();
+                                }
+                            }
+                        }
+                    });
+    
+                    // Start observing the document body for changes
+                    observer.observe(document.body, { childList: true, subtree: true });
+                })();
+            `;
+    
+            iframeWindow.document.body.appendChild(script);
         };
     
         iframe.onerror = (error) => {
