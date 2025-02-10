@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8.3
+// @version      1.9.8.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -372,7 +372,7 @@
 
     // Function to extract the drive time from the iframe
     function extractDriveTime(vrid, facilityId) {
-        const url = `https://track.relay.amazon.dev/api/v2/transport-views?type[]=vehicleRun&module=trip&stage=PROD&region=na&page=1&pageSize=500&status[]=IN_TRANSIT&sortCol=sent&ascending=false&startDate=2023-12-19&endDate=2023-12-19&column=scheduled_end&view=preview&id[]=NA:VR:${vrid},${facilityId}`;
+        const url = `https://track.relay.amazon.dev/api/v2/transport-views?id[]=NA:VR:${vrid}&id[]=NA:VR:${facilityId}`;
         console.log('Fetching drive time from URL:', url);
     
         GM_xmlhttpRequest({
