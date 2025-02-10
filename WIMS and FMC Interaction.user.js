@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.5.6
+// @version      1.9.5.7
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -311,70 +311,54 @@
                     vistaButton.style.border = 'none';
                     vistaButton.style.cursor = 'pointer';
                     vistaButton.style.borderRadius = '5px';
-                    vistaButton.style.fontSize = '16px';
-    
-                    vistaButton.addEventListener('click', async function () {
-                        console.log('Vista button clicked!');
-    
-                        const stopNames = document.querySelectorAll('span.vr-stop-name');
-                        console.log('Stop names detected:', stopNames);
-    
-                        if (stopNames.length < 2) {
-                            console.error('Not enough stops found!');
-                            return;
-                        }
-    
-                        const finalFacilityElement = stopNames[1];
-                        const facilityId = finalFacilityElement.textContent.trim();
-    
-                        if (!facilityId) {
-                            console.error('Facility ID not found!');
-                            return;
-                        }
-    
-                        localStorage.setItem('facilityId', facilityId);
-                        console.log('Stored Facility ID:', facilityId);
-    
-                        const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
-                        if (!vridElement) {
-                            console.error('VRID element not found!');
-                            return;
-                        }
-    
-                        const vrid = vridElement.textContent.trim();
-                        if (!vrid) {
-                            console.error('VRID not found!');
-                            return;
-                        }
-    
-                        localStorage.setItem('vrid', vrid);
-                        console.log('Stored VRID:', vrid);
-    
-                        // Assuming destinationID is also available on the page
-                        const destinationIDElement = document.querySelector('td.destination-id');
-                        if (!destinationIDElement) {
-                            console.error('Destination ID element not found!');
-                            return;
-                        }
-    
-                        const destinationID = destinationIDElement.textContent.trim();
-                        if (!destinationID) {
-                            console.error('Destination ID not found!');
-                            return;
-                        }
-    
-                        localStorage.setItem('destinationID', destinationID);
-                        console.log('Stored Destination ID:', destinationID);
-    
-                        // Create an iframe and retrieve data from it
-                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
-                            // Call useStoredVistaTime after the iframe is loaded and data is retrieved
-                            useStoredVistaTime();
-                        });
-                    });
-    
-                    assetsContainer.appendChild(vistaButton);
-                    console.log('Vista button added to the page.');
+vistaButton.style.fontSize = '16px';
+
+vistaButton.addEventListener('click', async function () {
+    console.log('Vista button clicked!');
+
+    const stopNames = document.querySelectorAll('span.vr-stop-name');
+    console.log('Stop names detected:', stopNames);
+
+    if (stopNames.length < 2) {
+        console.error('Not enough stops found!');
+        return;
+    }
+
+    const finalFacilityElement = stopNames[1];
+    const facilityId = finalFacilityElement.textContent.trim();
+
+    if (!facilityId) {
+        console.error('Facility ID not found!');
+        return;
+    }
+
+    localStorage.setItem('facilityId', facilityId);
+    console.log('Stored Facility ID:', facilityId);
+
+    const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
+    if (!vridElement) {
+        console.error('VRID element not found!');
+        return;
+    }
+
+    const vrid = vridElement.textContent.trim();
+    if (!vrid) {
+        console.error('VRID not found!');
+        return;
+    }
+
+    localStorage.setItem('vrid', vrid);
+    console.log('Stored VRID:', vrid);
+
+    // Create an iframe and retrieve data from it
+    createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
+        // Call useStoredVistaTime after the iframe is loaded and data is retrieved
+        useStoredVistaTime();
+    });
+});
+
+assetsContainer.appendChild(vistaButton);
+console.log('Vista button added to the page.');
     
                     // Create and append the calculated-time-display element
                     const calculatedTimeDisplay = document.createElement('div');
@@ -419,14 +403,14 @@
 
     async function calculateTime(entryDateTime) {
         const vrid = localStorage.getItem('vrid');
-        const destinationID = localStorage.getItem('destinationID');
-        if (!vrid || !destinationID) {
-            console.error('VRID or Destination ID not found in localStorage!');
+        const facilityId = localStorage.getItem('facilityId');
+        if (!vrid || !facilityId) {
+            console.error('VRID or Facility ID not found in localStorage!');
             return;
         }
     
-        console.log('Calling fetchDriveTime with VRID:', vrid, 'and Destination ID:', destinationID);
-        const driveTime = await fetchDriveTime(vrid, destinationID);
+        console.log('Calling fetchDriveTime with VRID:', vrid, 'and Facility ID:', facilityId);
+        const driveTime = await fetchDriveTime(vrid, facilityId);
         if (driveTime === null) {
             console.error('Failed to fetch drive time');
             return;
