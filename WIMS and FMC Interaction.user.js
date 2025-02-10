@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8.2
+// @version      1.9.8.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -344,15 +344,8 @@
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
 
-                        // Create an iframe and retrieve data from it
-                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
-                            // Call useStoredVistaTime after the iframe is loaded and data is retrieved
-                            useStoredVistaTime();
-                        });
-
-                        // Fetch drive time using GM_xmlhttpRequest
-                        const driveTimeUrl = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
-                        extractDriveTime(driveTimeUrl);
+                        // Fetch drive time using the API
+                        extractDriveTime(vrid, facilityId);
                     });
 
                     assetsContainer.appendChild(vistaButton);
@@ -378,56 +371,44 @@
     }
 
     // Function to extract the drive time from the iframe
-    function extractDriveTime(url) {
+    function extractDriveTime(vrid, facilityId) {
+        const url = `https://track.relay.amazon.dev/api/v2/transport-views?type[]=vehicleRun&module=trip&stage=PROD&region=na&page=1&pageSize=500&status[]=IN_TRANSIT&sortCol=sent&ascending=false&startDate=2023-12-19&endDate=2023-12-19&column=scheduled_end&view=preview&id[]=NA:VR:${vrid},${facilityId}`;
         console.log('Fetching drive time from URL:', url);
     
-        // Create an iframe to load the URL
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        iframe.src = url;
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: url,
+            onload: function(response) {
+                console.log('Response status:', response.status);
+                if (response.status === 200) {
+                    const data = JSON.parse(response.responseText);
+                    console.log('API response data:', data);
     
-        iframe.onload = () => {
-            console.log('Iframe loaded successfully.');
-            const iframeWindow = iframe.contentWindow;
+                    // Assuming the drive time is in a property called 'driveTime'
+                    const driveTime = data.driveTime; // Adjust this based on the actual API response structure
+                    if (driveTime) {
+                        console.log('Extracted Drive Time:', driveTime);
     
-            // Inject a script into the iframe to observe DOM changes
-            const script = document.createElement('script');
-            script.textContent = `
-                (function() {
-                    const observer = new MutationObserver((mutationsList) => {
-                        for (const mutation of mutationsList) {
-                            if (mutation.type === 'childList') {
-                                const driveTimeElement = document.querySelector('.css-mn4iko'); // Adjust the selector as needed
-                                if (driveTimeElement) {
-                                    const driveTime = driveTimeElement.textContent.trim();
-                                    console.log('Extracted Drive Time:', driveTime);
-    
-                                    // Store the extracted drive time in local storage
-                                    localStorage.setItem('driveTime', driveTime);
-                                    console.log('Stored Drive Time in local storage:', driveTime);
-    
-                                    // Disconnect the observer once the drive time is found
-                                    observer.disconnect();
-                                }
-                            }
-                        }
-                    });
-    
-                    // Start observing the document body for changes
-                    observer.observe(document.body, { childList: true, subtree: true });
-                })();
-            `;
-    
-            iframeWindow.document.body.appendChild(script);
-        };
-    
-        iframe.onerror = (error) => {
-            console.error('Error loading iframe:', error);
-        };
-    
-        document.body.appendChild(iframe);
+                        // Store the extracted drive time in local storage
+                        localStorage.setItem('driveTime', driveTime);
+                        console.log('Stored Drive Time in local storage:', driveTime);
+                    } else {
+                        console.error('Drive time not found in the API response.');
+                    }
+                } else {
+                    console.error('Failed to fetch drive time:', response.status, response.statusText);
+                }
+            },
+            onerror: function(error) {
+                console.error('Error fetching drive time:', error);
+            },
+            onabort: function() {
+                console.error('Request aborted');
+            },
+            ontimeout: function() {
+                console.error('Request timed out');
+            }
+        });
     }
 
     function fetchDriveTime(vrid, facilityId) {
