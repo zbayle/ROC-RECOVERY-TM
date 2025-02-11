@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools 
 // @namespace    http://tampermonkey.net/
-// @version      3.2.0
+// @version      3.2.1
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -171,6 +171,9 @@ function createFloatingMenu() {
     alertsTab.onmouseout = () => alertsTab.style.backgroundColor = '#146eb4';
     alertsTab.onclick = () => showTab('alertsTab');
 
+
+          // AHT Tracking tab
+    /*
     const ahtTrackingTab = document.createElement('button');
     ahtTrackingTab.textContent = 'AHT Tracking';
     ahtTrackingTab.style.flex = '1';
@@ -184,10 +187,11 @@ function createFloatingMenu() {
     ahtTrackingTab.onmouseover = () => ahtTrackingTab.style.backgroundColor = '#125a9e';
     ahtTrackingTab.onmouseout = () => ahtTrackingTab.style.backgroundColor = '#146eb4';
     ahtTrackingTab.onclick = () => showTab('ahtTrackingTab');
+    */
 
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
-    tabs.appendChild(ahtTrackingTab);
+    //tabs.appendChild(ahtTrackingTab);
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -326,6 +330,7 @@ function createFloatingMenu() {
     alertsTabContent.appendChild(testButton);
 
     // Add the checkbox for auto-assigning WIM
+    /*
     const autoAssignLabel = document.createElement('label');
     autoAssignLabel.textContent = 'Auto-Assign WIM: ';
     autoAssignLabel.style.display = 'block'; // Block display for better spacing
@@ -337,6 +342,7 @@ function createFloatingMenu() {
     autoAssignCheckbox.id = 'autoAssignCheckbox';
     autoAssignCheckbox.style.marginBottom = '15px'; // Increased margin
     alertsTabContent.appendChild(autoAssignCheckbox);
+    */
 
 
     const ahtTrackingTabContent = document.createElement('div');
@@ -389,12 +395,14 @@ function createFloatingMenu() {
     });
 
     // Load the auto-assign checkbox state
+    /*
     const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
     autoAssignCheckbox.checked = autoAssignEnabled;
     autoAssignCheckbox.addEventListener('change', () => {
         GM_setValue('autoAssignEnabled', autoAssignCheckbox.checked);
         console.log(`Auto-assign enabled: ${autoAssignCheckbox.checked}`);
     });
+    */
 
     // Add an audio element for the alert sound
     const audio = document.createElement('audio');
@@ -540,6 +548,7 @@ function showTab(tabId) {
 }
 
 function trackWIM(vrid, wimLink) {
+    console.log("Tracking WIM:", vrid, wimLink); // Debug log
     const ahtTrackingList = document.getElementById('ahtTrackingList');
     const listItem = document.createElement('li');
     listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink}`;
@@ -644,7 +653,6 @@ function makeDraggable(element, handle = element) {
         initialY = e.clientY - element.offsetTop;
         document.addEventListener('mousemove', elementDrag);
         document.addEventListener('mouseup', closeDragElement);
-        document.addEventListener('mouseleave', closeDragElement); // Ensure drag stops if mouse leaves window
     }
 
     function elementDrag(e) {
@@ -652,19 +660,8 @@ function makeDraggable(element, handle = element) {
         e.preventDefault();
         offsetX = e.clientX - initialX;
         offsetY = e.clientY - initialY;
-        let newTop = element.offsetTop + offsetY;
-        let newLeft = element.offsetLeft + offsetX;
-
-        // Boundary checks
-        if (newTop < 0) newTop = 0;
-        if (newLeft < 0) newLeft = 0;
-        if (newTop + element.offsetHeight > window.innerHeight) newTop = window.innerHeight - element.offsetHeight;
-        if (newLeft + element.offsetWidth > window.innerWidth) newLeft = window.innerWidth - element.offsetWidth;
-
-        element.style.top = newTop + "px";
-        element.style.left = newLeft + "px";
-        initialX = e.clientX;
-        initialY = e.clientY;
+        element.style.top = offsetY + "px";
+        element.style.left = offsetX + "px";
     }
 
     function closeDragElement() {
@@ -672,7 +669,6 @@ function makeDraggable(element, handle = element) {
             isDragging = false;
             document.removeEventListener('mousemove', elementDrag);
             document.removeEventListener('mouseup', closeDragElement);
-            document.removeEventListener('mouseleave', closeDragElement);
         }
     }
 }
@@ -907,47 +903,60 @@ function observeWIMAlerts() {
                                 console.log("Selected sound:", selectedSound);
                                 playSound(selectedSound);
 
-                                const vridElement = node.querySelector('.td.borderless-fix span.vr-audit-dialog');
-                                if (!vridElement) {
-                                    console.error("VRID element not found.");
-                                    return;
-                                }
-                                const vrid = vridElement.textContent.trim(); // Corrected selector for VRID
-                                const wimLink = localStorage.getItem('wimURL'); // Get the WIM URL from local storage
-                                trackWIM(vrid, wimLink);
-
-                                const currentPageUrl = window.location.href;
-                                localStorage.setItem('wimURL', currentPageUrl);
-                                console.log("Current page URL:", currentPageUrl);
-
-                                if (autoAssignEnabled) {
-                                    let countdown = 5;
-                                    const interval = setInterval(() => {
-                                        countdown--;
-                                        if (countdown < 0) {
-                                            clearInterval(interval);
-                                            assignButton.click();
-                                            console.log("Assign button clicked automatically. Page URL:", currentPageUrl);
-                                            // Capture the URL of the page that loads
-                                            setTimeout(() => {
-                                                const newPageUrl = window.location.href;
-                                                localStorage.setItem('wimURL', newPageUrl);
-                                                console.log("New page URL after assignment:", newPageUrl);
-                                            }, 1000);
+                                // Capture the WIM URL with retry mechanism
+                                let wimUrlElement = node.querySelector('td.TASK_ID.severity-1 a.task-link');
+                                let retries = 0;
+                                const maxRetries = 5;
+                                const retryInterval = setInterval(() => {
+                                    if (wimUrlElement || retries >= maxRetries) {
+                                        clearInterval(retryInterval);
+                                        if (!wimUrlElement) {
+                                            console.error("WIM URL element not found after retries.");
+                                            return;
                                         }
-                                    }, 1000);
-                                } else {
-                                    assignButton.addEventListener('click', () => {
-                                        trackWIM(vrid, wimLink);
-                                        console.log("Assign button clicked manually. Page URL:", currentPageUrl);
-                                        // Capture the URL of the page that loads
-                                        setTimeout(() => {
-                                            const newPageUrl = window.location.href;
-                                            localStorage.setItem('wimURL', newPageUrl);
-                                            console.log("New page URL after assignment:", newPageUrl);
-                                        }, 1000);
-                                    });
-                                }
+                                        const wimUrl = wimUrlElement.href;
+                                        console.log("WIM URL detected:", wimUrl);
+
+                                        if (autoAssignEnabled) {
+                                            let countdown = 5;
+                                            const interval = setInterval(() => {
+                                                countdown--;
+                                                console.log(`Auto-assign countdown: ${countdown}`);
+                                                if (countdown < 0) {
+                                                    clearInterval(interval);
+                                                    assignButton.click();
+                                                    console.log("Assign button clicked automatically.");
+                                                    // Capture the URL of the page that loads
+                                                    setTimeout(() => {
+                                                        const newPageUrl = window.location.href;
+                                                        console.log("Attempting to store new page URL after assignment:", newPageUrl);
+                                                        localStorage.setItem('wimURL', newPageUrl);
+                                                        console.log("New page URL stored in local storage:", newPageUrl);
+                                                        trackWIM(wimUrl, newPageUrl);
+                                                    }, 1000);
+                                                }
+                                            }, 1000);
+                                        } else {
+                                            assignButton.addEventListener('click', () => {
+                                                console.log("Assign button clicked manually.");
+                                                // Capture the URL of the page that loads
+                                                setTimeout(() => {
+                                                    const newPageUrl = window.location.href;
+                                                    console.log("Attempting to store new page URL after assignment:", newPageUrl);
+                                                    localStorage.setItem('wimURL', newPageUrl);
+                                                    console.log("New page URL stored in local storage:", newPageUrl);
+                                                    trackWIM(wimUrl, newPageUrl);
+                                                }, 1000);
+                                            });
+                                        }
+                                    } else {
+                                        console.log("Retrying to find WIM URL element...");
+                                        wimUrlElement = node.querySelector('td.TASK_ID.severity-1 a.task-link');
+                                        retries++;
+                                    }
+                                }, 1000);
+                            } else {
+                                console.log("Assign to me button not found.");
                             }
                         }
                     });
@@ -956,6 +965,8 @@ function observeWIMAlerts() {
         });
 
         wimObserver.observe(document.body, { childList: true, subtree: true });
+    } else {
+        console.log("URL does not match WIMS page.");
     }
 }
 
