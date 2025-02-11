@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8.4
+// @version      1.9.8.5
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -22,19 +22,75 @@
     //git checkout older-version
 
     
-    // Inject CSS for highlighting the counter
+    // Inject CSS for highlighting the counter and spinner
     const style = document.createElement('style');
     style.innerHTML = `
-        .highlight-counter {
-            font-size: 2em;
-            color: white;
-            background-color: black;
-            padding: 10px;
-            border: 2px solid red;
-            border-radius: 5px;
-            text-align: center;
+    .highlight-counter {
+        font-size: 2em;
+        color: white;
+        background-color: black;
+        padding: 10px;
+        border: 2px solid red;
+        border-radius: 5px;
+        text-align: center;
+    }
+    /* Spinner CSS */
+    #loading-spinner {
+        border: 8px solid #f3f3f3; /* Light grey */
+        border-top: 8px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    /* Basic table styling */
+    #fmc-execution-plans-vrs {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+    /* Responsive design for smaller screens */
+    @media screen and (max-width: 768px) {
+        #fmc-execution-plans-vrs, #fmc-execution-plans-vrs thead, #fmc-execution-plans-vrs tbody, #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td, #fmc-execution-plans-vrs tr {
+            display: block;
         }
-    `;
+        #fmc-execution-plans-vrs thead tr {
+            display: none;
+        }
+        #fmc-execution-plans-vrs tr {
+            margin-bottom: 15px;
+        }
+        #fmc-execution-plans-vrs td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+        #fmc-execution-plans-vrs td:before {
+            content: attr(data-label);
+            position: absolute;
+            left: 0;
+            width: 50%;
+            padding-left: 15px;
+            font-weight: bold;
+            text-align: left;
+        }
+    }
+    /* Hide less important columns on smaller screens */
+    @media screen and (max-width: 768px) {
+        .hide-on-small {
+            display: none;
+        }
+    }
+`;
     document.head.appendChild(style);
 
     let highlightRunStructure = true;
@@ -458,45 +514,80 @@
     }
 
 
+    // Function to show a loading message with spinner
+    function showLoadingMessage(message) {
+        let loadingElement = document.getElementById('loading-message');
+        if (!loadingElement) {
+            loadingElement = document.createElement('div');
+            loadingElement.id = 'loading-message';
+            loadingElement.style.marginTop = '10px';
+            loadingElement.style.padding = '10px';
+            loadingElement.style.backgroundColor = '#FF9900';
+            loadingElement.style.color = 'black';
+            loadingElement.style.borderRadius = '5px';
+            loadingElement.style.fontSize = '16px';
+            loadingElement.style.textAlign = 'center';
+            document.body.appendChild(loadingElement);
+
+            // Add spinner
+            const spinner = document.createElement('div');
+            spinner.id = 'loading-spinner';
+            loadingElement.appendChild(spinner);
+        }
+        loadingElement.innerText = message;
+    }
+
+    // Function to hide the loading message
+    function hideLoadingMessage() {
+        const loadingElement = document.getElementById('loading-message');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+    }
+
     // Function to parse the stored vista time and date and use it with calculateTime
     async function useStoredVistaTime() {
         try {
+            showLoadingMessage('Fetching Critical Sort time...');
+
             const time = await waitForLocalStorageUpdate('vistaTime');
             const date = await waitForLocalStorageUpdate('vistaDate');
-    
+
             console.log('Retrieved vista time:', time);
             console.log('Retrieved vista date:', date);
-    
+
             const [hours, minutes] = time.split(':').map(part => part.trim());
             const [month, day, year] = date.split('/').map(part => part.trim());
-    
+
             if (!hours || !minutes || !month || !day || !year) {
                 console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
+                hideLoadingMessage();
                 return;
             }
-    
+
             // Create a Date object from the stored time and date
             const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
             console.log('Vista DateTime:', vistaDateTime);
-    
+
             // Call calculateTime with the vistaDateTime
             const resultDate = await calculateTime(vistaDateTime);
             if (!resultDate) {
                 console.error('Failed to calculate time');
+                hideLoadingMessage();
                 return;
             }
-    
+
             console.log('Calculated Time:', resultDate);
-    
+
             // Format the adjusted date and time
             const adjustedDate = resultDate.toLocaleDateString('en-US');
             const adjustedTime = resultDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
+
             console.log('Adjusted Date:', adjustedDate);
             console.log('Adjusted Time:', adjustedTime);
-    
+
             const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
-    
+
             let displayElement = document.getElementById('calculated-time-display');
             if (!displayElement) {
                 displayElement = document.createElement('div');
@@ -510,67 +601,77 @@
                 document.body.appendChild(displayElement);
             }
             displayElement.innerHTML = `${displayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
-    
+
+            hideLoadingMessage();
+
             // Add event listener to the input field
             const inputField = document.getElementById('additional-time-input');
             inputField.addEventListener('input', function () {
                 const driveTime = parseInt(inputField.value);
                 console.log('Entered drive time:', driveTime); // Debugging log
                 if (!isNaN(driveTime)) {
+                    showLoadingMessage('Calculating ITR time...');
+
                     const newDateTime = new Date(vistaDateTime.getTime());
                     newDateTime.setHours(newDateTime.getHours() + driveTime + 6);
-    
+
                     const newAdjustedDate = newDateTime.toLocaleDateString('en-US');
                     const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
+
                     console.log('New Adjusted Date:', newAdjustedDate);
                     console.log('New Adjusted Time:', newAdjustedTime);
-    
+
                     // Save the calculated date and time in local storage
                     localStorage.setItem('itrDate', newAdjustedDate);
                     localStorage.setItem('itrTime', newAdjustedTime);
-    
+
                     const newDisplayText = `Critical Sort: ${newAdjustedDate} @ ${newAdjustedTime}`;
                     displayElement.innerHTML = `${newDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
-    
+
                     // Display the ITR time next to the text field
                     const itrDisplayText = `ITR Time: ${newAdjustedDate} @ ${newAdjustedTime}`;
                     displayElement.innerHTML += `<span style="margin-left: 10px;">${itrDisplayText}</span>`;
-    
+
+                    hideLoadingMessage();
+
                     // Re-attach the event listener to the new input field
                     const newInputField = document.getElementById('additional-time-input');
                     newInputField.addEventListener('input', function () {
                         const newDriveTime = parseInt(newInputField.value);
                         console.log('Entered new drive time:', newDriveTime); // Debugging log
                         if (!isNaN(newDriveTime)) {
+                            showLoadingMessage('Calculating ITR time...');
+
                             const updatedDateTime = new Date(vistaDateTime.getTime());
                             updatedDateTime.setHours(updatedDateTime.getHours() + newDriveTime + 6);
-    
+
                             const updatedAdjustedDate = updatedDateTime.toLocaleDateString('en-US');
                             const updatedAdjustedTime = updatedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
+
                             console.log('Updated Adjusted Date:', updatedAdjustedDate);
                             console.log('Updated Adjusted Time:', updatedAdjustedTime);
-    
+
                             // Save the updated calculated date and time in local storage
                             localStorage.setItem('itrDate', updatedAdjustedDate);
                             localStorage.setItem('itrTime', updatedAdjustedTime);
-    
+
                             const updatedDisplayText = `Critical Sort: ${updatedAdjustedDate} @ ${updatedAdjustedTime}`;
                             displayElement.innerHTML = `${updatedDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
-    
+
                             // Display the updated ITR time next to the text field
                             const updatedItrDisplayText = `ITR Time: ${updatedAdjustedDate} @ ${updatedAdjustedTime}`;
                             displayElement.innerHTML += `<span style="margin-left: 10px;">${updatedItrDisplayText}</span>`;
+
+                            hideLoadingMessage();
                         }
                     });
                 }
             });
         } catch (error) {
             console.error('Error waiting for localStorage update:', error);
+            hideLoadingMessage();
         }
     }
-    
 
     // Function to redesign the table with responsive design
     function redesignTable() {
