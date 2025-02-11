@@ -509,7 +509,23 @@
                 displayElement.style.fontSize = '16px';
                 document.body.appendChild(displayElement);
             }
-            displayElement.innerHTML = `${displayText} <input type="text" id="additional-time-input" placeholder="Enter hours" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
+            displayElement.innerHTML = `${displayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
+    
+            // Add event listener to the input field
+            const inputField = document.getElementById('additional-time-input');
+            inputField.addEventListener('input', function () {
+                const driveTime = parseInt(inputField.value);
+                if (!isNaN(driveTime)) {
+                    const newDateTime = new Date(vistaDateTime.getTime());
+                    newDateTime.setHours(newDateTime.getHours() + driveTime + 6);
+    
+                    const newAdjustedDate = newDateTime.toLocaleDateString('en-US');
+                    const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+                    const newDisplayText = `Critical Sort: ${newAdjustedDate} @ ${newAdjustedTime}`;
+                    displayElement.innerHTML = `${newDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
+                }
+            });
         } catch (error) {
             console.error('Error waiting for localStorage update:', error);
         }
