@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8.5
+// @version      2.0
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -21,75 +21,33 @@
     //git checkout current-version
     //git checkout older-version
 
-    
+
     // Inject CSS for highlighting the counter and spinner
     const style = document.createElement('style');
     style.innerHTML = `
-    .highlight-counter {
-        font-size: 2em;
-        color: white;
-        background-color: black;
-        padding: 10px;
-        border: 2px solid red;
-        border-radius: 5px;
-        text-align: center;
-    }
-    /* Spinner CSS */
-    #loading-spinner {
-        border: 8px solid #f3f3f3; /* Light grey */
-        border-top: 8px solid #3498db; /* Blue */
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        animation: spin 2s linear infinite;
-        margin: 20px auto;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    /* Basic table styling */
-    #fmc-execution-plans-vrs {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td {
-        padding: 8px;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-    /* Responsive design for smaller screens */
-    @media screen and (max-width: 768px) {
-        #fmc-execution-plans-vrs, #fmc-execution-plans-vrs thead, #fmc-execution-plans-vrs tbody, #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td, #fmc-execution-plans-vrs tr {
-            display: block;
-        }
-        #fmc-execution-plans-vrs thead tr {
-            display: none;
-        }
-        #fmc-execution-plans-vrs tr {
-            margin-bottom: 15px;
-        }
-        #fmc-execution-plans-vrs td {
-            text-align: right;
-            padding-left: 50%;
-            position: relative;
-        }
-        #fmc-execution-plans-vrs td:before {
-            content: attr(data-label);
-            position: absolute;
-            left: 0;
-            width: 50%;
-            padding-left: 15px;
-            font-weight: bold;
-            text-align: left;
-        }
-    }
-    /* Hide less important columns on smaller screens */
-    @media screen and (max-width: 768px) {
-        .hide-on-small {
-            display: none;
-        }
-    }
+.highlight-counter {
+    font-size: 2em;
+    color: white;
+    background-color: black;
+    padding: 10px;
+    border: 2px solid red;
+    border-radius: 5px;
+    text-align: center;
+}
+/* Spinner CSS */
+#loading-spinner {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+    margin: 20px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 `;
     document.head.appendChild(style);
 
@@ -102,7 +60,7 @@
             timerElement.classList.add('highlight-counter');
         }
     }
-    
+
     // Observe the DOM for changes and highlight the timer when it is added
     const observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
@@ -222,36 +180,12 @@
         }
     }
 
-    // FMC Page Enhancements
     function handleFMCPage() {
-        const fmcLink = document.querySelector('a[href^="https://trans-logistics.amazon.com/fmc/execution/search/"]');
-        if (fmcLink) {
-            window.open(fmcLink.href, '_blank');
-        }
-    
-        setTimeout(() => {
-            const runStructureCell = findElementByText('td a', 'run-structure');
-            if (runStructureCell) {
-                runStructureCell.parentElement.style.border = '4px solid #3cff00';
-            }
-        }, 2000);
-    
-        // Retrieve VRID and Destination ID from local storage
-        const vrid = localStorage.getItem('vrid');
-        const destinationID = localStorage.getItem('destinationID');
-    
-        if (vrid && destinationID) {
-            console.log('Testing fetchDriveTime with VRID:', vrid, 'and Destination ID:', destinationID);
-            fetchDriveTime(vrid, destinationID).then(driveTime => {
-                if (driveTime !== null) {
-                    console.log('Test fetchDriveTime result:', driveTime);
-                } else {
-                    console.error('Test fetchDriveTime failed');
-                }
-            });
-        } else {
-            console.error('VRID or Destination ID not found in local storage');
-        }
+        // Clear the values of vrid, vistaDate, and vistaTime in local storage
+        localStorage.removeItem('vrid');
+        localStorage.removeItem('vistaDate');
+        localStorage.removeItem('vistaTime');
+        console.log('Cleared vrid, vistaDate, and vistaTime from local storage.');
     }
 
     // Function to highlight "AZNG" in dynamically added spans
@@ -312,12 +246,37 @@
 
     // Function to create and append an iframe
     function createIframe(url, callback, id = '') {
+        const iframeContainer = document.createElement('div');
+        iframeContainer.style.position = 'relative';
+        iframeContainer.style.width = '100%';
+        iframeContainer.style.height = '500px';
+        iframeContainer.style.marginBottom = '10px';
+
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
-        iframe.style.height = '500px';
-        iframe.style.display = 'none';
+        iframe.style.height = '100%';
+        iframe.style.display = 'block';
         iframe.src = url;
         if (id) iframe.id = id;
+
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'Close';
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '10px';
+        closeButton.style.right = '10px';
+        closeButton.style.backgroundColor = '#FF0000';
+        closeButton.style.color = 'white';
+        closeButton.style.border = 'none';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.borderRadius = '5px';
+
+        closeButton.addEventListener('click', () => {
+            iframeContainer.remove();
+        });
+
+        iframeContainer.appendChild(iframe);
+        iframeContainer.appendChild(closeButton);
 
         iframe.onload = () => {
             console.log('Iframe loaded successfully.');
@@ -333,11 +292,12 @@
         console.log('Container:', container);
 
         if (container) {
-            container.appendChild(iframe);
+            container.appendChild(iframeContainer);
         } else {
             console.error('Container not found!');
         }
     }
+
     // Function to add the Vista button
     function addVistaButton() {
         const retryInterval = setInterval(() => {
@@ -370,47 +330,47 @@
 
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
-                    
+
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
-                    
+
                         if (stopNames.length < 2) {
                             console.error('Not enough stops found!');
                             return;
                         }
-                    
+
                         const finalFacilityElement = stopNames[1];
                         const facilityId = finalFacilityElement.textContent.trim();
-                    
+
                         if (!facilityId) {
                             console.error('Facility ID not found!');
                             return;
                         }
-                    
+
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
-                    
+
                         const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
                         if (!vridElement) {
                             console.error('VRID element not found!');
                             return;
                         }
-                    
+
                         const vrid = vridElement.textContent.trim();
                         if (!vrid) {
                             console.error('VRID not found!');
                             return;
                         }
-                    
+
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
-                    
+
                         // Create an iframe and retrieve data from it
                         createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
                             // Call useStoredVistaTime after the iframe is loaded and data is retrieved
                             useStoredVistaTime();
                         });
-                    
+
                         // Fetch drive time using the API
                         extractDriveTime(vrid, facilityId);
                     });
@@ -441,21 +401,21 @@
     function extractDriveTime(vrid, facilityId) {
         const url = `https://track.relay.amazon.dev/api/v2/transport-views?type[]=vehicleRun&module=trip&stage=PROD&region=na&page=1&pageSize=500&status[]=IN_TRANSIT&sortCol=sent&ascending=false&startDate=2023-12-19&endDate=2023-12-19&column=scheduled_end&view=preview&id[]=NA:VR:${vrid},${facilityId}`;
         console.log('Fetching drive time from URL:', url);
-    
+
         GM_xmlhttpRequest({
             method: 'GET',
             url: url,
-            onload: function(response) {
+            onload: function (response) {
                 console.log('Response status:', response.status);
                 if (response.status === 200) {
                     const data = JSON.parse(response.responseText);
                     console.log('API response data:', data);
-    
+
                     // Assuming the drive time is in a property called 'driveTime'
                     const driveTime = data.driveTime; // Adjust this based on the actual API response structure
                     if (driveTime) {
                         console.log('Extracted Drive Time:', driveTime);
-    
+
                         // Store the extracted drive time in local storage
                         localStorage.setItem('driveTime', driveTime);
                         console.log('Stored Drive Time in local storage:', driveTime);
@@ -466,13 +426,13 @@
                     console.error('Failed to fetch drive time:', response.status, response.statusText);
                 }
             },
-            onerror: function(error) {
+            onerror: function (error) {
                 console.error('Error fetching drive time:', error);
             },
-            onabort: function() {
+            onabort: function () {
                 console.error('Request aborted');
             },
-            ontimeout: function() {
+            ontimeout: function () {
                 console.error('Request timed out');
             }
         });
@@ -481,7 +441,7 @@
     function fetchDriveTime(vrid, facilityId) {
         const url = `https://track.relay.amazon.dev/navigation?m=trip&r=na&type=vehicleRun&q=${vrid}&status=IN_TRANSIT&column=scheduled_end&stops=NA%3AVR%3A${vrid}%2C${facilityId}`;
         console.log('Opening drive time URL in a new tab:', url);
-    
+
         // Open the URL in a new tab
         window.open(url, '_blank');
     }
@@ -496,8 +456,8 @@
             }, 1000);
         });
     }
-    
-    function waitForLocalStorageUpdate(key, timeout = 5000) {
+
+    function waitForLocalStorageUpdate(key, timeout = 10000) { // Increased timeout to 10 seconds
         return new Promise((resolve, reject) => {
             const startTime = Date.now();
             const interval = setInterval(() => {
@@ -512,7 +472,6 @@
             }, 100);
         });
     }
-
 
     // Function to show a loading message with spinner
     function showLoadingMessage(message) {
@@ -532,9 +491,16 @@
             // Add spinner
             const spinner = document.createElement('div');
             spinner.id = 'loading-spinner';
+            spinner.style.border = '8px solid #f3f3f3'; /* Light grey */
+            spinner.style.borderTop = '8px solid #3498db'; /* Blue */
+            spinner.style.borderRadius = '50%';
+            spinner.style.width = '60px';
+            spinner.style.height = '60px';
+            spinner.style.animation = 'spin 2s linear infinite';
+            spinner.style.margin = '20px auto';
             loadingElement.appendChild(spinner);
         }
-        loadingElement.innerText = message;
+        loadingElement.innerHTML = `<div>${message}</div>`;
     }
 
     // Function to hide the loading message
@@ -548,8 +514,10 @@
     // Function to parse the stored vista time and date and use it with calculateTime
     async function useStoredVistaTime() {
         try {
+            console.log('Using stored vista time and date...');
             showLoadingMessage('Fetching Critical Sort time...');
 
+            // Wait for the vistaDate and vistaTime to be updated in local storage
             const time = await waitForLocalStorageUpdate('vistaTime');
             const date = await waitForLocalStorageUpdate('vistaDate');
 
@@ -604,16 +572,28 @@
 
             hideLoadingMessage();
 
-            // Add event listener to the input field
+            // Add event listener to the input field with delay
             const inputField = document.getElementById('additional-time-input');
+            let typingTimer; // Timer identifier
+            const doneTypingInterval = 1000; // Time in ms (1 second)
+
             inputField.addEventListener('input', function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
+
+            inputField.addEventListener('keydown', function () {
+                clearTimeout(typingTimer);
+            });
+
+            function doneTyping() {
                 const driveTime = parseInt(inputField.value);
                 console.log('Entered drive time:', driveTime); // Debugging log
                 if (!isNaN(driveTime)) {
                     showLoadingMessage('Calculating ITR time...');
 
                     const newDateTime = new Date(vistaDateTime.getTime());
-                    newDateTime.setHours(newDateTime.getHours() + driveTime + 6);
+                    newDateTime.setHours(newDateTime.getHours() - (driveTime + 6));
 
                     const newAdjustedDate = newDateTime.toLocaleDateString('en-US');
                     const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -625,48 +605,13 @@
                     localStorage.setItem('itrDate', newAdjustedDate);
                     localStorage.setItem('itrTime', newAdjustedTime);
 
-                    const newDisplayText = `Critical Sort: ${newAdjustedDate} @ ${newAdjustedTime}`;
-                    displayElement.innerHTML = `${newDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
-
-                    // Display the ITR time next to the text field
-                    const itrDisplayText = `ITR Time: ${newAdjustedDate} @ ${newAdjustedTime}`;
-                    displayElement.innerHTML += `<span style="margin-left: 10px;">${itrDisplayText}</span>`;
+                    const itrDisplayText = `ITR By: ${newAdjustedDate} @ ${newAdjustedTime}`;
+                    const criticalSortText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
+                    displayElement.innerHTML = `${criticalSortText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;"> <span style="margin-left: 10px;">${itrDisplayText}</span>`;
 
                     hideLoadingMessage();
-
-                    // Re-attach the event listener to the new input field
-                    const newInputField = document.getElementById('additional-time-input');
-                    newInputField.addEventListener('input', function () {
-                        const newDriveTime = parseInt(newInputField.value);
-                        console.log('Entered new drive time:', newDriveTime); // Debugging log
-                        if (!isNaN(newDriveTime)) {
-                            showLoadingMessage('Calculating ITR time...');
-
-                            const updatedDateTime = new Date(vistaDateTime.getTime());
-                            updatedDateTime.setHours(updatedDateTime.getHours() + newDriveTime + 6);
-
-                            const updatedAdjustedDate = updatedDateTime.toLocaleDateString('en-US');
-                            const updatedAdjustedTime = updatedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-                            console.log('Updated Adjusted Date:', updatedAdjustedDate);
-                            console.log('Updated Adjusted Time:', updatedAdjustedTime);
-
-                            // Save the updated calculated date and time in local storage
-                            localStorage.setItem('itrDate', updatedAdjustedDate);
-                            localStorage.setItem('itrTime', updatedAdjustedTime);
-
-                            const updatedDisplayText = `Critical Sort: ${updatedAdjustedDate} @ ${updatedAdjustedTime}`;
-                            displayElement.innerHTML = `${updatedDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
-
-                            // Display the updated ITR time next to the text field
-                            const updatedItrDisplayText = `ITR Time: ${updatedAdjustedDate} @ ${updatedAdjustedTime}`;
-                            displayElement.innerHTML += `<span style="margin-left: 10px;">${updatedItrDisplayText}</span>`;
-
-                            hideLoadingMessage();
-                        }
-                    });
                 }
-            });
+            }
         } catch (error) {
             console.error('Error waiting for localStorage update:', error);
             hideLoadingMessage();
@@ -803,33 +748,33 @@
         return { fcOrigin, fcFinal };
     }
 
-// Page Handling
-if (window.location.pathname.includes('/fmc/execution/')) {
-    highlightRunStructureLink();
-    redesignTable();
-    addVistaButton();
-    document.addEventListener("DOMContentLoaded", addFacilityClasses);
-} else if (window.location.pathname.includes('/wims/related/SCAC*')) {
-    const relatedScacPattern = /\/wims\/related\/SCAC\/[^/]+/;
-    if (relatedScacPattern.test(window.location.pathname)) {
-        // Wait for 5 seconds and then redirect to /wims
-        setTimeout(() => {
-            window.location.pathname = '/wims';
-        }, 5000);
+    // Page Handling
+    if (window.location.pathname.includes('/fmc/execution/')) {
+        highlightRunStructureLink();
+        redesignTable();
+        addVistaButton();
+        document.addEventListener("DOMContentLoaded", addFacilityClasses);
+        handleFMCPage(); // Call handleFMCPage when the FMC page loads
+    } else if (window.location.pathname.includes('/wims/related/SCAC*')) {
+        const relatedScacPattern = /\/wims\/related\/SCAC\/[^/]+/;
+        if (relatedScacPattern.test(window.location.pathname)) {
+            // Wait for 5 seconds and then redirect to /wims
+            setTimeout(() => {
+                window.location.pathname = '/wims';
+            }, 5000);
+        }
+    } else if (window.location.pathname.includes('/wims')) {
+        if (!document.getElementById('refresh-timer')) {
+            createTimer();
+        }
+        waitForLoadingToFinish(() => {
+            checkAndSelectOptions();
+            navigateToTaskDetail();
+            const { fcOrigin, fcFinal } = fetchFacilityData();
+            console.log('Origin Facility:', fcOrigin);
+            console.log('Final Facility:', fcFinal);
+        });
     }
-} else if (window.location.pathname.includes('/wims')) {
-    if (!document.getElementById('refresh-timer')) {
-        createTimer();
-    }
-    waitForLoadingToFinish(() => {
-        checkAndSelectOptions();
-        navigateToTaskDetail();
-        const { fcOrigin, fcFinal } = fetchFacilityData();
-        console.log('Origin Facility:', fcOrigin);
-        console.log('Final Facility:', fcFinal);
-    });
-}
-
     setInterval(updateCounter, 1000);
     setInterval(checkAndSelectOptions, 60000);
 })();
