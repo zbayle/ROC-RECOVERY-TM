@@ -509,7 +509,7 @@
                 displayElement.style.fontSize = '16px';
                 document.body.appendChild(displayElement);
             }
-            displayElement.innerText = displayText;
+            displayElement.innerHTML = `${displayText} <input type="text" id="additional-time-input" placeholder="Enter hours" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
         } catch (error) {
             console.error('Error waiting for localStorage update:', error);
         }
