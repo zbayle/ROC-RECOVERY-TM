@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8.3
+// @version      1.9.8.4
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -259,7 +259,7 @@
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
         iframe.style.height = '500px';
-        iframe.style.display = 'block';
+        iframe.style.display = 'none';
         iframe.src = url;
         if (id) iframe.id = id;
 
@@ -523,8 +523,19 @@
                     const newAdjustedDate = newDateTime.toLocaleDateString('en-US');
                     const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
+                    console.log('New Adjusted Date:', newAdjustedDate);
+                    console.log('New Adjusted Time:', newAdjustedTime);
+    
+                    // Save the calculated date and time in local storage
+                    localStorage.setItem('itrDate', newAdjustedDate);
+                    localStorage.setItem('itrTime', newAdjustedTime);
+    
                     const newDisplayText = `Critical Sort: ${newAdjustedDate} @ ${newAdjustedTime}`;
                     displayElement.innerHTML = `${newDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
+    
+                    // Display the ITR time next to the text field
+                    const itrDisplayText = `ITR Time: ${newAdjustedDate} @ ${newAdjustedTime}`;
+                    displayElement.innerHTML += `<span style="margin-left: 10px;">${itrDisplayText}</span>`;
     
                     // Re-attach the event listener to the new input field
                     const newInputField = document.getElementById('additional-time-input');
@@ -538,8 +549,19 @@
                             const updatedAdjustedDate = updatedDateTime.toLocaleDateString('en-US');
                             const updatedAdjustedTime = updatedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
+                            console.log('Updated Adjusted Date:', updatedAdjustedDate);
+                            console.log('Updated Adjusted Time:', updatedAdjustedTime);
+    
+                            // Save the updated calculated date and time in local storage
+                            localStorage.setItem('itrDate', updatedAdjustedDate);
+                            localStorage.setItem('itrTime', updatedAdjustedTime);
+    
                             const updatedDisplayText = `Critical Sort: ${updatedAdjustedDate} @ ${updatedAdjustedTime}`;
                             displayElement.innerHTML = `${updatedDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
+    
+                            // Display the updated ITR time next to the text field
+                            const updatedItrDisplayText = `ITR Time: ${updatedAdjustedDate} @ ${updatedAdjustedTime}`;
+                            displayElement.innerHTML += `<span style="margin-left: 10px;">${updatedItrDisplayText}</span>`;
                         }
                     });
                 }
