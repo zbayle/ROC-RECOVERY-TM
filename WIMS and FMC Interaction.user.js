@@ -17,6 +17,11 @@
 (function () {
     'use strict';
 
+    //git checkout -b older-version <commit-hash>
+    //git checkout current-version
+    //git checkout older-version
+
+    
     // Inject CSS for highlighting the counter
     const style = document.createElement('style');
     style.innerHTML = `
@@ -309,41 +314,47 @@
 
                     vistaButton.addEventListener('click', async function () {
                         console.log('Vista button clicked!');
-
+                    
                         const stopNames = document.querySelectorAll('span.vr-stop-name');
                         console.log('Stop names detected:', stopNames);
-
+                    
                         if (stopNames.length < 2) {
                             console.error('Not enough stops found!');
                             return;
                         }
-
+                    
                         const finalFacilityElement = stopNames[1];
                         const facilityId = finalFacilityElement.textContent.trim();
-
+                    
                         if (!facilityId) {
                             console.error('Facility ID not found!');
                             return;
                         }
-
+                    
                         localStorage.setItem('facilityId', facilityId);
                         console.log('Stored Facility ID:', facilityId);
-
+                    
                         const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
                         if (!vridElement) {
                             console.error('VRID element not found!');
                             return;
                         }
-
+                    
                         const vrid = vridElement.textContent.trim();
                         if (!vrid) {
                             console.error('VRID not found!');
                             return;
                         }
-
+                    
                         localStorage.setItem('vrid', vrid);
                         console.log('Stored VRID:', vrid);
-
+                    
+                        // Create an iframe and retrieve data from it
+                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
+                            // Call useStoredVistaTime after the iframe is loaded and data is retrieved
+                            useStoredVistaTime();
+                        });
+                    
                         // Fetch drive time using the API
                         extractDriveTime(vrid, facilityId);
                     });
@@ -430,32 +441,46 @@
         });
     }
     
+    function waitForLocalStorageUpdate(key, timeout = 5000) {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
+            const interval = setInterval(() => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    clearInterval(interval);
+                    resolve(value);
+                } else if (Date.now() - startTime > timeout) {
+                    clearInterval(interval);
+                    reject(new Error(`Timeout waiting for localStorage key: ${key}`));
+                }
+            }, 100);
+        });
+    }
+
+
     // Function to parse the stored vista time and date and use it with calculateTime
-    function useStoredVistaTime() {
-        const time = localStorage.getItem('vistaTime');
-        const date = localStorage.getItem('vistaDate');
-        if (!time || !date) {
-            console.error('Vista time or date not found in localStorage!');
-            return;
-        }
+    async function useStoredVistaTime() {
+        try {
+            const time = await waitForLocalStorageUpdate('vistaTime');
+            const date = await waitForLocalStorageUpdate('vistaDate');
     
-        console.log('Retrieved vista time:', time);
-        console.log('Retrieved vista date:', date);
+            console.log('Retrieved vista time:', time);
+            console.log('Retrieved vista date:', date);
     
-        const [hours, minutes] = time.split(':').map(part => part.trim());
-        const [month, day, year] = date.split('/').map(part => part.trim());
+            const [hours, minutes] = time.split(':').map(part => part.trim());
+            const [month, day, year] = date.split('/').map(part => part.trim());
     
-        if (!hours || !minutes || !month || !day || !year) {
-            console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
-            return;
-        }
+            if (!hours || !minutes || !month || !day || !year) {
+                console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
+                return;
+            }
     
-        // Create a Date object from the stored time and date
-        const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
-        console.log('Vista DateTime:', vistaDateTime);
+            // Create a Date object from the stored time and date
+            const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+            console.log('Vista DateTime:', vistaDateTime);
     
-        // Call calculateTime with the vistaDateTime
-        calculateTime(vistaDateTime).then(resultDate => {
+            // Call calculateTime with the vistaDateTime
+            const resultDate = await calculateTime(vistaDateTime);
             if (!resultDate) {
                 console.error('Failed to calculate time');
                 return;
@@ -485,7 +510,9 @@
                 document.body.appendChild(displayElement);
             }
             displayElement.innerText = displayText;
-        });
+        } catch (error) {
+            console.error('Error waiting for localStorage update:', error);
+        }
     }
     
 
