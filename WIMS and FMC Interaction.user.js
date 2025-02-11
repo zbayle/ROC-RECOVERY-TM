@@ -515,6 +515,7 @@
             const inputField = document.getElementById('additional-time-input');
             inputField.addEventListener('input', function () {
                 const driveTime = parseInt(inputField.value);
+                console.log('Entered drive time:', driveTime); // Debugging log
                 if (!isNaN(driveTime)) {
                     const newDateTime = new Date(vistaDateTime.getTime());
                     newDateTime.setHours(newDateTime.getHours() + driveTime + 6);
@@ -524,6 +525,23 @@
     
                     const newDisplayText = `Critical Sort: ${newAdjustedDate} @ ${newAdjustedTime}`;
                     displayElement.innerHTML = `${newDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
+    
+                    // Re-attach the event listener to the new input field
+                    const newInputField = document.getElementById('additional-time-input');
+                    newInputField.addEventListener('input', function () {
+                        const newDriveTime = parseInt(newInputField.value);
+                        console.log('Entered new drive time:', newDriveTime); // Debugging log
+                        if (!isNaN(newDriveTime)) {
+                            const updatedDateTime = new Date(vistaDateTime.getTime());
+                            updatedDateTime.setHours(updatedDateTime.getHours() + newDriveTime + 6);
+    
+                            const updatedAdjustedDate = updatedDateTime.toLocaleDateString('en-US');
+                            const updatedAdjustedTime = updatedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+                            const updatedDisplayText = `Critical Sort: ${updatedAdjustedDate} @ ${updatedAdjustedTime}`;
+                            displayElement.innerHTML = `${updatedDisplayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
+                        }
+                    });
                 }
             });
         } catch (error) {
