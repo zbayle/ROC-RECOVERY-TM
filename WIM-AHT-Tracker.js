@@ -1,89 +1,72 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  Track WIMs and AHT with a floating menu in Tampermonkey.
+// @version      1.2
+// @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
-// @match        https://optimus-internal.amazon.com/*
+// @match        https://optimus-internal.amazon.com/wims*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_log
 // @grant        GM_registerMenuCommand
 // @connect      raw.githubusercontent.com
-// @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIM-AHT-Tracker.js
-// @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/WIM-AHT-Tracker.js
+// @updateURL    https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/refs/heads/main/WIM-AHT-Tracker.js
+// @downloadURL  https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/refs/heads/main/WIM-AHT-Tracker.js
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    // Function to create and insert the floating menu
-    function createFloatingMenu() {
-        const menu = document.createElement('div');
-        menu.id = 'floatingMenu';
-        menu.style.position = 'fixed';
-        menu.style.top = '60px'; // Set initial top position
-        menu.style.left = '10px'; // Set initial left position
-        menu.style.padding = '20px';
-        menu.style.backgroundColor = '#232f3e';
-        menu.style.color = '#f2f2f2';
-        menu.style.borderRadius = '10px';
-        menu.style.zIndex = '9999';
-        menu.style.width = '350px'; // Increased width
-        menu.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-        menu.style.display = 'none';
+    // Function to create and insert the WIM and AHT Tracker tab
+    function createTrackerTab() {
+        const tabContainer = document.querySelector('.nav.nav-tabs'); // Adjust the selector to match the WIMS page tab container
+        if (!tabContainer) {
+            console.error('Tab container not found!');
+            return;
+        }
 
-        const handle = document.createElement('div');
-        handle.style.cursor = 'move'; // Change cursor to indicate draggable
-        handle.style.marginBottom = '15px'; // Increased margin
-        handle.style.padding = '10px';
-        handle.style.backgroundColor = '#146eb4';
-        handle.style.color = '#f2f2f2';
-        handle.style.borderRadius = '5px';
-        handle.textContent = 'Drag Here';
+        const trackerTab = document.createElement('li');
+        trackerTab.role = 'presentation';
+        trackerTab.className = '';
+        const trackerTabLink = document.createElement('a');
+        trackerTabLink.name = 'tab_tracker';
+        trackerTabLink.href = '#';
+        trackerTabLink.textContent = 'WIM & AHT Tracker';
+        trackerTabLink.onclick = (e) => {
+            e.preventDefault();
+            showTrackerContent();
+        };
+        trackerTab.appendChild(trackerTabLink);
 
-        const button = document.createElement('button');
-        button.textContent = 'Close Menu';
-        button.style.marginBottom = '15px'; // Increased margin
-        button.style.padding = '10px';
-        button.style.backgroundColor = '#ff9900';
-        button.style.color = '#000000';
-        button.style.border = 'none';
-        button.style.borderRadius = '5px';
-        button.style.cursor = 'pointer';
-        button.style.width = '100%'; // Full width button
-        button.style.boxSizing = 'border-box';
-        button.onmouseover = () => button.style.backgroundColor = '#e68a00';
-        button.onmouseout = () => button.style.backgroundColor = '#ff9900';
-        button.onclick = toggleMenu;
+        tabContainer.appendChild(trackerTab);
 
-        const menuContent = document.createElement('div');
-        menuContent.id = 'floatingMenuContent';
-        menuContent.style.marginTop = '10px';
-
-        const ahtTrackingTabContent = document.createElement('div');
-        ahtTrackingTabContent.id = 'ahtTrackingTab';
-        ahtTrackingTabContent.style.display = 'block';
+        const trackerContent = document.createElement('div');
+        trackerContent.id = 'trackerContent';
+        trackerContent.style.display = 'none';
+        trackerContent.style.padding = '20px';
+        trackerContent.style.backgroundColor = '#f2f2f2';
+        trackerContent.style.borderRadius = '10px';
+        trackerContent.style.marginTop = '10px';
 
         const ahtTrackingList = document.createElement('ul');
         ahtTrackingList.id = 'ahtTrackingList';
         ahtTrackingList.style.padding = '0';
         ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
-        ahtTrackingTabContent.appendChild(ahtTrackingList);
+        trackerContent.appendChild(ahtTrackingList);
 
-        menuContent.appendChild(ahtTrackingTabContent);
-
-        menu.appendChild(handle);
-        menu.appendChild(button);
-        menu.appendChild(menuContent);
-
-        document.body.appendChild(menu);
-
-        // Make the menu draggable using the handle
-        makeDraggable(menu, handle);
+        document.body.appendChild(trackerContent);
 
         // Load WIM entries
         loadWIMEntries();
+    }
+
+    function showTrackerContent() {
+        const trackerContent = document.getElementById('trackerContent');
+        if (trackerContent.style.display === 'none') {
+            trackerContent.style.display = 'block';
+        } else {
+            trackerContent.style.display = 'none';
+        }
     }
 
     function trackWIM(vrid, wimLink) {
@@ -176,40 +159,6 @@
                 listItem.textContent += ' | Resolved';
             }
         });
-    }
-
-    // Function to make an element draggable using a handle
-    function makeDraggable(element, handle = element) {
-        let offsetX = 0, offsetY = 0, initialX = 0, initialY = 0;
-        let isDragging = false;
-
-        handle.addEventListener('mousedown', dragMouseDown);
-
-        function dragMouseDown(e) {
-            e.preventDefault();
-            isDragging = true;
-            initialX = e.clientX - element.offsetLeft;
-            initialY = e.clientY - element.offsetTop;
-            document.addEventListener('mousemove', elementDrag);
-            document.addEventListener('mouseup', closeDragElement);
-        }
-
-        function elementDrag(e) {
-            if (!isDragging) return;
-            e.preventDefault();
-            offsetX = e.clientX - initialX;
-            offsetY = e.clientY - initialY;
-            element.style.top = offsetY + "px";
-            element.style.left = offsetX + "px";
-        }
-
-        function closeDragElement() {
-            if (isDragging) {
-                isDragging = false;
-                document.removeEventListener('mousemove', elementDrag);
-                document.removeEventListener('mouseup', closeDragElement);
-            }
-        }
     }
 
     // Function to observe WIM alerts.
@@ -355,23 +304,7 @@
     window.addEventListener('load', function () {
         console.log("Window loaded.");
 
-        createFloatingMenu();
+        createTrackerTab();
         observeWIMAlerts();
     });
-
-    // Toggle the visibility of the floating menu
-    function toggleMenu() {
-        const menu = document.getElementById('floatingMenu');
-        if (menu) {
-            if (menu.style.display === 'none') {
-                menu.style.display = 'block';
-                console.log("Menu is now visible.");
-            } else {
-                menu.style.display = 'none';
-                console.log("Menu is now hidden.");
-            }
-        } else {
-            console.error('Floating menu element not found!');
-        }
-    }
 })();
