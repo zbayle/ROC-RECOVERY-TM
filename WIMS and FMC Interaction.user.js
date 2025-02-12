@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -517,27 +517,27 @@
         try {
             console.log('Using stored vista time and date...');
             showLoadingMessage('Fetching Critical Sort time...');
-
+    
             // Wait for the vistaDate and vistaTime to be updated in local storage
             const time = await waitForLocalStorageUpdate('vistaTime');
             const date = await waitForLocalStorageUpdate('vistaDate');
-
+    
             console.log('Retrieved vista time:', time);
             console.log('Retrieved vista date:', date);
-
+    
             const [hours, minutes] = time.split(':').map(part => part.trim());
             const [month, day, year] = date.split('/').map(part => part.trim());
-
+    
             if (!hours || !minutes || !month || !day || !year) {
                 console.error('Invalid vista time or date components!', { hours, minutes, month, day, year });
                 hideLoadingMessage();
                 return;
             }
-
+    
             // Create a Date object from the stored time and date
             const vistaDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
             console.log('Vista DateTime:', vistaDateTime);
-
+    
             // Call calculateTime with the vistaDateTime
             const resultDate = await calculateTime(vistaDateTime);
             if (!resultDate) {
@@ -545,18 +545,18 @@
                 hideLoadingMessage();
                 return;
             }
-
+    
             console.log('Calculated Time:', resultDate);
-
-            // Format the adjusted date and time
+    
+            // Format the adjusted date and time in 12-hour format
             const adjustedDate = resultDate.toLocaleDateString('en-US');
-            const adjustedTime = resultDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
+            const adjustedTime = resultDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    
             console.log('Adjusted Date:', adjustedDate);
             console.log('Adjusted Time:', adjustedTime);
-
+    
             const displayText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
-
+    
             let displayElement = document.getElementById('calculated-time-display');
             if (!displayElement) {
                 displayElement = document.createElement('div');
@@ -570,46 +570,46 @@
                 document.body.appendChild(displayElement);
             }
             displayElement.innerHTML = `${displayText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;">`;
-
+    
             hideLoadingMessage();
-
+    
             // Add event listener to the input field with delay
             const inputField = document.getElementById('additional-time-input');
             let typingTimer; // Timer identifier
             const doneTypingInterval = 1000; // Time in ms (1 second)
-
+    
             inputField.addEventListener('input', function () {
                 clearTimeout(typingTimer);
                 typingTimer = setTimeout(doneTyping, doneTypingInterval);
             });
-
+    
             inputField.addEventListener('keydown', function () {
                 clearTimeout(typingTimer);
             });
-
+    
             function doneTyping() {
                 const driveTime = parseInt(inputField.value);
                 console.log('Entered drive time:', driveTime); // Debugging log
                 if (!isNaN(driveTime)) {
                     showLoadingMessage('Calculating ITR time...');
-
+    
                     const newDateTime = new Date(vistaDateTime.getTime());
                     newDateTime.setHours(newDateTime.getHours() - (driveTime + 6));
-
+    
                     const newAdjustedDate = newDateTime.toLocaleDateString('en-US');
-                    const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
+                    const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    
                     console.log('New Adjusted Date:', newAdjustedDate);
                     console.log('New Adjusted Time:', newAdjustedTime);
-
+    
                     // Save the calculated date and time in local storage
                     localStorage.setItem('itrDate', newAdjustedDate);
                     localStorage.setItem('itrTime', newAdjustedTime);
-
+    
                     const itrDisplayText = `ITR By: ${newAdjustedDate} @ ${newAdjustedTime}`;
                     const criticalSortText = `Critical Sort: ${adjustedDate} @ ${adjustedTime}`;
                     displayElement.innerHTML = `${criticalSortText} <input type="text" id="additional-time-input" placeholder="Enter Drive Time" style="margin-left: 10px; padding: 5px; font-size: 14px;"> <span style="margin-left: 10px;">${itrDisplayText}</span>`;
-
+    
                     hideLoadingMessage();
                 }
             }
@@ -756,7 +756,7 @@
         addVistaButton();
         document.addEventListener("DOMContentLoaded", addFacilityClasses);
         handleFMCPage(); // Call handleFMCPage when the FMC page loads
-    } else if (window.location.pathname.includes('/wims/related/SCAC*')) {
+    } else if (window.location.pathname.includes('/wims/related/SCAC')) {
         const relatedScacPattern = /\/wims\/related\/SCAC\/[^/]+/;
         if (relatedScacPattern.test(window.location.pathname)) {
             // Wait for 5 seconds and then redirect to /wims
