@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.3
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -458,7 +458,7 @@
         });
     }
 
-    function waitForLocalStorageUpdate(key, timeout = 10000) { // Increased timeout to 10 seconds
+    function waitForLocalStorageUpdate(key, timeout = 20000) { // Increased timeout to 20 seconds
         return new Promise((resolve, reject) => {
             const startTime = Date.now();
             const interval = setInterval(() => {
@@ -519,8 +519,8 @@
             showLoadingMessage('Fetching Critical Sort time...');
     
             // Wait for the vistaDate and vistaTime to be updated in local storage
-            const time = await waitForLocalStorageUpdate('vistaTime');
-            const date = await waitForLocalStorageUpdate('vistaDate');
+            const time = await waitForLocalStorageUpdate('vistaTime', 20000); // Increased timeout to 20 seconds
+            const date = await waitForLocalStorageUpdate('vistaDate', 20000); // Increased timeout to 20 seconds
     
             console.log('Retrieved vista time:', time);
             console.log('Retrieved vista date:', date);
@@ -548,9 +548,9 @@
     
             console.log('Calculated Time:', resultDate);
     
-            // Format the adjusted date and time in 12-hour format
+            // Format the adjusted date and time in 24-hour format
             const adjustedDate = resultDate.toLocaleDateString('en-US');
-            const adjustedTime = resultDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const adjustedTime = resultDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
     
             console.log('Adjusted Date:', adjustedDate);
             console.log('Adjusted Time:', adjustedTime);
@@ -597,7 +597,7 @@
                     newDateTime.setHours(newDateTime.getHours() - (driveTime + 6));
     
                     const newAdjustedDate = newDateTime.toLocaleDateString('en-US');
-                    const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    const newAdjustedTime = newDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
     
                     console.log('New Adjusted Date:', newAdjustedDate);
                     console.log('New Adjusted Time:', newAdjustedTime);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vista auto fill with VRID scroll, Enter, and Hover
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/Vista%20auto%20fill%20with%20VRID%20scroll,%20Enter,%20and%20Hover.user.js
 // @description  Automatically selects the facility in the dropdown, sets VRID in the filter input, presses Enter, scrolls into view, and hovers over the progress bar.
@@ -119,29 +119,42 @@
 
     // Function to emulate mouseover on the progress bar
     function hoverProgressBar(doc) {
-        const progressBar = doc.querySelector('.progressbarib'); // Locate the progress bar
-        if (!progressBar) {
-            console.error('Progress bar not found!');
-            return;
-        }
-
-        // Create and dispatch a mouseover event
-        const mouseOverEvent = new MouseEvent('mouseover', {
-            bubbles: true,
-            cancelable: true
-        });
-        progressBar.dispatchEvent(mouseOverEvent);
-        console.log('Mouseover event dispatched on the progress bar.');
-
-        // Set a timeout to dispatch the mouseleave event after 500ms
-        setTimeout(() => {
-            const mouseLeaveEvent = new MouseEvent('mouseleave', {
-                bubbles: true,
-                cancelable: true
-            });
-            progressBar.dispatchEvent(mouseLeaveEvent);
-            console.log('Mouseleave event dispatched on the progress bar.');
-        }, 500); // Delay of 500ms
+        const retryInterval = 1000; // Retry every 1 second
+        const maxRetries = 10; // Maximum number of retries
+        let retries = 0;
+    
+        const intervalId = setInterval(() => {
+            const progressBar = doc.querySelector('.progressbarib'); // Locate the progress bar
+            if (progressBar) {
+                // Create and dispatch a mouseover event
+                const mouseOverEvent = new MouseEvent('mouseover', {
+                    bubbles: true,
+                    cancelable: true
+                });
+                progressBar.dispatchEvent(mouseOverEvent);
+                console.log('Mouseover event dispatched on the progress bar.');
+    
+                // Set a timeout to dispatch the mouseleave event after 500ms
+                setTimeout(() => {
+                    const mouseLeaveEvent = new MouseEvent('mouseleave', {
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    progressBar.dispatchEvent(mouseLeaveEvent);
+                    console.log('Mouseleave event dispatched on the progress bar.');
+                }, 500); // Delay of 500ms
+    
+                clearInterval(intervalId); // Stop the interval after the progress bar is found and events are dispatched
+            } else {
+                retries++;
+                if (retries >= maxRetries) {
+                    console.error('Progress bar not found after multiple attempts.');
+                    clearInterval(intervalId); // Stop the interval after reaching the maximum number of retries
+                } else {
+                    console.log('Retrying to find the progress bar...');
+                }
+            }
+        }, retryInterval);
     }
 
     // Wait for page load or any other significant loading elements
