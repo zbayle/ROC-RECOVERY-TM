@@ -964,6 +964,15 @@ function observeWIMAlerts() {
             });
         });
 
+        // Initial check for the "Assign to me" button
+        const initialAssignButton = document.querySelector('.btn-primary.btn-block.btn.btn-info');
+        if (initialAssignButton) {
+            console.log("Initial 'Assign to me' button detected.");
+            const selectedSound = document.getElementById('soundSelect').value;
+            console.log("Selected sound:", selectedSound);
+            playSound(selectedSound);
+        }
+
         wimObserver.observe(document.body, { childList: true, subtree: true });
     } else {
         console.log("URL does not match WIMS page.");

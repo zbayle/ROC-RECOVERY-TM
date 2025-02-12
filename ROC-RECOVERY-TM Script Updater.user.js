@@ -111,7 +111,7 @@
     GM_registerMenuCommand("Check for Updates", checkForUpdates);
 
     // Auto-check for updates every 60 seconds
-    setInterval(checkForUpdates, 60 * 1000);
+    setInterval(checkForUpdates, 5 * 1000);
 
     // Initial check on load
     checkForUpdates();
