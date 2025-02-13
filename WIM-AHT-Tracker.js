@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0
+// @version      1.9.2
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -192,20 +192,32 @@
                                                 if (window.location.href.includes('/wims/taskdetail/')) {
                                                     console.log("URL changed to task detail page.");
                                                     const wimUrl = window.location.href;
-                                                    const reasonElement = document.querySelector('td.goalContextTitle');
-                                                    const vridElement = document.querySelector('td.vehicleRunId');
-                                                    if (reasonElement && vridElement) {
-                                                        const reason = reasonElement.textContent.trim();
-                                                        const vrid = vridElement.getAttribute('id');
-                                                        console.log("WIM URL detected:", wimUrl);
-                                                        console.log("Reason detected:", reason);
-                                                        console.log("VRID detected:", vrid);
 
-                                                        trackWIM(vrid, wimUrl, reason);
-                                                        urlObserver.disconnect();
-                                                    } else {
-                                                        console.log("Reason or VRID element not found.");
-                                                    }
+                                                    // Retry mechanism to find reason and VRID elements
+                                                    let retries = 0;
+                                                    const maxRetries = 10;
+                                                    const retryInterval = setInterval(() => {
+                                                        const reasonElement = document.querySelector('h3 span.highlighted-keyword');
+                                                        const vridElement = document.querySelector('td.vehicleRunId');
+                                                        if (reasonElement && vridElement) {
+                                                            const reason = reasonElement.textContent.trim();
+                                                            const vrid = vridElement.getAttribute('id');
+                                                            console.log("WIM URL detected:", wimUrl);
+                                                            console.log("Reason detected:", reason);
+                                                            console.log("VRID detected:", vrid);
+
+                                                            trackWIM(vrid, wimUrl, reason);
+                                                            clearInterval(retryInterval);
+                                                            urlObserver.disconnect();
+                                                        } else {
+                                                            retries++;
+                                                            console.log(`Retry ${retries}/${maxRetries}: Reason or VRID element not found.`);
+                                                            if (retries >= maxRetries) {
+                                                                clearInterval(retryInterval);
+                                                                console.log("Failed to find Reason or VRID element after maximum retries.");
+                                                            }
+                                                        }
+                                                    }, 500);
                                                 }
                                             });
                                         });
@@ -224,7 +236,7 @@
                                         }
                                     }, 1000);
                                 } else {
-                                    console.log("Assign to me button not found.");
+                                    //console.log("Assign to me button not found.");
                                 }
                             }
                         });
