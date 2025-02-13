@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.7
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -195,9 +195,10 @@
                                                 console.error("WIM URL element not found after retries.");
                                                 return;
                                             }
-                                            const wimUrl = wimUrlElement.href;
+                                            const taskId = wimUrlElement.getAttribute('taskid');
+                                            const wimUrl = `https://optimus-internal.amazon.com/wims/taskdetail/${taskId}`;
                                             const reason = node.querySelector('td.goalContextTitle').textContent.trim();
-                                            const vrid = node.querySelector('td.vehicleRunId').textContent.trim();
+                                            const vrid = node.querySelector('td.vehicleRunId').getAttribute('id');
                                             console.log("WIM URL detected:", wimUrl);
 
                                             let countdown = 5;
