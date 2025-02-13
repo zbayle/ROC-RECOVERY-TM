@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.6
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -54,7 +54,13 @@
         ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
         trackerContent.appendChild(ahtTrackingList);
 
-        document.body.appendChild(trackerContent);
+        // Append the tracker content to the main container
+        const mainContainer = document.querySelector('.main-container'); // Adjust the selector to match the main content container
+        if (mainContainer) {
+            mainContainer.appendChild(trackerContent);
+        } else {
+            document.body.appendChild(trackerContent);
+        }
 
         // Load WIM entries
         loadWIMEntries();
@@ -69,14 +75,15 @@
         }
     }
 
-    function trackWIM(vrid, wimLink) {
-        console.log("Tracking WIM:", vrid, wimLink); // Debug log
+    function trackWIM(vrid, wimLink, reason) {
+        console.log("Tracking WIM:", vrid, wimLink, reason); // Debug log
         const ahtTrackingList = document.getElementById('ahtTrackingList');
         const listItem = document.createElement('li');
-        listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink}`;
+        listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink} | Reason: ${reason}`;
         listItem.dataset.startTime = Date.now();
         listItem.dataset.vrid = vrid;
         listItem.dataset.wimLink = wimLink;
+        listItem.dataset.reason = reason;
 
         const stopButton = document.createElement('button');
         stopButton.textContent = 'Stop';
@@ -94,7 +101,7 @@
 
         const interval = setInterval(() => {
             const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
-            listItem.firstChild.textContent = `VRID: ${vrid} | Timer: ${elapsedTime}s | WIM Link: ${wimLink}`;
+            listItem.firstChild.textContent = `VRID: ${vrid} | Timer: ${elapsedTime}s | WIM Link: ${wimLink} | Reason: ${reason}`;
         }, 1000);
 
         listItem.dataset.interval = interval;
@@ -120,6 +127,7 @@
             vrid: item.dataset.vrid,
             wimLink: item.dataset.wimLink,
             startTime: item.dataset.startTime,
+            reason: item.dataset.reason,
             resolved: item.textContent.includes(' | Resolved')
         }));
         GM_setValue('wimEntries', JSON.stringify(entries));
@@ -130,10 +138,11 @@
         entries.forEach(entry => {
             const ahtTrackingList = document.getElementById('ahtTrackingList');
             const listItem = document.createElement('li');
-            listItem.textContent = `VRID: ${entry.vrid} | Timer: 0s | WIM Link: ${entry.wimLink}`;
+            listItem.textContent = `VRID: ${entry.vrid} | Timer: 0s | WIM Link: ${entry.wimLink} | Reason: ${entry.reason}`;
             listItem.dataset.startTime = entry.startTime;
             listItem.dataset.vrid = entry.vrid;
             listItem.dataset.wimLink = entry.wimLink;
+            listItem.dataset.reason = entry.reason;
 
             const stopButton = document.createElement('button');
             stopButton.textContent = 'Stop';
@@ -152,7 +161,7 @@
             if (!entry.resolved) {
                 const interval = setInterval(() => {
                     const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
-                    listItem.firstChild.textContent = `VRID: ${entry.vrid} | Timer: ${elapsedTime}s | WIM Link: ${entry.wimLink}`;
+                    listItem.firstChild.textContent = `VRID: ${entry.vrid} | Timer: ${elapsedTime}s | WIM Link: ${entry.wimLink} | Reason: ${entry.reason}`;
                 }, 1000);
                 listItem.dataset.interval = interval;
             } else {
@@ -187,6 +196,8 @@
                                                 return;
                                             }
                                             const wimUrl = wimUrlElement.href;
+                                            const reason = node.querySelector('td.goalContextTitle').textContent.trim();
+                                            const vrid = node.querySelector('td.vehicleRunId').textContent.trim();
                                             console.log("WIM URL detected:", wimUrl);
 
                                             let countdown = 5;
@@ -203,7 +214,7 @@
                                                         console.log("Attempting to store new page URL after assignment:", newPageUrl);
                                                         localStorage.setItem('wimURL', newPageUrl);
                                                         console.log("New page URL stored in local storage:", newPageUrl);
-                                                        trackWIM(wimUrl, newPageUrl);
+                                                        trackWIM(vrid, wimUrl, reason);
                                                     }, 1000);
                                                 }
                                             }, 1000);
