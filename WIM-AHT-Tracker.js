@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.4
+// @version      1.9.5
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -32,6 +32,12 @@
         trackerTabLink.name = 'tab_tracker';
         trackerTabLink.href = '#';
         trackerTabLink.textContent = 'WIM & AHT Tracker';
+        trackerTabLink.style.color = '#ffffff'; // Set text color to white
+        trackerTabLink.style.backgroundColor = '#007bff'; // Set background color to blue
+        trackerTabLink.style.padding = '10px'; // Add padding
+        trackerTabLink.style.borderRadius = '5px'; // Add border radius
+        trackerTabLink.style.textDecoration = 'none'; // Remove underline
+        trackerTabLink.style.display = 'inline-block'; // Ensure it is displayed inline-block
         trackerTabLink.onclick = (e) => {
             e.preventDefault();
             console.log('Tracker tab clicked');
@@ -101,7 +107,7 @@
         stopButton.style.marginLeft = '10px';
         stopButton.style.padding = '5px';
         stopButton.style.backgroundColor = '#ff0000';
-        stopButton.style.color = '#ffffff';
+        stopButton.style.color = '#000000FF';
         stopButton.style.border = 'none';
         stopButton.style.borderRadius = '5px';
         stopButton.style.cursor = 'pointer';
