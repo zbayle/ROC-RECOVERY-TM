@@ -956,7 +956,7 @@ function observeWIMAlerts() {
                                     }
                                 }, 1000);
                             } else {
-                                console.log("Assign to me button not found.");
+                                //console.log("Assign to me button not found.");
                             }
                         }
                     });
