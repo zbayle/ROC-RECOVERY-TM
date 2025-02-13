@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.8
+// @version      1.9
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -184,29 +184,29 @@
                                 if (assignButton) {
                                     console.log("Assign to me button detected.");
 
-                                    // Set up a MutationObserver to detect when the task detail page is loaded
-                                    const taskDetailObserver = new MutationObserver((mutations) => {
-                                        mutations.forEach((mutation) => {
-                                            if (mutation.addedNodes.length) {
-                                                mutation.addedNodes.forEach((node) => {
-                                                    if (node.nodeType === 1 && node.querySelector('td.goalContextTitle')) {
-                                                        const wimUrl = window.location.href;
-                                                        const reason = node.querySelector('td.goalContextTitle').textContent.trim();
-                                                        const vrid = node.querySelector('td.vehicleRunId').getAttribute('id');
+                                    assignButton.addEventListener('click', () => {
+                                        // Set up a MutationObserver to detect when the URL changes to the task detail page
+                                        const urlObserver = new MutationObserver((mutations) => {
+                                            mutations.forEach((mutation) => {
+                                                if (window.location.href.includes('/wims/taskdetail/')) {
+                                                    const wimUrl = window.location.href;
+                                                    const reasonElement = document.querySelector('td.goalContextTitle');
+                                                    const vridElement = document.querySelector('td.vehicleRunId');
+                                                    if (reasonElement && vridElement) {
+                                                        const reason = reasonElement.textContent.trim();
+                                                        const vrid = vridElement.getAttribute('id');
                                                         console.log("WIM URL detected:", wimUrl);
                                                         console.log("Reason detected:", reason);
                                                         console.log("VRID detected:", vrid);
 
                                                         trackWIM(vrid, wimUrl, reason);
-                                                        taskDetailObserver.disconnect();
+                                                        urlObserver.disconnect();
                                                     }
-                                                });
-                                            }
+                                                }
+                                            });
                                         });
-                                    });
 
-                                    assignButton.addEventListener('click', () => {
-                                        taskDetailObserver.observe(document.body, { childList: true, subtree: true });
+                                        urlObserver.observe(document.body, { childList: true, subtree: true });
                                     });
 
                                     let countdown = 5;
