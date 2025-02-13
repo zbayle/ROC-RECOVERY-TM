@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9
+// @version      1.9.0
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -185,10 +185,12 @@
                                     console.log("Assign to me button detected.");
 
                                     assignButton.addEventListener('click', () => {
+                                        console.log("Assign to me button clicked.");
                                         // Set up a MutationObserver to detect when the URL changes to the task detail page
                                         const urlObserver = new MutationObserver((mutations) => {
                                             mutations.forEach((mutation) => {
-                                                if (window.location.href.includes('/wims/taskdetail')) {
+                                                if (window.location.href.includes('/wims/taskdetail/')) {
+                                                    console.log("URL changed to task detail page.");
                                                     const wimUrl = window.location.href;
                                                     const reasonElement = document.querySelector('td.goalContextTitle');
                                                     const vridElement = document.querySelector('td.vehicleRunId');
@@ -201,6 +203,8 @@
 
                                                         trackWIM(vrid, wimUrl, reason);
                                                         urlObserver.disconnect();
+                                                    } else {
+                                                        console.log("Reason or VRID element not found.");
                                                     }
                                                 }
                                             });
@@ -220,7 +224,7 @@
                                         }
                                     }, 1000);
                                 } else {
-                                    //console.log("Assign to me button not found.");
+                                    console.log("Assign to me button not found.");
                                 }
                             }
                         });
