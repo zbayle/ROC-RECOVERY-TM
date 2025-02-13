@@ -188,7 +188,7 @@
                                         // Set up a MutationObserver to detect when the URL changes to the task detail page
                                         const urlObserver = new MutationObserver((mutations) => {
                                             mutations.forEach((mutation) => {
-                                                if (window.location.href.includes('/wims/taskdetail/')) {
+                                                if (window.location.href.includes('/wims/taskdetail')) {
                                                     const wimUrl = window.location.href;
                                                     const reasonElement = document.querySelector('td.goalContextTitle');
                                                     const vridElement = document.querySelector('td.vehicleRunId');
@@ -220,7 +220,7 @@
                                         }
                                     }, 1000);
                                 } else {
-                                    console.log("Assign to me button not found.");
+                                    //console.log("Assign to me button not found.");
                                 }
                             }
                         });
