@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.2
+// @version      1.9.3
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -24,7 +24,7 @@
             console.error('Tab container not found!');
             return;
         }
-
+    
         const trackerTab = document.createElement('li');
         trackerTab.role = 'presentation';
         trackerTab.className = '';
@@ -34,12 +34,13 @@
         trackerTabLink.textContent = 'WIM & AHT Tracker';
         trackerTabLink.onclick = (e) => {
             e.preventDefault();
+            console.log('Tracker tab clicked');
             showTrackerContent();
         };
         trackerTab.appendChild(trackerTabLink);
-
+    
         tabContainer.appendChild(trackerTab);
-
+    
         const trackerContent = document.createElement('div');
         trackerContent.id = 'trackerContent';
         trackerContent.style.display = 'none';
@@ -47,13 +48,13 @@
         trackerContent.style.backgroundColor = '#f2f2f2';
         trackerContent.style.borderRadius = '10px';
         trackerContent.style.marginTop = '10px';
-
+    
         const ahtTrackingList = document.createElement('ul');
         ahtTrackingList.id = 'ahtTrackingList';
         ahtTrackingList.style.padding = '0';
         ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
         trackerContent.appendChild(ahtTrackingList);
-
+    
         // Append the tracker content to the main container
         const mainContainer = document.querySelector('.main-container'); // Adjust the selector to match the main content container
         if (mainContainer) {
@@ -61,17 +62,23 @@
         } else {
             document.body.appendChild(trackerContent);
         }
-
+    
         // Load WIM entries
         loadWIMEntries();
     }
 
     function showTrackerContent() {
         const trackerContent = document.getElementById('trackerContent');
-        if (trackerContent.style.display === 'none') {
-            trackerContent.style.display = 'block';
+        if (trackerContent) {
+            if (trackerContent.style.display === 'none') {
+                console.log('Showing tracker content');
+                trackerContent.style.display = 'block';
+            } else {
+                console.log('Hiding tracker content');
+                trackerContent.style.display = 'none';
+            }
         } else {
-            trackerContent.style.display = 'none';
+            console.error('Tracker content element not found');
         }
     }
 
