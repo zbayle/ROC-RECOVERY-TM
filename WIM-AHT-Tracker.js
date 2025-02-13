@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.4
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -174,8 +174,6 @@
                                 const assignButton = node.querySelector('.btn-primary.btn-block.btn.btn-info');
                                 if (assignButton) {
                                     console.log("Assign to me button detected.");
-                                    const selectedSound = 'beep'; // Default sound
-                                    playSound(selectedSound);
 
                                     // Capture the WIM URL with retry mechanism
                                     let wimUrlElement = node.querySelector('td.TASK_ID.severity-1 a.task-link');
@@ -228,75 +226,11 @@
             const initialAssignButton = document.querySelector('.btn-primary.btn-block.btn.btn-info');
             if (initialAssignButton) {
                 console.log("Initial 'Assign to me' button detected.");
-                const selectedSound = 'beep'; // Default sound
-                playSound(selectedSound);
             }
 
             wimObserver.observe(document.body, { childList: true, subtree: true });
         } else {
             console.log("URL does not match WIMS page.");
-        }
-    }
-
-    // Function to play sound using Web Audio API
-    function playSound(type) {
-        console.log("playSound function called with type:", type);
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        // Ensure the audio context is resumed
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-
-        const gainNode = audioCtx.createGain();
-        gainNode.connect(audioCtx.destination);
-
-        const volume = 0.5; // Default volume
-        gainNode.gain.value = volume;
-
-        const playNote = (frequency, duration, startTime) => {
-            const oscillator = audioCtx.createOscillator();
-            oscillator.connect(gainNode);
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime);
-            oscillator.start(audioCtx.currentTime + startTime);
-            oscillator.stop(audioCtx.currentTime + startTime + duration);
-        };
-
-        switch (type) {
-            case 'beep':
-                playNote(440, 1, 0); // A4 for 1 second
-                break;
-            case 'chime':
-                playNoteSequence([
-                    { frequency: 392.00, duration: 0.3 }, // G4
-                    { frequency: 440.00, duration: 0.3 }, // A4
-                    { frequency: 523.25, duration: 0.3 }, // C5
-                    { frequency: 392.00, duration: 0.3 }  // G4
-                ]);
-                break;
-            case 'ding':
-                playNoteSequence([
-                    { frequency: 523.25, duration: 0.3 }, // C5
-                    { frequency: 587.33, duration: 0.3 }, // D5
-                    { frequency: 659.25, duration: 0.3 }, // E5
-                    { frequency: 523.25, duration: 0.3 }  // C5
-                ]);
-                break;
-            default:
-                playNoteSequence([
-                    { frequency: 440, duration: 0.3 }, // A4
-                    { frequency: 523.25, duration: 0.3 }, // C5
-                    { frequency: 659.25, duration: 0.3 }, // E5
-                    { frequency: 783.99, duration: 0.3 } // G5
-                ]);
-        }
-
-        function playNoteSequence(notes) {
-            let startTime = 0;
-            notes.forEach(note => {
-                playNote(note.frequency, note.duration, startTime);
-                startTime += note.duration;
-            });
         }
     }
 
