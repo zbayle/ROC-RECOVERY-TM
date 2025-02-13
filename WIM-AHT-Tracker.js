@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.7
+// @version      1.8
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -184,45 +184,39 @@
                                 if (assignButton) {
                                     console.log("Assign to me button detected.");
 
-                                    // Capture the WIM URL with retry mechanism
-                                    let wimUrlElement = node.querySelector('td.TASK_ID.severity-1 a.task-link');
-                                    let retries = 0;
-                                    const maxRetries = 5;
-                                    const retryInterval = setInterval(() => {
-                                        if (wimUrlElement || retries >= maxRetries) {
-                                            clearInterval(retryInterval);
-                                            if (!wimUrlElement) {
-                                                console.error("WIM URL element not found after retries.");
-                                                return;
-                                            }
-                                            const taskId = wimUrlElement.getAttribute('taskid');
-                                            const wimUrl = `https://optimus-internal.amazon.com/wims/taskdetail/${taskId}`;
-                                            const reason = node.querySelector('td.goalContextTitle').textContent.trim();
-                                            const vrid = node.querySelector('td.vehicleRunId').getAttribute('id');
-                                            console.log("WIM URL detected:", wimUrl);
+                                    // Set up a MutationObserver to detect when the task detail page is loaded
+                                    const taskDetailObserver = new MutationObserver((mutations) => {
+                                        mutations.forEach((mutation) => {
+                                            if (mutation.addedNodes.length) {
+                                                mutation.addedNodes.forEach((node) => {
+                                                    if (node.nodeType === 1 && node.querySelector('td.goalContextTitle')) {
+                                                        const wimUrl = window.location.href;
+                                                        const reason = node.querySelector('td.goalContextTitle').textContent.trim();
+                                                        const vrid = node.querySelector('td.vehicleRunId').getAttribute('id');
+                                                        console.log("WIM URL detected:", wimUrl);
+                                                        console.log("Reason detected:", reason);
+                                                        console.log("VRID detected:", vrid);
 
-                                            let countdown = 5;
-                                            const interval = setInterval(() => {
-                                                countdown--;
-                                                console.log(`Auto-assign countdown: ${countdown}`);
-                                                if (countdown < 0) {
-                                                    clearInterval(interval);
-                                                    assignButton.click();
-                                                    console.log("Assign button clicked automatically.");
-                                                    // Capture the URL of the page that loads
-                                                    setTimeout(() => {
-                                                        const newPageUrl = window.location.href;
-                                                        console.log("Attempting to store new page URL after assignment:", newPageUrl);
-                                                        localStorage.setItem('wimURL', newPageUrl);
-                                                        console.log("New page URL stored in local storage:", newPageUrl);
                                                         trackWIM(vrid, wimUrl, reason);
-                                                    }, 1000);
-                                                }
-                                            }, 1000);
-                                        } else {
-                                            console.log("Retrying to find WIM URL element...");
-                                            wimUrlElement = node.querySelector('td.TASK_ID.severity-1 a.task-link');
-                                            retries++;
+                                                        taskDetailObserver.disconnect();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    });
+
+                                    assignButton.addEventListener('click', () => {
+                                        taskDetailObserver.observe(document.body, { childList: true, subtree: true });
+                                    });
+
+                                    let countdown = 5;
+                                    const interval = setInterval(() => {
+                                        countdown--;
+                                        console.log(`Auto-assign countdown: ${countdown}`);
+                                        if (countdown < 0) {
+                                            clearInterval(interval);
+                                            assignButton.click();
+                                            console.log("Assign button clicked automatically.");
                                         }
                                     }, 1000);
                                 } else {
