@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.8
+// @version      1.9.9
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -79,12 +79,33 @@
 
     function showTrackerContent() {
         const trackerContent = document.getElementById('trackerContent');
-        if (trackerContent.style.display === 'none') {
-            console.log('Showing tracker content');
-            trackerContent.style.display = 'block';
+        const mainContainer = document.querySelector('.task-list-page'); // Adjust the selector to match the main content container
+
+        if (trackerContent) {
+            if (mainContainer) {
+                const otherTabsContent = mainContainer.children;
+                if (trackerContent.style.display === 'none') {
+                    console.log('Showing tracker content');
+                    trackerContent.style.display = 'block';
+                    Array.from(otherTabsContent).forEach(content => {
+                        if (content !== trackerContent) {
+                            content.style.display = 'none';
+                        }
+                    });
+                } else {
+                    console.log('Hiding tracker content');
+                    trackerContent.style.display = 'none';
+                    Array.from(otherTabsContent).forEach(content => {
+                        if (content !== trackerContent) {
+                            content.style.display = 'block';
+                        }
+                    });
+                }
+            } else {
+                console.error('Main container element not found');
+            }
         } else {
-            console.log('Hiding tracker content');
-            trackerContent.style.display = 'none';
+            console.error('Tracker content element not found');
         }
     }
 
@@ -105,7 +126,7 @@
         stopButton.style.marginLeft = '10px';
         stopButton.style.padding = '5px';
         stopButton.style.backgroundColor = '#ff0000';
-        stopButton.style.color = '#000000FF';
+        stopButton.style.color = '#ffffff';
         stopButton.style.border = 'none';
         stopButton.style.borderRadius = '5px';
         stopButton.style.cursor = 'pointer';
@@ -145,11 +166,12 @@
             reason: item.dataset.reason,
             resolved: item.textContent.includes(' | Resolved')
         }));
-        GM_setValue('wimEntries', JSON.stringify(entries));
+        GM_setValue('wimEntries', JSON.stringify({ wimEntries: entries }));
     }
 
     function loadWIMEntries() {
-        const entries = JSON.parse(GM_getValue('wimEntries', '[]'));
+        const data = JSON.parse(GM_getValue('wimEntries', '{"wimEntries": []}'));
+        const entries = data.wimEntries;
         entries.forEach(entry => {
             const ahtTrackingList = document.getElementById('ahtTrackingList');
             const listItem = document.createElement('li');
@@ -306,7 +328,21 @@
     window.addEventListener('load', function () {
         console.log("Window loaded.");
 
-        createTrackerTab();
+        // Use MutationObserver to detect when the necessary elements are available
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    const tabContainer = document.querySelector('.nav.nav-tabs');
+                    if (tabContainer) {
+                        createTrackerTab();
+                        observer.disconnect(); // Stop observing once the tab is added
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
         observeWIMAlerts();
         observeSnoozeAndResolve();
     });
