@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0.1
+// @version      1.9.0.2
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -339,7 +339,7 @@
             mutations.forEach((mutation) => {
                 if (mutation.addedNodes.length) {
                     const tabContainer = document.querySelector('.nav.nav-tabs');
-                    if (tabContainer) {
+                    if (tabContainer && !document.querySelector('a[name="tab_tracker"]')) {
                         createTrackerTab();
                         observer.disconnect(); // Stop observing once the tab is added
                     }
