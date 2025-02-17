@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0.5
+// @version      1.9.0.6
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -321,6 +321,20 @@
         }
     }
 
+    // Function to stop the clock and record the time for the WIM entry
+    function stopClockAndRecordTime(vrid) {
+        const ahtTrackingList = document.getElementById('ahtTrackingList');
+        const listItem = Array.from(ahtTrackingList.children).find(item => item.dataset.vrid === vrid);
+
+        if (listItem) {
+            clearInterval(listItem.dataset.interval);
+            const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
+            listItem.textContent += ` | Snoozed at ${elapsedTime}s`;
+            saveWIMEntries(); // Save the updated entries to Tampermonkey storage
+        }
+    }
+
+
     // Function to observe snooze and resolve actions
     function observeSnoozeAndResolve() {
         const snoozeObserver = new MutationObserver((mutations) => {
@@ -329,13 +343,17 @@
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1) {
                             const snoozeButton = node.querySelector('.bare-link-button');
-                            if (snoozeButton && snoozeButton.textContent.includes('Snooze')) {
+                            if (snoozeButton && snoozeButton.querySelector('.task-snooze-indicator')) {
                                 snoozeButton.addEventListener('click', () => {
                                     console.log('Snooze button clicked');
-                                    // Handle snooze action
+                                    const vridElement = document.querySelector('td a[href*="execution/search"]');
+                                    if (vridElement) {
+                                        const vrid = vridElement.textContent.trim();
+                                        stopClockAndRecordTime(vrid);
+                                    }
                                 });
                             }
-
+    
                             const resolveButton = node.querySelector('.btn-secondary');
                             if (resolveButton && resolveButton.textContent.includes('Resolve')) {
                                 resolveButton.addEventListener('click', () => {
@@ -348,7 +366,7 @@
                 }
             });
         });
-
+    
         snoozeObserver.observe(document.body, { childList: true, subtree: true });
     }
 
