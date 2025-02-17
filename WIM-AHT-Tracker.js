@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.6
+// @version      1.9.7
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -62,7 +62,7 @@
         trackerContent.appendChild(ahtTrackingList);
     
         // Append the tracker content to the main container
-        const mainContainer = document.querySelector('.main-container'); // Adjust the selector to match the main content container
+        const mainContainer = document.querySelector('.task-list-page'); // Adjust the selector to match the main content container
         if (mainContainer) {
             mainContainer.appendChild(trackerContent);
             console.log('Tracker content appended to main container');
@@ -77,18 +77,30 @@
 
     function showTrackerContent() {
         const trackerContent = document.getElementById('trackerContent');
-        const mainContainer = document.querySelector('.main-container');
-        const otherTabsContent = mainContainer.querySelectorAll('> div:not(#trackerContent)');
+        const mainContainer = document.querySelector('.task-list-page'); // Adjust the selector to match the main content container
 
         if (trackerContent) {
-            if (trackerContent.style.display === 'none') {
-                console.log('Showing tracker content');
-                trackerContent.style.display = 'block';
-                otherTabsContent.forEach(content => content.style.display = 'none');
+            if (mainContainer) {
+                const otherTabsContent = mainContainer.children;
+                if (trackerContent.style.display === 'none') {
+                    console.log('Showing tracker content');
+                    trackerContent.style.display = 'block';
+                    Array.from(otherTabsContent).forEach(content => {
+                        if (content !== trackerContent) {
+                            content.style.display = 'none';
+                        }
+                    });
+                } else {
+                    console.log('Hiding tracker content');
+                    trackerContent.style.display = 'none';
+                    Array.from(otherTabsContent).forEach(content => {
+                        if (content !== trackerContent) {
+                            content.style.display = 'block';
+                        }
+                    });
+                }
             } else {
-                console.log('Hiding tracker content');
-                trackerContent.style.display = 'none';
-                otherTabsContent.forEach(content => content.style.display = 'block');
+                console.error('Main container element not found');
             }
         } else {
             console.error('Tracker content element not found');
@@ -218,10 +230,10 @@
                                                     const maxRetries = 10;
                                                     const retryInterval = setInterval(() => {
                                                         const reasonElement = document.querySelector('h3 span.highlighted-keyword');
-                                                        const vridElement = document.querySelector('td.vehicleRunId');
+                                                        const vridElement = document.querySelector('td a[href*="execution/search"]');
                                                         if (reasonElement && vridElement) {
                                                             const reason = reasonElement.textContent.trim();
-                                                            const vrid = vridElement.getAttribute('id');
+                                                            const vrid = vridElement.textContent.trim();
                                                             console.log("WIM URL detected:", wimUrl);
                                                             console.log("Reason detected:", reason);
                                                             console.log("VRID detected:", vrid);
