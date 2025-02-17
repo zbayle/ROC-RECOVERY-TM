@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0.4
+// @version      1.9.0.5
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -103,11 +103,11 @@
     
         if (trackerContent) {
             if (mainContainer) {
-                const otherTabsContent = mainContainer.children;
+                const otherTabsContent = Array.from(mainContainer.children).filter(content => !content.classList.contains('nav-tabs'));
                 if (trackerContent.style.display === 'none') {
                     console.log('Showing tracker content');
                     trackerContent.style.display = 'block';
-                    Array.from(otherTabsContent).forEach(content => {
+                    otherTabsContent.forEach(content => {
                         if (content !== trackerContent) {
                             content.style.display = 'none';
                         }
@@ -115,7 +115,7 @@
                 } else {
                     console.log('Hiding tracker content');
                     trackerContent.style.display = 'none';
-                    Array.from(otherTabsContent).forEach(content => {
+                    otherTabsContent.forEach(content => {
                         if (content !== trackerContent) {
                             content.style.display = 'block';
                         }
