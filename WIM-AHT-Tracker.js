@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0.6
+// @version      1.9.0.7
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -323,14 +323,18 @@
 
     // Function to stop the clock and record the time for the WIM entry
     function stopClockAndRecordTime(vrid) {
+        console.log(`Attempting to stop clock for VRID: ${vrid}`); // Debug log
         const ahtTrackingList = document.getElementById('ahtTrackingList');
         const listItem = Array.from(ahtTrackingList.children).find(item => item.dataset.vrid === vrid);
-
+    
         if (listItem) {
+            console.log(`Stopping clock for VRID: ${vrid}`); // Debug log
             clearInterval(listItem.dataset.interval);
             const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
             listItem.textContent += ` | Snoozed at ${elapsedTime}s`;
             saveWIMEntries(); // Save the updated entries to Tampermonkey storage
+        } else {
+            console.log(`No matching VRID found for: ${vrid}`); // Debug log
         }
     }
 
@@ -349,7 +353,10 @@
                                     const vridElement = document.querySelector('td a[href*="execution/search"]');
                                     if (vridElement) {
                                         const vrid = vridElement.textContent.trim();
+                                        console.log(`VRID found: ${vrid}`); // Debug log
                                         stopClockAndRecordTime(vrid);
+                                    } else {
+                                        console.log('VRID element not found'); // Debug log
                                     }
                                 });
                             }
@@ -373,7 +380,7 @@
     // Ensure the page is fully loaded before trying to access elements
     window.addEventListener('load', function () {
         console.log("Window loaded.");
-
+    
         // Use MutationObserver to detect when the necessary elements are available
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -386,9 +393,9 @@
                 }
             });
         });
-
+    
         observer.observe(document.body, { childList: true, subtree: true });
-
+    
         observeWIMAlerts();
         observeSnoozeAndResolve();
     });
