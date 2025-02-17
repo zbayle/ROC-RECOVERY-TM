@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0.3
+// @version      1.9.0.4
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -24,7 +24,7 @@
             console.error('Tab container not found!');
             return;
         }
-
+    
         // Check if the tracker tab already exists
         if (document.querySelector('a[name="tab_tracker"]')) {
             console.log('Tracker tab already exists');
@@ -63,6 +63,20 @@
         trackerContent.style.borderRadius = '10px';
         trackerContent.style.marginTop = '10px';
     
+        const backButton = document.createElement('button');
+        backButton.textContent = 'Back';
+        backButton.style.marginBottom = '10px';
+        backButton.style.padding = '10px';
+        backButton.style.backgroundColor = '#007bff';
+        backButton.style.color = '#ffffff';
+        backButton.style.border = 'none';
+        backButton.style.borderRadius = '5px';
+        backButton.style.cursor = 'pointer';
+        backButton.onclick = () => {
+            showTrackerContent();
+        };
+        trackerContent.appendChild(backButton);
+    
         const ahtTrackingList = document.createElement('ul');
         ahtTrackingList.id = 'ahtTrackingList';
         ahtTrackingList.style.padding = '0';
@@ -82,11 +96,11 @@
         // Load WIM entries
         loadWIMEntries();
     }
-
+    
     function showTrackerContent() {
         const trackerContent = document.getElementById('trackerContent');
         const mainContainer = document.querySelector('.task-list-page'); // Adjust the selector to match the main content container
-
+    
         if (trackerContent) {
             if (mainContainer) {
                 const otherTabsContent = mainContainer.children;
