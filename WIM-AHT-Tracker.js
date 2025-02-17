@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0.2
+// @version      1.9.0.3
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -118,15 +118,23 @@
     function trackWIM(vrid, wimLink, reason) {
         console.log("Tracking WIM:", vrid, wimLink, reason); // Debug log
         const ahtTrackingList = document.getElementById('ahtTrackingList');
+        
+        // Check if the WIM is already being tracked
+        const existingItem = Array.from(ahtTrackingList.children).find(item => item.dataset.vrid === vrid);
+        if (existingItem) {
+            console.log(`WIM with VRID ${vrid} is already being tracked.`);
+            return;
+        }
+    
         const currentTime = Date.now();
-
+    
         const listItem = document.createElement('li');
         listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink} | Reason: ${reason}`;
         listItem.dataset.startTime = currentTime;
         listItem.dataset.vrid = vrid;
         listItem.dataset.wimLink = wimLink;
         listItem.dataset.reason = reason;
-
+    
         const stopButton = document.createElement('button');
         stopButton.textContent = 'Stop';
         stopButton.style.marginLeft = '10px';
@@ -137,17 +145,17 @@
         stopButton.style.borderRadius = '5px';
         stopButton.style.cursor = 'pointer';
         stopButton.onclick = () => stopTrackingWIM(vrid);
-
+    
         listItem.appendChild(stopButton);
         ahtTrackingList.appendChild(listItem);
-
+    
         const interval = setInterval(() => {
             const elapsedTime = Math.floor((Date.now() - listItem.dataset.startTime) / 1000);
             listItem.firstChild.textContent = `VRID: ${vrid} | Timer: ${elapsedTime}s | WIM Link: ${wimLink} | Reason: ${reason}`;
         }, 1000);
-
+    
         listItem.dataset.interval = interval;
-
+    
         // Save the entry to Tampermonkey storage
         saveWIMEntries();
     }
