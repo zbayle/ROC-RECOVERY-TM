@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.7
+// @version      1.9.8
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -45,7 +45,9 @@
         };
         trackerTab.appendChild(trackerTabLink);
     
-        tabContainer.appendChild(trackerTab);
+        // Insert the tracker tab next to the Search tab
+        const searchTab = tabContainer.querySelector('a[name="tab_search"]').parentElement;
+        searchTab.insertAdjacentElement('afterend', trackerTab);
     
         const trackerContent = document.createElement('div');
         trackerContent.id = 'trackerContent';
@@ -77,42 +79,23 @@
 
     function showTrackerContent() {
         const trackerContent = document.getElementById('trackerContent');
-        const mainContainer = document.querySelector('.task-list-page'); // Adjust the selector to match the main content container
-
-        if (trackerContent) {
-            if (mainContainer) {
-                const otherTabsContent = mainContainer.children;
-                if (trackerContent.style.display === 'none') {
-                    console.log('Showing tracker content');
-                    trackerContent.style.display = 'block';
-                    Array.from(otherTabsContent).forEach(content => {
-                        if (content !== trackerContent) {
-                            content.style.display = 'none';
-                        }
-                    });
-                } else {
-                    console.log('Hiding tracker content');
-                    trackerContent.style.display = 'none';
-                    Array.from(otherTabsContent).forEach(content => {
-                        if (content !== trackerContent) {
-                            content.style.display = 'block';
-                        }
-                    });
-                }
-            } else {
-                console.error('Main container element not found');
-            }
+        if (trackerContent.style.display === 'none') {
+            console.log('Showing tracker content');
+            trackerContent.style.display = 'block';
         } else {
-            console.error('Tracker content element not found');
+            console.log('Hiding tracker content');
+            trackerContent.style.display = 'none';
         }
     }
 
     function trackWIM(vrid, wimLink, reason) {
         console.log("Tracking WIM:", vrid, wimLink, reason); // Debug log
         const ahtTrackingList = document.getElementById('ahtTrackingList');
+        const currentTime = Date.now();
+
         const listItem = document.createElement('li');
         listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink} | Reason: ${reason}`;
-        listItem.dataset.startTime = Date.now();
+        listItem.dataset.startTime = currentTime;
         listItem.dataset.vrid = vrid;
         listItem.dataset.wimLink = wimLink;
         listItem.dataset.reason = reason;
@@ -288,11 +271,43 @@
         }
     }
 
+    // Function to observe snooze and resolve actions
+    function observeSnoozeAndResolve() {
+        const snoozeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1) {
+                            const snoozeButton = node.querySelector('.bare-link-button');
+                            if (snoozeButton && snoozeButton.textContent.includes('Snooze')) {
+                                snoozeButton.addEventListener('click', () => {
+                                    console.log('Snooze button clicked');
+                                    // Handle snooze action
+                                });
+                            }
+
+                            const resolveButton = node.querySelector('.btn-secondary');
+                            if (resolveButton && resolveButton.textContent.includes('Resolve')) {
+                                resolveButton.addEventListener('click', () => {
+                                    console.log('Resolve button clicked');
+                                    // Handle resolve action
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        snoozeObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
     // Ensure the page is fully loaded before trying to access elements
     window.addEventListener('load', function () {
         console.log("Window loaded.");
 
         createTrackerTab();
         observeWIMAlerts();
+        observeSnoozeAndResolve();
     });
 })();
