@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.9
+// @version      1.9.0.1
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -22,6 +22,12 @@
         const tabContainer = document.querySelector('.nav.nav-tabs'); // Adjust the selector to match the WIMS page tab container
         if (!tabContainer) {
             console.error('Tab container not found!');
+            return;
+        }
+
+        // Check if the tracker tab already exists
+        if (document.querySelector('a[name="tab_tracker"]')) {
+            console.log('Tracker tab already exists');
             return;
         }
     
