@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.0.9
+// @version      1.9.1.0
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -345,19 +345,25 @@
                 if (mutation.addedNodes.length) {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1) {
+                            console.log('Node added:', node); // Debug log
                             const snoozeButton = node.querySelector('.bare-link-button');
-                            if (snoozeButton && snoozeButton.querySelector('.task-snooze-indicator')) {
-                                snoozeButton.addEventListener('click', () => {
-                                    console.log('Snooze button clicked');
-                                    const vridElement = document.querySelector('td a[href*="execution/search"]');
-                                    if (vridElement) {
-                                        const vrid = vridElement.textContent.trim();
-                                        console.log(`VRID found: ${vrid}`); // Debug log
-                                        stopClockAndRecordTime(vrid);
-                                    } else {
-                                        console.log('VRID element not found'); // Debug log
-                                    }
-                                });
+                            if (snoozeButton) {
+                                console.log('Snooze button found:', snoozeButton); // Debug log
+                                const taskSnoozeIndicator = snoozeButton.querySelector('.task-snooze-indicator');
+                                if (taskSnoozeIndicator) {
+                                    console.log('Task snooze indicator found:', taskSnoozeIndicator); // Debug log
+                                    snoozeButton.addEventListener('click', () => {
+                                        console.log('Snooze button clicked');
+                                        const vridElement = document.querySelector('td a[href*="execution/search"]');
+                                        if (vridElement) {
+                                            const vrid = vridElement.textContent.trim();
+                                            console.log(`VRID found: ${vrid}`); // Debug log
+                                            stopClockAndRecordTime(vrid);
+                                        } else {
+                                            console.log('VRID element not found'); // Debug log
+                                        }
+                                    });
+                                }
                             }
     
                             const resolveButton = node.querySelector('.btn-secondary');
