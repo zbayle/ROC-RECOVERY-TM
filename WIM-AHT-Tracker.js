@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.1.0
+// @version      1.9.1.1
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -346,7 +346,7 @@
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1) {
                             console.log('Node added:', node); // Debug log
-                            const snoozeButton = node.querySelector('.bare-link-button');
+                            const snoozeButton = node.querySelector('button.bare-link-button');
                             if (snoozeButton) {
                                 console.log('Snooze button found:', snoozeButton); // Debug log
                                 const taskSnoozeIndicator = snoozeButton.querySelector('.task-snooze-indicator');
