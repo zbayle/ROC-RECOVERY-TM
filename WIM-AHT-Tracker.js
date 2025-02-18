@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIM and AHT Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.9.1.3
+// @version      1.9.1.4
 // @description  Track WIMs and AHT with a tab on the WIMS page in Tampermonkey.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -380,6 +380,14 @@
                             const successAlert = node.querySelector('div.alert.alert-success');
                             if (successAlert && successAlert.textContent.includes('Work Item snoozed successfully!')) {
                                 console.log('Work Item snoozed successfully!');
+                                const vridElement = document.querySelector('td a[href*="execution/search"]');
+                                if (vridElement) {
+                                    const vrid = vridElement.textContent.trim();
+                                    console.log(`VRID found: ${vrid}`); // Debug log
+                                    stopClockAndRecordTime(vrid);
+                                } else {
+                                    console.log('VRID element not found'); // Debug log
+                                }
                             }
                         }
                     });
