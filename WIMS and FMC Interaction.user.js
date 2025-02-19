@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      2.3
+// @version      2.3.dev
 // @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
@@ -635,56 +635,56 @@
             // Inject responsive CSS
             const style = document.createElement('style');
             style.innerHTML = `
-                /* Basic table styling */
-                #fmc-execution-plans-vrs {
-                    width: 100%;
-                    border-collapse: collapse;
+            /* Basic table styling */
+            #fmc-execution-plans-vrs {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td {
+                padding: 8px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            /* Responsive design for smaller screens */
+            @media screen and (max-width: 768px) {
+                #fmc-execution-plans-vrs, #fmc-execution-plans-vrs thead, #fmc-execution-plans-vrs tbody, #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td, #fmc-execution-plans-vrs tr {
+                    display: block;
                 }
 
-                #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td {
-                    padding: 8px;
+                #fmc-execution-plans-vrs thead tr {
+                    display: none;
+                }
+
+                #fmc-execution-plans-vrs tr {
+                    margin-bottom: 15px;
+                }
+
+                #fmc-execution-plans-vrs td {
+                    text-align: right;
+                    padding-left: 50%;
+                    position: relative;
+                }
+
+                #fmc-execution-plans-vrs td:before {
+                    content: attr(data-label);
+                    position: absolute;
+                    left: 0;
+                    width: 50%;
+                    padding-left: 15px;
+                    font-weight: bold;
                     text-align: left;
-                    border: 1px solid #ddd;
                 }
+            }
 
-                /* Responsive design for smaller screens */
-                @media screen and (max-width: 768px) {
-                    #fmc-execution-plans-vrs, #fmc-execution-plans-vrs thead, #fmc-execution-plans-vrs tbody, #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td, #fmc-execution-plans-vrs tr {
-                        display: block;
-                    }
-
-                    #fmc-execution-plans-vrs thead tr {
-                        display: none;
-                    }
-
-                    #fmc-execution-plans-vrs tr {
-                        margin-bottom: 15px;
-                    }
-
-                    #fmc-execution-plans-vrs td {
-                        text-align: right;
-                        padding-left: 50%;
-                        position: relative;
-                    }
-
-                    #fmc-execution-plans-vrs td:before {
-                        content: attr(data-label);
-                        position: absolute;
-                        left: 0;
-                        width: 50%;
-                        padding-left: 15px;
-                        font-weight: bold;
-                        text-align: left;
-                    }
+            /* Hide less important columns on smaller screens */
+            @media screen and (max-width: 768px) {
+                .hide-on-small {
+                    display: none;
                 }
-
-                /* Hide less important columns on smaller screens */
-                @media screen and (max-width: 768px) {
-                    .hide-on-small {
-                        display: none;
-                    }
-                }
-            `;
+            }
+        `;
             document.head.appendChild(style);
 
             // Add data-label attributes to each cell for responsive design
@@ -709,7 +709,7 @@
                 const table = document.querySelector('#fmc-execution-plans-vrs');
                 if (table) {
                     redesignTable();
-                    observer.disconnect(); // Stop observing once the table is found and redesigned
+                    // observer.disconnect(); // Stop observing once the table is found and redesigned
                     break;
                 }
             }
