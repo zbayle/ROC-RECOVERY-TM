@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools Tomy
 // @namespace    https://amazon.com
-// @version      3.4.tomy
+// @version      3.5.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        *://*/*
@@ -26,7 +26,7 @@ if (typeof GM_getValue === 'undefined') {
         return value ? JSON.parse(value) : defaultValue;
     };
 } else {
-    console.log('GM_getValue is available.');
+    // console.log('GM_getValue is available.');
 }
 
 if (typeof GM_setValue === 'undefined') {
@@ -105,7 +105,6 @@ function createFloatingIcon() {
     makeDraggable(icon);
 }
 
-// Function to create and insert the floating menu
 function createFloatingMenu() {
     // Ensure this script runs only in the top window
     if (window.top !== window.self) {
@@ -374,7 +373,8 @@ function createFloatingMenu() {
         const canvas = document.createElement('canvas');
         canvas.id = 'audioCanvas';
         canvas.width = 300;
-        canvas.height = 100;
+        canvas.height = 300;
+        canvas.style.borderRadius = '40px';
         alertsTabContent.appendChild(canvas);
     };
     alertsTabContent.appendChild(testButton);
@@ -435,22 +435,10 @@ function createFloatingMenu() {
 
 // Load the alert toggle state
 const alertEnabled = GM_getValue('alertEnabled', true);
-const alertToggle = document.getElementById('alertToggle');
-if (alertToggle) {
-    alertToggle.checked = true;
-    alertToggle.disabled = true;
-}
-
 
 // Load the alert toggle state
 function loadAlerts() {
     const settings = loadSettings();
-
-    const alertToggle = document.getElementById('alertToggle');
-    if (alertToggle) {
-        alertToggle.checked = settings.alertEnabled;
-        alertToggle.disabled = true;
-    }
 
     const soundSelect = document.getElementById('soundSelect');
     if (soundSelect) {
@@ -496,7 +484,91 @@ function playSound(type) {
     const volume = document.getElementById('volumeSlider').value;
     gainNode.gain.value = volume;
 
+    const playNote = (frequency, duration, startTime, type = 'sine') => {
+        const oscillator = audioCtx.createOscillator();
+        oscillator.connect(gainNode);
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime);
+        oscillator.start(audioCtx.currentTime + startTime);
+        oscillator.stop(audioCtx.currentTime + startTime + duration);
+    };
+
+    switch (type) {
+        case 'beep':
+            playNote(440, 1, 0, 'square'); // A4 for 1 second with square waveform
+            break;
+        case 'chime':
+            playNoteSequence([
+                { frequency: 392.00, duration: 0.3, type: 'sine' }, // G4
+                { frequency: 440.00, duration: 0.3, type: 'sine' }, // A4
+                { frequency: 523.25, duration: 0.3, type: 'sine' }, // C5
+                { frequency: 392.00, duration: 0.3, type: 'sine' }, // G4
+                { frequency: 659.25, duration: 0.3, type: 'sine' }, // E5
+                { frequency: 783.99, duration: 0.3, type: 'sine' }  // G5
+            ]);
+            break;
+        case 'ding':
+            playNoteSequence([
+                { frequency: 523.25, duration: 0.3, type: 'triangle' }, // C5
+                { frequency: 587.33, duration: 0.3, type: 'triangle' }, // D5
+                { frequency: 659.25, duration: 0.3, type: 'triangle' }, // E5
+                { frequency: 523.25, duration: 0.3, type: 'triangle' }  // C5
+            ]);
+            break;
+        case 'levelup':
+            playNoteSequence([
+                { frequency: 523.25, duration: 0.2, type: 'sine' }, // C5
+                { frequency: 659.25, duration: 0.2, type: 'sine' }, // E5
+                { frequency: 783.99, duration: 0.2, type: 'sine' }, // G5
+                { frequency: 1046.50, duration: 0.4, type: 'sine' }, // C6
+                { frequency: 880.00, duration: 0.2, type: 'square' }, // A5
+                { frequency: 987.77, duration: 0.2, type: 'square' }, // B5
+                { frequency: 1046.50, duration: 0.4, type: 'square' }  // C6
+            ]);
+            break;
+        case 'hiphop':
+            playNoteSequence([
+                { frequency: 60, duration: 0.5, type: 'sine' }, // Kick
+                { frequency: 120, duration: 0.2, type: 'square' }, // Snare
+                { frequency: 60, duration: 0.5, type: 'sine' }, // Kick
+                { frequency: 120, duration: 0.2, type: 'square' }, // Snare
+                { frequency: 80, duration: 0.3, type: 'triangle' }, // Hi-hat
+                { frequency: 80, duration: 0.3, type: 'triangle' }  // Hi-hat
+            ]);
+            break;
+        case 'fairy':
+            playNoteSequence([
+                { frequency: 1046.50, duration: 0.2, type: 'square' }, // C6
+                { frequency: 1174.66, duration: 0.2, type: 'square' }, // D6
+                { frequency: 1318.51, duration: 0.2, type: 'square' }, // E6
+                { frequency: 1567.98, duration: 0.4, type: 'square' }, // G6
+                { frequency: 2093.00, duration: 0.2, type: 'square' }, // C7
+                { frequency: 2349.32, duration: 0.2, type: 'square' }, // D7
+                { frequency: 2637.02, duration: 0.4, type: 'square' }  // E7
+            ]);
+            break;
+        default:
+            playNoteSequence([
+                { frequency: 440, duration: 0.3, type: 'sine' }, // A4
+                { frequency: 523.25, duration: 0.3, type: 'sine' }, // C5
+                { frequency: 659.25, duration: 0.3, type: 'sine' }, // E5
+                { frequency: 783.99, duration: 0.3, type: 'sine' } // G5
+            ]);
+    }
+
+    function playNoteSequence(notes) {
+        let startTime = 0;
+        notes.forEach(note => {
+            playNote(note.frequency, note.duration, startTime, note.type);
+            startTime += note.duration;
+        });
+    }
+}
+
+// Function to handle canvas drawing and visualization
+function handleCanvasVisualization() {
     const analyser = audioCtx.createAnalyser();
+    const gainNode = audioCtx.createGain();
     gainNode.connect(analyser);
     analyser.fftSize = 256;
     const bufferLength = analyser.frequencyBinCount;
@@ -585,86 +657,6 @@ function playSound(type) {
     }
 
     draw();
-
-    const playNote = (frequency, duration, startTime, type = 'sine') => {
-        const oscillator = audioCtx.createOscillator();
-        oscillator.connect(gainNode);
-        oscillator.type = type;
-        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime);
-        oscillator.start(audioCtx.currentTime + startTime);
-        oscillator.stop(audioCtx.currentTime + startTime + duration);
-    };
-
-    switch (type) {
-        case 'beep':
-            playNote(440, 1, 0, 'square'); // A4 for 1 second with square waveform
-            break;
-        case 'chime':
-            playNoteSequence([
-                { frequency: 392.00, duration: 0.3, type: 'sine' }, // G4
-                { frequency: 440.00, duration: 0.3, type: 'sine' }, // A4
-                { frequency: 523.25, duration: 0.3, type: 'sine' }, // C5
-                { frequency: 392.00, duration: 0.3, type: 'sine' }, // G4
-                { frequency: 659.25, duration: 0.3, type: 'sine' }, // E5
-                { frequency: 783.99, duration: 0.3, type: 'sine' }  // G5
-            ]);
-            break;
-        case 'ding':
-            playNoteSequence([
-                { frequency: 523.25, duration: 0.3, type: 'triangle' }, // C5
-                { frequency: 587.33, duration: 0.3, type: 'triangle' }, // D5
-                { frequency: 659.25, duration: 0.3, type: 'triangle' }, // E5
-                { frequency: 523.25, duration: 0.3, type: 'triangle' }  // C5
-            ]);
-            break;
-        case 'levelup':
-            playNoteSequence([
-                { frequency: 523.25, duration: 0.2, type: 'sine' }, // C5
-                { frequency: 659.25, duration: 0.2, type: 'sine' }, // E5
-                { frequency: 783.99, duration: 0.2, type: 'sine' }, // G5
-                { frequency: 1046.50, duration: 0.4, type: 'sine' }, // C6
-                { frequency: 880.00, duration: 0.2, type: 'square' }, // A5
-                { frequency: 987.77, duration: 0.2, type: 'square' }, // B5
-                { frequency: 1046.50, duration: 0.4, type: 'square' }  // C6
-            ]);
-            break;
-        case 'hiphop':
-            playNoteSequence([
-                { frequency: 60, duration: 0.5, type: 'sine' }, // Kick
-                { frequency: 120, duration: 0.2, type: 'square' }, // Snare
-                { frequency: 60, duration: 0.5, type: 'sine' }, // Kick
-                { frequency: 120, duration: 0.2, type: 'square' }, // Snare
-                { frequency: 80, duration: 0.3, type: 'triangle' }, // Hi-hat
-                { frequency: 80, duration: 0.3, type: 'triangle' }  // Hi-hat
-            ]);
-            break;
-        case 'fairy':
-            playNoteSequence([
-                { frequency: 1046.50, duration: 0.2, type: 'square' }, // C6
-                { frequency: 1174.66, duration: 0.2, type: 'square' }, // D6
-                { frequency: 1318.51, duration: 0.2, type: 'square' }, // E6
-                { frequency: 1567.98, duration: 0.4, type: 'square' }, // G6
-                { frequency: 2093.00, duration: 0.2, type: 'square' }, // C7
-                { frequency: 2349.32, duration: 0.2, type: 'square' }, // D7
-                { frequency: 2637.02, duration: 0.4, type: 'square' }  // E7
-            ]);
-            break;
-        default:
-            playNoteSequence([
-                { frequency: 440, duration: 0.3, type: 'sine' }, // A4
-                { frequency: 523.25, duration: 0.3, type: 'sine' }, // C5
-                { frequency: 659.25, duration: 0.3, type: 'sine' }, // E5
-                { frequency: 783.99, duration: 0.3, type: 'sine' } // G5
-            ]);
-    }
-
-    function playNoteSequence(notes) {
-        let startTime = 0;
-        notes.forEach(note => {
-            playNote(note.frequency, note.duration, startTime, note.type);
-            startTime += note.duration;
-        });
-    }
 }
 
 // Ensure the audio context is resumed on user interaction
@@ -863,7 +855,7 @@ function loadKeywords() {
             list.appendChild(listItem);
         });
     } else {
-        console.error('Keyword list element not found!'); // Debug log
+        // console.error('Keyword list element not found!'); // Debug log
     }
 
     highlightKeywords(keywords);
@@ -1022,7 +1014,6 @@ function highlightKeywords(keywords) {
 }
 
 let wimObserver;
-// Function to observe WIM alerts.
 function observeWIMAlerts() {
     console.log("observeWIMAlerts function called.");
     if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
@@ -1036,8 +1027,19 @@ function observeWIMAlerts() {
                             const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
                             if (assignButton) {
                                 console.log("Assign to me button detected.");
-                                const selectedSound = document.getElementById('soundSelect').value;
+                                const selectedSound = GM_getValue('selectedSound', 'beep');
                                 console.log("Selected sound:", selectedSound);
+
+                                // Ensure the canvas is created before playing the sound
+                                let canvas = document.getElementById('audioCanvas');
+                                if (!canvas) {
+                                    canvas = document.createElement('canvas');
+                                    canvas.id = 'audioCanvas';
+                                    canvas.width = 300;
+                                    canvas.height = 100;
+                                    document.body.appendChild(canvas);
+                                }
+
                                 playSound(selectedSound);
 
                                 // Capture the WIM URL with retry mechanism
@@ -1105,8 +1107,19 @@ function observeWIMAlerts() {
         const initialAssignButton = document.querySelector('.btn-primary.btn-block.btn.btn-info');
         if (initialAssignButton) {
             console.log("Initial 'Assign to me' button detected.");
-            const selectedSound = document.getElementById('soundSelect').value;
+            const selectedSound = GM_getValue('selectedSound', 'beep');
             console.log("Selected sound:", selectedSound);
+
+            // Ensure the canvas is created before playing the sound
+            let canvas = document.getElementById('audioCanvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'audioCanvas';
+                canvas.width = 300;
+                canvas.height = 100;
+                document.body.appendChild(canvas);
+            }
+
             playSound(selectedSound);
         }
 
@@ -1115,7 +1128,6 @@ function observeWIMAlerts() {
         console.log("URL does not match WIMS page.");
     }
 }
-
 // Function to stop observing WIM alerts
 function stopObservingWIMAlerts() {
     if (wimObserver) {
@@ -1162,15 +1174,6 @@ window.addEventListener('load', function () {
         console.error('Add button not found!');
     }
 
-    // Ensure the "WIM Alert" checkbox is enabled on load
-    const alertToggle = document.getElementById('alertToggle');
-    if (alertToggle) {
-        alertToggle.checked = true;
-        alertToggle.disabled = false;
-    } else {
-        console.error('Alert toggle not found!');
-    }
-
     // Highlight keywords every 15 seconds
     setInterval(() => {
         const settings = loadSettings();
@@ -1185,6 +1188,7 @@ function toggleMenu() {
         if (menu.style.display === 'none') {
             menu.style.display = 'block';
             console.log("Menu is now visible.");
+            handleCanvasVisualization(); // Start canvas visualization when menu is visible
         } else {
             menu.style.display = 'none';
             console.log("Menu is now hidden.");
