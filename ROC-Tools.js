@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools Tomy
 // @namespace    http://tampermonkey.net/
-// @version      3.0.tomy
+// @version      3.1.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -247,14 +247,14 @@ function createFloatingMenu() {
     alertsTabContent.style.display = 'none';
 
     // Add a label for the alert toggle
-    const alertToggleLabel = document.createElement('label');
+    //const alertToggleLabel = document.createElement('label');
     alertToggleLabel.textContent = 'WIM Alert: ';
     alertToggleLabel.style.display = 'block'; 
     alertToggleLabel.style.marginBottom = '5px'; 
     alertsTabContent.appendChild(alertToggleLabel);
 
     // Create a checkbox for enabling/disabling the alert
-    const alertToggle = document.createElement('input');
+    //const alertToggle = document.createElement('input');
     alertToggle.type = 'checkbox';
     alertToggle.id = 'alertToggle';
     alertToggle.style.marginBottom = '15px'; 
@@ -967,8 +967,7 @@ function observeWIMAlerts() {
     }
 }
 
-// ...existing code...
-
+// Function to stop observing WIM alerts
 function stopObservingWIMAlerts() {
     if (wimObserver) {
         wimObserver.disconnect();
