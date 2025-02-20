@@ -74,8 +74,8 @@ function saveSettings(settings) {
 function createFloatingIcon() {
     const icon = document.createElement('div');
     icon.style.position = 'fixed';
-    icon.style.top = '10px'; // Set initial top position
-    icon.style.left = '10px'; // Set initial left position
+    icon.style.top = '10px'; 
+    icon.style.left = '10px'; 
     icon.style.width = '40px';
     icon.style.height = '40px';
     icon.style.backgroundColor = '#ff9900';
@@ -92,7 +92,6 @@ function createFloatingIcon() {
 
     document.body.appendChild(icon);
 
-    // Make the icon draggable
     makeDraggable(icon);
 }
 
@@ -101,20 +100,20 @@ function createFloatingMenu() {
     const menu = document.createElement('div');
     menu.id = 'floatingMenu';
     menu.style.position = 'fixed';
-    menu.style.top = '60px'; // Set initial top position
-    menu.style.left = '10px'; // Set initial left position
+    menu.style.top = '60px'; 
+    menu.style.left = '10px'; 
     menu.style.padding = '20px';
     menu.style.backgroundColor = '#232f3e';
     menu.style.color = '#f2f2f2';
     menu.style.borderRadius = '10px';
     menu.style.zIndex = '9999';
-    menu.style.width = '350px'; // Increased width
+    menu.style.width = '350px'; 
     menu.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
     menu.style.display = 'none';
 
     const handle = document.createElement('div');
-    handle.style.cursor = 'move'; // Change cursor to indicate draggable
-    handle.style.marginBottom = '15px'; // Increased margin
+    handle.style.cursor = 'move'; 
+    handle.style.marginBottom = '15px'; 
     handle.style.padding = '10px';
     handle.style.backgroundColor = '#146eb4';
     handle.style.color = '#f2f2f2';
@@ -123,14 +122,14 @@ function createFloatingMenu() {
 
     const button = document.createElement('button');
     button.textContent = 'Close Menu';
-    button.style.marginBottom = '15px'; // Increased margin
+    button.style.marginBottom = '15px'; 
     button.style.padding = '10px';
     button.style.backgroundColor = '#ff9900';
     button.style.color = '#000000';
     button.style.border = 'none';
     button.style.borderRadius = '5px';
     button.style.cursor = 'pointer';
-    button.style.width = '100%'; // Full width button
+    button.style.width = '100%'; 
     button.style.boxSizing = 'border-box';
     button.onmouseover = () => button.style.backgroundColor = '#e68a00';
     button.onmouseout = () => button.style.backgroundColor = '#ff9900';
@@ -143,7 +142,7 @@ function createFloatingMenu() {
     const tabs = document.createElement('div');
     tabs.style.display = 'flex';
     tabs.style.justifyContent = 'space-around';
-    tabs.style.marginBottom = '15px'; // Increased margin
+    tabs.style.marginBottom = '15px'; 
 
     const keywordTab = document.createElement('button');
     keywordTab.textContent = 'Keywords';
@@ -154,7 +153,7 @@ function createFloatingMenu() {
     keywordTab.style.border = 'none';
     keywordTab.style.borderRadius = '5px';
     keywordTab.style.cursor = 'pointer';
-    keywordTab.style.marginRight = '5px'; // Added margin between tabs
+    keywordTab.style.marginRight = '5px'; 
     keywordTab.onmouseover = () => keywordTab.style.backgroundColor = '#125a9e';
     keywordTab.onmouseout = () => keywordTab.style.backgroundColor = '#146eb4';
     keywordTab.onclick = () => showTab('keywordsTab');
@@ -173,26 +172,10 @@ function createFloatingMenu() {
     alertsTab.onclick = () => showTab('alertsTab');
 
 
-          // AHT Tracking tab
-    /*
-    const ahtTrackingTab = document.createElement('button');
-    ahtTrackingTab.textContent = 'AHT Tracking';
-    ahtTrackingTab.style.flex = '1';
-    ahtTrackingTab.style.padding = '10px';
-    ahtTrackingTab.style.backgroundColor = '#146eb4';
-    ahtTrackingTab.style.color = '#f2f2f2';
-    ahtTrackingTab.style.border = 'none';
-    ahtTrackingTab.style.borderRadius = '5px';
-    ahtTrackingTab.style.cursor = 'pointer';
-    ahtTrackingTab.style.marginLeft = '5px'; // Added margin between tabs
-    ahtTrackingTab.onmouseover = () => ahtTrackingTab.style.backgroundColor = '#125a9e';
-    ahtTrackingTab.onmouseout = () => ahtTrackingTab.style.backgroundColor = '#146eb4';
-    ahtTrackingTab.onclick = () => showTab('ahtTrackingTab');
-    */
 
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
-    //tabs.appendChild(ahtTrackingTab);
+  
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -200,14 +183,14 @@ function createFloatingMenu() {
 
     const keywordInputLabel = document.createElement('label');
     keywordInputLabel.textContent = 'Keyword: ';
-    keywordInputLabel.style.display = 'block'; // Block display for better spacing
-    keywordInputLabel.style.marginBottom = '5px'; // Added margin
+    keywordInputLabel.style.display = 'block'; 
+    keywordInputLabel.style.marginBottom = '5px'; 
     keywordsTab.appendChild(keywordInputLabel);
 
     const keywordInput = document.createElement('input');
     keywordInput.type = 'text';
     keywordInput.id = 'keywordInput';
-    keywordInput.style.marginBottom = '15px'; // Increased margin
+    keywordInput.style.marginBottom = '15px'; 
     keywordInput.style.padding = '10px';
     keywordInput.style.border = '1px solid #146eb4';
     keywordInput.style.borderRadius = '5px';
@@ -216,14 +199,14 @@ function createFloatingMenu() {
 
     const colorInputLabel = document.createElement('label');
     colorInputLabel.textContent = ' Color: ';
-    colorInputLabel.style.display = 'block'; // Block display for better spacing
-    colorInputLabel.style.marginBottom = '5px'; // Added margin
+    colorInputLabel.style.display = 'block'; 
+    colorInputLabel.style.marginBottom = '5px'; 
     keywordsTab.appendChild(colorInputLabel);
 
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
-    colorInput.style.marginBottom = '15px'; // Increased margin
+    colorInput.style.marginBottom = '15px'; 
     colorInput.style.border = '1px solid #146eb4';
     colorInput.style.borderRadius = '5px';
     colorInput.style.width = '100%';
@@ -232,14 +215,14 @@ function createFloatingMenu() {
     const addButton = document.createElement('button');
     addButton.textContent = 'Add/Update Keyword';
     addButton.id = 'addButton';
-    addButton.style.marginBottom = '15px'; // Increased margin
+    addButton.style.marginBottom = '15px'; 
     addButton.style.padding = '10px';
     addButton.style.backgroundColor = '#ff9900';
     addButton.style.color = '#000000';
     addButton.style.border = 'none';
     addButton.style.borderRadius = '5px';
     addButton.style.cursor = 'pointer';
-    addButton.style.width = '100%'; // Full width button
+    addButton.style.width = '100%'; 
     addButton.style.boxSizing = 'border-box';
     addButton.onmouseover = () => addButton.style.backgroundColor = '#e68a00';
     addButton.onmouseout = () => addButton.style.backgroundColor = '#ff9900';
@@ -248,7 +231,7 @@ function createFloatingMenu() {
     const keywordList = document.createElement('ul');
     keywordList.id = 'keywordList';
     keywordList.style.padding = '0';
-    keywordList.style.listStyle = 'none'; // Remove default list styling
+    keywordList.style.listStyle = 'none'; 
     keywordsTab.appendChild(keywordList);
 
     const alertsTabContent = document.createElement('div');
@@ -258,20 +241,20 @@ function createFloatingMenu() {
     const alertToggleLabel = document.createElement('label');
     alertToggleLabel.textContent = 'WIM Alert: ';
     alertToggleLabel.style.display = 'none';
-    alertToggleLabel.style.marginBottom = '5px'; // Added margin
+    alertToggleLabel.style.marginBottom = '5px'; 
     alertsTabContent.appendChild(alertToggleLabel);
 
     const alertToggle = document.createElement('input');
     alertToggle.type = 'checkbox';
     alertToggle.id = 'alertToggle';
     alertToggle.style.display = 'none';
-    alertToggle.style.marginBottom = '15px'; // Increased margin
+    alertToggle.style.marginBottom = '15px'; 
     alertsTabContent.appendChild(alertToggle);
 
     const soundSelectLabel = document.createElement('label');
     soundSelectLabel.textContent = ' Sound: ';
-    soundSelectLabel.style.display = 'block'; // Block display for better spacing
-    soundSelectLabel.style.marginBottom = '5px'; // Added margin
+    soundSelectLabel.style.display = 'block'; 
+    soundSelectLabel.style.marginBottom = '5px'; 
     alertsTabContent.appendChild(soundSelectLabel);
 
     // Create a select element for sound options
