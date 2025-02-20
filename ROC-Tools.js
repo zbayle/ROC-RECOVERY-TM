@@ -72,7 +72,15 @@ function saveSettings(settings) {
 
 // Function to create and insert the floating icon
 function createFloatingIcon() {
+    // Check if the icon already exists
+    if (document.getElementById('floatingIcon')) {
+        console.warn('Floating icon already exists. Skipping creation.');
+        return;
+    }
+
+    console.log('Creating floating icon...');
     const icon = document.createElement('div');
+    icon.id = 'floatingIcon'; // Add an ID to the icon for future reference
     icon.style.position = 'fixed';
     icon.style.top = '10px'; 
     icon.style.left = '10px'; 
