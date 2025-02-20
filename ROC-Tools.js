@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools Tomy
 // @namespace    https://amazon.com
-// @version      3.3.tomy
+// @version      3.4.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        *://*/*
@@ -77,6 +77,10 @@ function saveSettings(settings) {
 
 // Function to create and insert the floating icon
 function createFloatingIcon() {
+    if (window.top !== window.self) {
+        return;
+    }
+    // Check if the body contains an element with the class "phone-container"
     const icon = document.createElement('div');
     icon.style.position = 'fixed';
     icon.style.top = '10px'; // Set initial top position
@@ -103,6 +107,11 @@ function createFloatingIcon() {
 
 // Function to create and insert the floating menu
 function createFloatingMenu() {
+    // Ensure this script runs only in the top window
+    if (window.top !== window.self) {
+        return;
+    }
+
     const menu = document.createElement('div');
     menu.id = 'floatingMenu';
     menu.style.position = 'fixed';
@@ -248,6 +257,20 @@ function createFloatingMenu() {
     alertsTabContent.id = 'alertsTab';
     alertsTabContent.style.display = 'none';
 
+    // Add a label for the WIM alert toggle
+    const alertToggleLabel = document.createElement('label');
+    alertToggleLabel.textContent = ' Enable WIM Alerts: ';
+    alertToggleLabel.style.display = 'block';
+    alertToggleLabel.style.marginBottom = '5px';
+    alertsTabContent.appendChild(alertToggleLabel);
+
+    // Create a checkbox for enabling WIM alerts
+    const alertToggle = document.createElement('input');
+    alertToggle.type = 'checkbox';
+    alertToggle.id = 'alertToggle';
+    alertToggle.style.marginBottom = '15px';
+    alertsTabContent.appendChild(alertToggle);
+
     // Add a label for the sound selection
     const soundSelectLabel = document.createElement('label');
     soundSelectLabel.textContent = ' Sound: ';
@@ -347,6 +370,12 @@ function createFloatingMenu() {
     testButton.onclick = () => {
         const selectedSound = document.getElementById('soundSelect').value;
         playSound(selectedSound);
+        // Add the canvas to the floating menu
+        const canvas = document.createElement('canvas');
+        canvas.id = 'audioCanvas';
+        canvas.width = 300;
+        canvas.height = 100;
+        alertsTabContent.appendChild(canvas);
     };
     alertsTabContent.appendChild(testButton);
 
@@ -375,14 +404,6 @@ function createFloatingMenu() {
     // Make the menu draggable using the handle
     makeDraggable(menu, handle);
 
-    // Load the alert toggle state
-    const alertEnabled = GM_getValue('alertEnabled', true);
-    const alertToggle = document.getElementById('alertToggle');
-    if (alertToggle) {
-        alertToggle.checked = true;
-        alertToggle.disabled = true;
-    }
-
     // Load the selected sound and volume
     const selectedSound = GM_getValue('selectedSound', 'beep');
     soundSelect.value = selectedSound;
@@ -396,19 +417,20 @@ function createFloatingMenu() {
         GM_setValue('volume', volumeSlider.value);
     });
 
+    // Load the alert toggle state
+    const alertEnabled = GM_getValue('alertEnabled', true);
+    if (alertToggle) {
+        alertToggle.checked = alertEnabled;
+        alertToggle.addEventListener('change', () => {
+            GM_setValue('alertEnabled', alertToggle.checked);
+        });
+    }
 
     // Add an audio element for the alert sound
     const audio = document.createElement('audio');
     audio.id = 'alertSound';
     audio.type = 'audio/mpeg';
     document.body.appendChild(audio);
-
-    // Add a canvas element for the audio visualization
-    const canvas = document.createElement('canvas');
-    canvas.id = 'audioCanvas';
-    canvas.width = 300;
-    canvas.height = 100;
-    document.body.appendChild(canvas);
 }
 
 // Load the alert toggle state
@@ -420,13 +442,13 @@ if (alertToggle) {
 }
 
 
-// Define the loadAlerts function
+// Load the alert toggle state
 function loadAlerts() {
     const settings = loadSettings();
 
     const alertToggle = document.getElementById('alertToggle');
     if (alertToggle) {
-        alertToggle.checked = true;
+        alertToggle.checked = settings.alertEnabled;
         alertToggle.disabled = true;
     }
 
@@ -457,6 +479,7 @@ function loadAlerts() {
         });
     }
 }
+
 
 
 // Function to play sound using Web Audio API
@@ -1143,7 +1166,7 @@ window.addEventListener('load', function () {
     const alertToggle = document.getElementById('alertToggle');
     if (alertToggle) {
         alertToggle.checked = true;
-        alertToggle.disabled = true;
+        alertToggle.disabled = false;
     } else {
         console.error('Alert toggle not found!');
     }
@@ -1165,6 +1188,12 @@ function toggleMenu() {
         } else {
             menu.style.display = 'none';
             console.log("Menu is now hidden.");
+            // Remove the canvas when the menu is closed
+            const canvas = document.getElementById('audioCanvas');
+            if (canvas) {
+                canvas.remove();
+                console.log("Canvas removed from the floating menu.");
+            }
         }
     } else {
         console.error('Floating menu element not found!');
