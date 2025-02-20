@@ -172,109 +172,105 @@ function createFloatingMenu() {
     alertsTab.onclick = () => showTab('alertsTab');
 
 
-          // AHT Tracking tab
-    /*
-    const ahtTrackingTab = document.createElement('button');
-    ahtTrackingTab.textContent = 'AHT Tracking';
-    ahtTrackingTab.style.flex = '1';
-    ahtTrackingTab.style.padding = '10px';
-    ahtTrackingTab.style.backgroundColor = '#146eb4';
-    ahtTrackingTab.style.color = '#f2f2f2';
-    ahtTrackingTab.style.border = 'none';
-    ahtTrackingTab.style.borderRadius = '5px';
-    ahtTrackingTab.style.cursor = 'pointer';
-    ahtTrackingTab.style.marginLeft = '5px'; // Added margin between tabs
-    ahtTrackingTab.onmouseover = () => ahtTrackingTab.style.backgroundColor = '#125a9e';
-    ahtTrackingTab.onmouseout = () => ahtTrackingTab.style.backgroundColor = '#146eb4';
-    ahtTrackingTab.onclick = () => showTab('ahtTrackingTab');
-    */
+
 
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
-    //tabs.appendChild(ahtTrackingTab);
+
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
     keywordsTab.style.display = 'block';
 
+    // Add a label for the keyword input
     const keywordInputLabel = document.createElement('label');
     keywordInputLabel.textContent = 'Keyword: ';
-    keywordInputLabel.style.display = 'block'; // Block display for better spacing
-    keywordInputLabel.style.marginBottom = '5px'; // Added margin
+    keywordInputLabel.style.display = 'block'; 
+    keywordInputLabel.style.marginBottom = '5px'; 
     keywordsTab.appendChild(keywordInputLabel);
 
+    // Create an input field for the keyword
     const keywordInput = document.createElement('input');
     keywordInput.type = 'text';
     keywordInput.id = 'keywordInput';
-    keywordInput.style.marginBottom = '15px'; // Increased margin
+    keywordInput.style.marginBottom = '15px'; 
     keywordInput.style.padding = '10px';
     keywordInput.style.border = '1px solid #146eb4';
     keywordInput.style.borderRadius = '5px';
     keywordInput.style.width = '100%';
     keywordsTab.appendChild(keywordInput);
 
+    // Add a label for the color input
     const colorInputLabel = document.createElement('label');
     colorInputLabel.textContent = ' Color: ';
-    colorInputLabel.style.display = 'block'; // Block display for better spacing
-    colorInputLabel.style.marginBottom = '5px'; // Added margin
+    colorInputLabel.style.display = 'block'; 
+    colorInputLabel.style.marginBottom = '5px'; 
     keywordsTab.appendChild(colorInputLabel);
 
+    // Create a color input for selecting the color
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
-    colorInput.style.marginBottom = '15px'; // Increased margin
+    colorInput.style.marginBottom = '15px'; 
     colorInput.style.border = '1px solid #146eb4';
     colorInput.style.borderRadius = '5px';
     colorInput.style.width = '100%';
     keywordsTab.appendChild(colorInput);
 
+    // Add a button to add/update the keyword and color
     const addButton = document.createElement('button');
     addButton.textContent = 'Add/Update Keyword';
     addButton.id = 'addButton';
-    addButton.style.marginBottom = '15px'; // Increased margin
+    addButton.style.marginBottom = '15px'; 
     addButton.style.padding = '10px';
     addButton.style.backgroundColor = '#ff9900';
     addButton.style.color = '#000000';
     addButton.style.border = 'none';
     addButton.style.borderRadius = '5px';
     addButton.style.cursor = 'pointer';
-    addButton.style.width = '100%'; // Full width button
+    addButton.style.width = '100%'; 
     addButton.style.boxSizing = 'border-box';
     addButton.onmouseover = () => addButton.style.backgroundColor = '#e68a00';
     addButton.onmouseout = () => addButton.style.backgroundColor = '#ff9900';
     keywordsTab.appendChild(addButton);
 
+    // Add event listener to the add button
     const keywordList = document.createElement('ul');
     keywordList.id = 'keywordList';
     keywordList.style.padding = '0';
-    keywordList.style.listStyle = 'none'; // Remove default list styling
+    keywordList.style.listStyle = 'none';
     keywordsTab.appendChild(keywordList);
 
+    // Add event listener to the add button
     const alertsTabContent = document.createElement('div');
     alertsTabContent.id = 'alertsTab';
     alertsTabContent.style.display = 'none';
 
+    // Add a label for the alert toggle
     const alertToggleLabel = document.createElement('label');
     alertToggleLabel.textContent = 'WIM Alert: ';
-    alertToggleLabel.style.display = 'block'; // Block display for better spacing
-    alertToggleLabel.style.marginBottom = '5px'; // Added margin
+    alertToggleLabel.style.display = 'block'; 
+    alertToggleLabel.style.marginBottom = '5px'; 
     alertsTabContent.appendChild(alertToggleLabel);
 
+    // Create a checkbox for enabling/disabling the alert
     const alertToggle = document.createElement('input');
     alertToggle.type = 'checkbox';
     alertToggle.id = 'alertToggle';
-    alertToggle.style.marginBottom = '15px'; // Increased margin
+    alertToggle.style.marginBottom = '15px'; 
     alertsTabContent.appendChild(alertToggle);
 
+    // Add a label for the sound selection
     const soundSelectLabel = document.createElement('label');
     soundSelectLabel.textContent = ' Sound: ';
-    soundSelectLabel.style.display = 'block'; // Block display for better spacing
-    soundSelectLabel.style.marginBottom = '5px'; // Added margin
+    soundSelectLabel.style.display = 'block'; 
+    soundSelectLabel.style.marginBottom = '5px'; 
     alertsTabContent.appendChild(soundSelectLabel);
 
+    // Create a select element for sound options
     const soundSelect = document.createElement('select');
     soundSelect.id = 'soundSelect';
-    soundSelect.style.marginBottom = '15px'; // Increased margin
+    soundSelect.style.marginBottom = '15px'; 
     soundSelect.style.padding = '10px';
     soundSelect.style.border = '1px solid #146eb4';
     soundSelect.style.borderRadius = '5px';
@@ -292,20 +288,22 @@ function createFloatingMenu() {
     });
     alertsTabContent.appendChild(soundSelect);
 
+    // Add a label for the volume slider
     const volumeLabel = document.createElement('label');
     volumeLabel.textContent = ' Volume: ';
-    volumeLabel.style.display = 'block'; // Block display for better spacing
-    volumeLabel.style.marginBottom = '5px'; // Added margin
+    volumeLabel.style.display = 'block'; 
+    volumeLabel.style.marginBottom = '5px'; 
     alertsTabContent.appendChild(volumeLabel);
 
+    // Create a slider for volume control
     const volumeSlider = document.createElement('input');
     volumeSlider.type = 'range';
     volumeSlider.id = 'volumeSlider';
     volumeSlider.min = '0';
     volumeSlider.max = '1';
     volumeSlider.step = '0.01';
-    volumeSlider.value = '0.5'; // Default volume
-    volumeSlider.style.marginBottom = '15px'; // Increased margin
+    volumeSlider.value = '0.5'; 
+    volumeSlider.style.marginBottom = '15px'; 
     volumeSlider.style.width = '100%';
     alertsTabContent.appendChild(volumeSlider);
 
@@ -319,7 +317,7 @@ function createFloatingMenu() {
     testButton.style.border = 'none';
     testButton.style.borderRadius = '5px';
     testButton.style.cursor = 'pointer';
-    testButton.style.width = '100%'; // Full width button
+    testButton.style.width = '100%';
     testButton.style.boxSizing = 'border-box';
     testButton.onmouseover = () => testButton.style.backgroundColor = '#e68a00';
     testButton.onmouseout = () => testButton.style.backgroundColor = '#ff9900';
@@ -329,7 +327,8 @@ function createFloatingMenu() {
     };
     alertsTabContent.appendChild(testButton);
 
-    // Add the checkbox for auto-assigning WIM
+    // Add the checkbox for auto-assigning WIM DO NOT REMOVE OR USE THIS IS FOR TESTING PURPOSES ONLY
+    // This is a test feature and will be removed in the future
     /*
     const autoAssignLabel = document.createElement('label');
     autoAssignLabel.textContent = 'Auto-Assign WIM: ';
@@ -344,15 +343,16 @@ function createFloatingMenu() {
     alertsTabContent.appendChild(autoAssignCheckbox);
     */
 
-
+    
     const ahtTrackingTabContent = document.createElement('div');
     ahtTrackingTabContent.id = 'ahtTrackingTab';
     ahtTrackingTabContent.style.display = 'none';
 
+    // Add a label for the AHT tracking
     const ahtTrackingList = document.createElement('ul');
     ahtTrackingList.id = 'ahtTrackingList';
     ahtTrackingList.style.padding = '0';
-    ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
+    ahtTrackingList.style.listStyle = 'none'; 
     ahtTrackingTabContent.appendChild(ahtTrackingList);
 
     menuContent.appendChild(tabs);
@@ -548,7 +548,7 @@ function showTab(tabId) {
 }
 
 function trackWIM(vrid, wimLink) {
-    console.log("Tracking WIM:", vrid, wimLink); // Debug log
+    //console.log("Tracking WIM:", vrid, wimLink); // Debug log
     const ahtTrackingList = document.getElementById('ahtTrackingList');
     const listItem = document.createElement('li');
     listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink}`;
@@ -802,6 +802,8 @@ function removeKeyword(index) {
     loadKeywords();
     highlightKeywords(settings.keywords); // Ensure keywords are highlighted after removing
 }
+
+
 
 // Highlight keywords in page content
 function highlightKeywords(keywords) {
