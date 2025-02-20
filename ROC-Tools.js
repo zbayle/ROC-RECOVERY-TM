@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools Tomy
 // @namespace    https://amazon.com
-// @version      3.5.tomy
+// @version      3.6.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        *://*/*
@@ -26,7 +26,7 @@ if (typeof GM_getValue === 'undefined') {
         return value ? JSON.parse(value) : defaultValue;
     };
 } else {
-    // console.log('GM_getValue is available.');
+    console.log('GM_getValue is available.');
 }
 
 if (typeof GM_setValue === 'undefined') {
@@ -51,8 +51,7 @@ function loadSettings() {
         autoAssignEnabled: false,
         keywords: [],
         selectedSound: 'beep',
-        volume: '0.5',
-        visualizationType: 'eclipse'
+        volume: '0.5'
     };
 
     let settings = GM_getValue('settings', JSON.stringify(defaultSettings));
@@ -71,16 +70,8 @@ function saveSettings(settings) {
     GM_setValue('settings', JSON.stringify(settings));
 }
 
-function saveSettings(settings) {
-    GM_setValue('settings', JSON.stringify(settings));
-}
-
 // Function to create and insert the floating icon
 function createFloatingIcon() {
-    if (window.top !== window.self) {
-        return;
-    }
-    // Check if the body contains an element with the class "phone-container"
     const icon = document.createElement('div');
     icon.style.position = 'fixed';
     icon.style.top = '10px'; // Set initial top position
@@ -105,12 +96,8 @@ function createFloatingIcon() {
     makeDraggable(icon);
 }
 
+// Function to create and insert the floating menu
 function createFloatingMenu() {
-    // Ensure this script runs only in the top window
-    if (window.top !== window.self) {
-        return;
-    }
-
     const menu = document.createElement('div');
     menu.id = 'floatingMenu';
     menu.style.position = 'fixed';
@@ -185,96 +172,106 @@ function createFloatingMenu() {
     alertsTab.onmouseout = () => alertsTab.style.backgroundColor = '#146eb4';
     alertsTab.onclick = () => showTab('alertsTab');
 
+
+          // AHT Tracking tab
+    /*
+    const ahtTrackingTab = document.createElement('button');
+    ahtTrackingTab.textContent = 'AHT Tracking';
+    ahtTrackingTab.style.flex = '1';
+    ahtTrackingTab.style.padding = '10px';
+    ahtTrackingTab.style.backgroundColor = '#146eb4';
+    ahtTrackingTab.style.color = '#f2f2f2';
+    ahtTrackingTab.style.border = 'none';
+    ahtTrackingTab.style.borderRadius = '5px';
+    ahtTrackingTab.style.cursor = 'pointer';
+    ahtTrackingTab.style.marginLeft = '5px'; // Added margin between tabs
+    ahtTrackingTab.onmouseover = () => ahtTrackingTab.style.backgroundColor = '#125a9e';
+    ahtTrackingTab.onmouseout = () => ahtTrackingTab.style.backgroundColor = '#146eb4';
+    ahtTrackingTab.onclick = () => showTab('ahtTrackingTab');
+    */
+
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
+    //tabs.appendChild(ahtTrackingTab);
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
     keywordsTab.style.display = 'block';
 
-    // Add a label for the keyword input
     const keywordInputLabel = document.createElement('label');
     keywordInputLabel.textContent = 'Keyword: ';
-    keywordInputLabel.style.display = 'block'; 
-    keywordInputLabel.style.marginBottom = '5px'; 
+    keywordInputLabel.style.display = 'block'; // Block display for better spacing
+    keywordInputLabel.style.marginBottom = '5px'; // Added margin
     keywordsTab.appendChild(keywordInputLabel);
 
-    // Create an input field for the keyword
     const keywordInput = document.createElement('input');
     keywordInput.type = 'text';
     keywordInput.id = 'keywordInput';
-    keywordInput.style.marginBottom = '15px'; 
+    keywordInput.style.marginBottom = '15px'; // Increased margin
     keywordInput.style.padding = '10px';
     keywordInput.style.border = '1px solid #146eb4';
     keywordInput.style.borderRadius = '5px';
     keywordInput.style.width = '100%';
     keywordsTab.appendChild(keywordInput);
 
-    // Add a label for the color input
     const colorInputLabel = document.createElement('label');
     colorInputLabel.textContent = ' Color: ';
-    colorInputLabel.style.display = 'block'; 
-    colorInputLabel.style.marginBottom = '5px'; 
+    colorInputLabel.style.display = 'block'; // Block display for better spacing
+    colorInputLabel.style.marginBottom = '5px'; // Added margin
     keywordsTab.appendChild(colorInputLabel);
 
-    // Create a color input for selecting the color
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.id = 'colorInput';
-    colorInput.style.marginBottom = '15px'; 
+    colorInput.style.marginBottom = '15px'; // Increased margin
     colorInput.style.border = '1px solid #146eb4';
     colorInput.style.borderRadius = '5px';
     colorInput.style.width = '100%';
     keywordsTab.appendChild(colorInput);
 
-    // Add a button to add/update the keyword and color
     const addButton = document.createElement('button');
     addButton.textContent = 'Add/Update Keyword';
     addButton.id = 'addButton';
-    addButton.style.marginBottom = '15px'; 
+    addButton.style.marginBottom = '15px'; // Increased margin
     addButton.style.padding = '10px';
     addButton.style.backgroundColor = '#ff9900';
     addButton.style.color = '#000000';
     addButton.style.border = 'none';
     addButton.style.borderRadius = '5px';
     addButton.style.cursor = 'pointer';
-    addButton.style.width = '100%'; 
+    addButton.style.width = '100%'; // Full width button
     addButton.style.boxSizing = 'border-box';
     addButton.onmouseover = () => addButton.style.backgroundColor = '#e68a00';
     addButton.onmouseout = () => addButton.style.backgroundColor = '#ff9900';
     keywordsTab.appendChild(addButton);
 
-    // Add event listener to the add button
     const keywordList = document.createElement('ul');
     keywordList.id = 'keywordList';
     keywordList.style.padding = '0';
-    keywordList.style.listStyle = 'none';
+    keywordList.style.listStyle = 'none'; // Remove default list styling
     keywordsTab.appendChild(keywordList);
 
-    // Define alertsTabContent here
     const alertsTabContent = document.createElement('div');
     alertsTabContent.id = 'alertsTab';
     alertsTabContent.style.display = 'none';
 
-    // Add a label for the WIM alert toggle
     const alertToggleLabel = document.createElement('label');
-    alertToggleLabel.textContent = ' Enable WIM Alerts: ';
-    alertToggleLabel.style.display = 'block';
-    alertToggleLabel.style.marginBottom = '5px';
+    alertToggleLabel.textContent = 'WIM Alert: ';
+    alertToggleLabel.style.display = 'none';
+    alertToggleLabel.style.marginBottom = '5px'; // Added margin
     alertsTabContent.appendChild(alertToggleLabel);
 
-    // Create a checkbox for enabling WIM alerts
     const alertToggle = document.createElement('input');
     alertToggle.type = 'checkbox';
     alertToggle.id = 'alertToggle';
-    alertToggle.style.marginBottom = '15px';
+    alertToggle.style.display = 'none';
+    alertToggle.style.marginBottom = '15px'; // Increased margin
     alertsTabContent.appendChild(alertToggle);
 
-    // Add a label for the sound selection
     const soundSelectLabel = document.createElement('label');
     soundSelectLabel.textContent = ' Sound: ';
-    soundSelectLabel.style.display = 'block'; 
-    soundSelectLabel.style.marginBottom = '5px'; 
+    soundSelectLabel.style.display = 'block'; // Block display for better spacing
+    soundSelectLabel.style.marginBottom = '5px'; // Added margin
     alertsTabContent.appendChild(soundSelectLabel);
 
     // Create a select element for sound options
@@ -301,54 +298,20 @@ function createFloatingMenu() {
     });
     alertsTabContent.appendChild(soundSelect);
 
-    // Add a label for the visualization type selection
-    const visualizationSelectLabel = document.createElement('label');
-    visualizationSelectLabel.textContent = ' Visualization Type: ';
-    visualizationSelectLabel.style.display = 'block';
-    visualizationSelectLabel.style.marginBottom = '5px';
-    alertsTabContent.appendChild(visualizationSelectLabel);
-
-    // Create a select element for visualization type options
-    const visualizationSelect = document.createElement('select');
-    visualizationSelect.id = 'visualizationSelect';
-    visualizationSelect.style.display = 'block';
-    visualizationSelect.style.marginBottom = '15px';
-    visualizationSelect.style.padding = '10px';
-    visualizationSelect.style.border = '1px solid #146eb4';
-    visualizationSelect.style.borderRadius = '5px';
-    visualizationSelect.style.width = '100%';
-    const visualizations = [
-        { name: 'Eclipse', value: 'eclipse' },
-    ];
-    visualizations.forEach(visualization => {
-        const option = document.createElement('option');
-        option.value = visualization.value;
-        option.textContent = visualization.name;
-        visualizationSelect.appendChild(option);
-    });
-    alertsTabContent.appendChild(visualizationSelect);
-    const visualizationType = GM_getValue('visualizationType', 'eclipse');
-    visualizationSelect.value = visualizationType;
-    visualizationSelect.addEventListener('change', () => {
-        GM_setValue('visualizationType', visualizationSelect.value);
-    });
-
-    // Add a label for the volume slider
     const volumeLabel = document.createElement('label');
     volumeLabel.textContent = ' Volume: ';
-    volumeLabel.style.display = 'block'; 
-    volumeLabel.style.marginBottom = '5px'; 
+    volumeLabel.style.display = 'block'; // Block display for better spacing
+    volumeLabel.style.marginBottom = '5px'; // Added margin
     alertsTabContent.appendChild(volumeLabel);
 
-    // Create a slider for volume control
     const volumeSlider = document.createElement('input');
     volumeSlider.type = 'range';
     volumeSlider.id = 'volumeSlider';
     volumeSlider.min = '0';
     volumeSlider.max = '1';
     volumeSlider.step = '0.01';
-    volumeSlider.value = '0.5'; 
-    volumeSlider.style.marginBottom = '15px'; 
+    volumeSlider.value = '0.5'; // Default volume
+    volumeSlider.style.marginBottom = '15px'; // Increased margin
     volumeSlider.style.width = '100%';
     alertsTabContent.appendChild(volumeSlider);
 
@@ -362,32 +325,40 @@ function createFloatingMenu() {
     testButton.style.border = 'none';
     testButton.style.borderRadius = '5px';
     testButton.style.cursor = 'pointer';
-    testButton.style.width = '100%';
+    testButton.style.width = '100%'; // Full width button
     testButton.style.boxSizing = 'border-box';
     testButton.onmouseover = () => testButton.style.backgroundColor = '#e68a00';
     testButton.onmouseout = () => testButton.style.backgroundColor = '#ff9900';
     testButton.onclick = () => {
         const selectedSound = document.getElementById('soundSelect').value;
         playSound(selectedSound);
-        // Add the canvas to the floating menu
-        const canvas = document.createElement('canvas');
-        canvas.id = 'audioCanvas';
-        canvas.width = 300;
-        canvas.height = 300;
-        canvas.style.borderRadius = '40px';
-        alertsTabContent.appendChild(canvas);
     };
     alertsTabContent.appendChild(testButton);
+
+    // Add the checkbox for auto-assigning WIM
+    /*
+    const autoAssignLabel = document.createElement('label');
+    autoAssignLabel.textContent = 'Auto-Assign WIM: ';
+    autoAssignLabel.style.display = 'block'; // Block display for better spacing
+    autoAssignLabel.style.marginBottom = '5px'; // Added margin
+    alertsTabContent.appendChild(autoAssignLabel);
+
+    const autoAssignCheckbox = document.createElement('input');
+    autoAssignCheckbox.type = 'checkbox';
+    autoAssignCheckbox.id = 'autoAssignCheckbox';
+    autoAssignCheckbox.style.marginBottom = '15px'; // Increased margin
+    alertsTabContent.appendChild(autoAssignCheckbox);
+    */
+
 
     const ahtTrackingTabContent = document.createElement('div');
     ahtTrackingTabContent.id = 'ahtTrackingTab';
     ahtTrackingTabContent.style.display = 'none';
 
-    // Add a label for the AHT tracking
     const ahtTrackingList = document.createElement('ul');
     ahtTrackingList.id = 'ahtTrackingList';
     ahtTrackingList.style.padding = '0';
-    ahtTrackingList.style.listStyle = 'none'; 
+    ahtTrackingList.style.listStyle = 'none'; // Remove default list styling
     ahtTrackingTabContent.appendChild(ahtTrackingList);
 
     menuContent.appendChild(tabs);
@@ -404,6 +375,18 @@ function createFloatingMenu() {
     // Make the menu draggable using the handle
     makeDraggable(menu, handle);
 
+    // Load the alert toggle state
+    const alertEnabled = GM_getValue('alertEnabled', true);
+    alertToggle.checked = alertEnabled;
+    alertToggle.addEventListener('change', () => {
+        GM_setValue('alertEnabled', alertToggle.checked);
+        if (alertToggle.checked) {
+            observeWIMAlerts();
+        } else {
+            stopObservingWIMAlerts();
+        }
+    });
+
     // Load the selected sound and volume
     const selectedSound = GM_getValue('selectedSound', 'beep');
     soundSelect.value = selectedSound;
@@ -417,14 +400,15 @@ function createFloatingMenu() {
         GM_setValue('volume', volumeSlider.value);
     });
 
-    // Load the alert toggle state
-    const alertEnabled = GM_getValue('alertEnabled', true);
-    if (alertToggle) {
-        alertToggle.checked = alertEnabled;
-        alertToggle.addEventListener('change', () => {
-            GM_setValue('alertEnabled', alertToggle.checked);
-        });
-    }
+    // Load the auto-assign checkbox state
+    /*
+    const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
+    autoAssignCheckbox.checked = autoAssignEnabled;
+    autoAssignCheckbox.addEventListener('change', () => {
+        GM_setValue('autoAssignEnabled', autoAssignCheckbox.checked);
+        console.log(`Auto-assign enabled: ${autoAssignCheckbox.checked}`);
+    });
+    */
 
     // Add an audio element for the alert sound
     const audio = document.createElement('audio');
@@ -433,12 +417,23 @@ function createFloatingMenu() {
     document.body.appendChild(audio);
 }
 
-// Load the alert toggle state
-const alertEnabled = GM_getValue('alertEnabled', true);
-
-// Load the alert toggle state
+// Define the loadAlerts function
 function loadAlerts() {
     const settings = loadSettings();
+
+    const alertToggle = document.getElementById('alertToggle');
+    if (alertToggle) {
+        alertToggle.checked = settings.alertEnabled;
+        alertToggle.addEventListener('change', () => {
+            settings.alertEnabled = alertToggle.checked;
+            saveSettings(settings);
+            if (alertToggle.checked) {
+                observeWIMAlerts();
+            } else {
+                stopObservingWIMAlerts();
+            }
+        });
+    }
 
     const soundSelect = document.getElementById('soundSelect');
     if (soundSelect) {
@@ -467,8 +462,6 @@ function loadAlerts() {
         });
     }
 }
-
-
 
 // Function to play sound using Web Audio API
 function playSound(type) {
@@ -565,100 +558,6 @@ function playSound(type) {
     }
 }
 
-// Function to handle canvas drawing and visualization
-function handleCanvasVisualization() {
-    const analyser = audioCtx.createAnalyser();
-    const gainNode = audioCtx.createGain();
-    gainNode.connect(analyser);
-    analyser.fftSize = 256;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
-    const canvas = document.getElementById('audioCanvas');
-    if (!canvas) {
-        console.error('Canvas element not found!');
-        return;
-    }
-    const canvasCtx = canvas.getContext('2d');
-    if (!canvasCtx) {
-        console.error('Failed to get canvas context!');
-        return;
-    }
-
-    function draw() {
-        requestAnimationFrame(draw);
-
-        analyser.getByteFrequencyData(dataArray);
-
-        // Clear the canvas before drawing
-        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const visualizationType = document.getElementById('visualizationSelect').value;
-
-        if (visualizationType === 'eclipse') {
-            drawEclipse();
-        } else if (visualizationType === 'wave') {
-            drawWave();
-        }
-    }
-
-    function drawEclipse() {
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 10;
-        const barWidth = (2 * Math.PI) / bufferLength;
-
-        for (let i = 0; i < bufferLength; i++) {
-            const barHeight = dataArray[i] / 2;
-            const angle = i * barWidth;
-
-            const randomOffsetX = (Math.random() - 0.5) * 10;
-            const randomOffsetY = (Math.random() - 0.5) * 10;
-
-            const x1 = centerX + Math.cos(angle) * (radius + randomOffsetX);
-            const y1 = centerY + Math.sin(angle) * (radius + randomOffsetY);
-            const x2 = centerX + Math.cos(angle) * (radius + barHeight + randomOffsetX);
-            const y2 = centerY + Math.sin(angle) * (radius + barHeight + randomOffsetY);
-
-            canvasCtx.strokeStyle = `rgb(${barHeight + 100}, 50, 50)`;
-            canvasCtx.lineWidth = 2;
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(x1, y1);
-            canvasCtx.lineTo(x2, y2);
-            canvasCtx.stroke();
-        }
-    }
-
-    function drawWave() {
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 10;
-        const barWidth = (2 * Math.PI) / bufferLength;
-
-        for (let i = 0; i < bufferLength; i++) {
-            const barHeight = dataArray[i] / 2;
-            const angle = i * barWidth;
-
-            const randomOffsetX = (Math.random() - 0.5) * 10;
-            const randomOffsetY = (Math.random() - 0.5) * 10;
-
-            const x1 = centerX + Math.cos(angle) * (radius + randomOffsetX);
-            const y1 = centerY + Math.sin(angle) * (radius + randomOffsetY);
-            const x2 = centerX + Math.cos(angle) * (radius + barHeight + randomOffsetX);
-            const y2 = centerY + Math.sin(angle) * (radius + barHeight + randomOffsetY);
-
-            canvasCtx.strokeStyle = `rgb(${barHeight + 100}, 50, 50)`;
-            canvasCtx.lineWidth = 2;
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(centerX, centerY);
-            canvasCtx.quadraticCurveTo(x1, y1, x2, y2); // Create a wave effect
-            canvasCtx.stroke();
-        }
-    }
-
-    draw();
-}
-
 // Ensure the audio context is resumed on user interaction
 document.addEventListener('click', () => {
     if (audioCtx.state === 'suspended') {
@@ -689,7 +588,7 @@ function showTab(tabId) {
 }
 
 function trackWIM(vrid, wimLink) {
-    //console.log("Tracking WIM:", vrid, wimLink); // Debug log
+    console.log("Tracking WIM:", vrid, wimLink); // Debug log
     const ahtTrackingList = document.getElementById('ahtTrackingList');
     const listItem = document.createElement('li');
     listItem.textContent = `VRID: ${vrid} | Timer: 0s | WIM Link: ${wimLink}`;
@@ -855,7 +754,7 @@ function loadKeywords() {
             list.appendChild(listItem);
         });
     } else {
-        // console.error('Keyword list element not found!'); // Debug log
+        console.error('Keyword list element not found!'); // Debug log
     }
 
     highlightKeywords(keywords);
@@ -952,6 +851,8 @@ const hardCodedKeywords = [
 
 // Highlight keywords in page content
 function highlightKeywords(keywords) {
+    console.log("Highlighting keywords...", keywords); // Debug log
+
     // Ensure keywords is an array
     if (!Array.isArray(keywords)) {
         console.error('Keywords are stored incorrectly. Resetting to an empty array.');
@@ -960,10 +861,7 @@ function highlightKeywords(keywords) {
 
     // Validate keywords
     keywords = keywords.filter(item => typeof item.keyword === 'string' && typeof item.color === 'string');
-
-    // Merge hard-coded keywords with user-defined keywords
     const allKeywords = [...hardCodedKeywords, ...keywords];
-
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     const nodes = [];
 
@@ -992,10 +890,14 @@ function highlightKeywords(keywords) {
                         const span = document.createElement('span');
                         span.className = 'highlighted-keyword';
                         span.style.border = `2px solid ${keyword.color}`;
-                        span.style.backgroundColor = keyword.color; // Set background color
-                        span.style.color = '#ffffff'; // Set text color to white for better contrast
                         span.style.padding = '2px';
                         span.textContent = part;
+
+                        // Make hard-coded keywords bold
+                        if (hardCodedKeywords.some(hk => hk.keyword.toLowerCase() === keyword.keyword.toLowerCase())) {
+                            span.style.fontWeight = 'bold';
+                        }
+
                         fragment.appendChild(span);
                     } else {
                         fragment.appendChild(document.createTextNode(part));
@@ -1013,7 +915,30 @@ function highlightKeywords(keywords) {
     });
 }
 
+// Function to download the audio file
+function downloadAudioFile(url, callback) {
+    console.log("Starting download of audio file from URL:", url);
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'blob';
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            console.log("Audio file downloaded successfully.");
+            const blob = xhr.response;
+            const objectURL = URL.createObjectURL(blob);
+            callback(objectURL);
+        } else {
+            console.error('Failed to download audio file:', xhr.status, xhr.statusText);
+        }
+    };
+    xhr.onerror = function () {
+        console.error('Network error while downloading audio file.');
+    };
+    xhr.send();
+}
+
 let wimObserver;
+// Function to observe WIM alerts.
 function observeWIMAlerts() {
     console.log("observeWIMAlerts function called.");
     if (window.location.href.includes('https://optimus-internal.amazon.com/wims')) {
@@ -1027,19 +952,8 @@ function observeWIMAlerts() {
                             const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
                             if (assignButton) {
                                 console.log("Assign to me button detected.");
-                                const selectedSound = GM_getValue('selectedSound', 'beep');
+                                const selectedSound = document.getElementById('soundSelect').value;
                                 console.log("Selected sound:", selectedSound);
-
-                                // Ensure the canvas is created before playing the sound
-                                let canvas = document.getElementById('audioCanvas');
-                                if (!canvas) {
-                                    canvas = document.createElement('canvas');
-                                    canvas.id = 'audioCanvas';
-                                    canvas.width = 300;
-                                    canvas.height = 100;
-                                    document.body.appendChild(canvas);
-                                }
-
                                 playSound(selectedSound);
 
                                 // Capture the WIM URL with retry mechanism
@@ -1107,19 +1021,8 @@ function observeWIMAlerts() {
         const initialAssignButton = document.querySelector('.btn-primary.btn-block.btn.btn-info');
         if (initialAssignButton) {
             console.log("Initial 'Assign to me' button detected.");
-            const selectedSound = GM_getValue('selectedSound', 'beep');
+            const selectedSound = document.getElementById('soundSelect').value;
             console.log("Selected sound:", selectedSound);
-
-            // Ensure the canvas is created before playing the sound
-            let canvas = document.getElementById('audioCanvas');
-            if (!canvas) {
-                canvas = document.createElement('canvas');
-                canvas.id = 'audioCanvas';
-                canvas.width = 300;
-                canvas.height = 100;
-                document.body.appendChild(canvas);
-            }
-
             playSound(selectedSound);
         }
 
@@ -1128,7 +1031,9 @@ function observeWIMAlerts() {
         console.log("URL does not match WIMS page.");
     }
 }
-// Function to stop observing WIM alerts
+
+// ...existing code...
+
 function stopObservingWIMAlerts() {
     if (wimObserver) {
         wimObserver.disconnect();
@@ -1174,6 +1079,15 @@ window.addEventListener('load', function () {
         console.error('Add button not found!');
     }
 
+    // Ensure the "WIM Alert" checkbox is enabled on load
+    const alertToggle = document.getElementById('alertToggle');
+    if (alertToggle) {
+        alertToggle.checked = true;
+        alertToggle.dispatchEvent(new Event('change'));
+    } else {
+        console.error('Alert toggle not found!');
+    }
+
     // Highlight keywords every 15 seconds
     setInterval(() => {
         const settings = loadSettings();
@@ -1188,16 +1102,9 @@ function toggleMenu() {
         if (menu.style.display === 'none') {
             menu.style.display = 'block';
             console.log("Menu is now visible.");
-            handleCanvasVisualization(); // Start canvas visualization when menu is visible
         } else {
             menu.style.display = 'none';
             console.log("Menu is now hidden.");
-            // Remove the canvas when the menu is closed
-            const canvas = document.getElementById('audioCanvas');
-            if (canvas) {
-                canvas.remove();
-                console.log("Canvas removed from the floating menu.");
-            }
         }
     } else {
         console.error('Floating menu element not found!');
