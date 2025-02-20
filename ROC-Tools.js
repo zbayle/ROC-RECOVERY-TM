@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         ROC Tools Tomy
 // @namespace    https://amazon.com
-// @version      3.2.tomy
+// @version      3.3.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
+// @match        *://*/*
 // @match        https://optimus-internal.amazon.com/*
 // @match        https://trans-logistics.amazon.com/*
 // @grant        GM_xmlhttpRequest
@@ -50,7 +51,8 @@ function loadSettings() {
         autoAssignEnabled: false,
         keywords: [],
         selectedSound: 'beep',
-        volume: '0.5'
+        volume: '0.5',
+        visualizationType: 'eclipse'
     };
 
     let settings = GM_getValue('settings', JSON.stringify(defaultSettings));
@@ -63,6 +65,10 @@ function loadSettings() {
     }
 
     return settings;
+}
+
+function saveSettings(settings) {
+    GM_setValue('settings', JSON.stringify(settings));
 }
 
 function saveSettings(settings) {
@@ -171,12 +177,8 @@ function createFloatingMenu() {
     alertsTab.onmouseout = () => alertsTab.style.backgroundColor = '#146eb4';
     alertsTab.onclick = () => showTab('alertsTab');
 
-
-
-
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
-
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -241,24 +243,10 @@ function createFloatingMenu() {
     keywordList.style.listStyle = 'none';
     keywordsTab.appendChild(keywordList);
 
-    // Add event listener to the add button
+    // Define alertsTabContent here
     const alertsTabContent = document.createElement('div');
     alertsTabContent.id = 'alertsTab';
     alertsTabContent.style.display = 'none';
-
-    // Add a label for the alert toggle
-    //const alertToggleLabel = document.createElement('label');
-    alertToggleLabel.textContent = 'WIM Alert: ';
-    alertToggleLabel.style.display = 'block'; 
-    alertToggleLabel.style.marginBottom = '5px'; 
-    alertsTabContent.appendChild(alertToggleLabel);
-
-    // Create a checkbox for enabling/disabling the alert
-    //const alertToggle = document.createElement('input');
-    alertToggle.type = 'checkbox';
-    alertToggle.id = 'alertToggle';
-    alertToggle.style.marginBottom = '15px'; 
-    alertsTabContent.appendChild(alertToggle);
 
     // Add a label for the sound selection
     const soundSelectLabel = document.createElement('label');
@@ -278,7 +266,10 @@ function createFloatingMenu() {
     const sounds = [
         { name: 'Beep', url: 'beep' },
         { name: 'Chime', url: 'chime' },
-        { name: 'Ding', url: 'ding' }
+        { name: 'Ding', url: 'ding' },
+        { name: 'Level-Up', url: 'levelup' },
+        { name: 'Base & Kick', url: 'hiphop' },
+        { name: 'Fairy', url: 'fairy' }
     ];
     sounds.forEach(sound => {
         const option = document.createElement('option');
@@ -287,6 +278,38 @@ function createFloatingMenu() {
         soundSelect.appendChild(option);
     });
     alertsTabContent.appendChild(soundSelect);
+
+    // Add a label for the visualization type selection
+    const visualizationSelectLabel = document.createElement('label');
+    visualizationSelectLabel.textContent = ' Visualization Type: ';
+    visualizationSelectLabel.style.display = 'block';
+    visualizationSelectLabel.style.marginBottom = '5px';
+    alertsTabContent.appendChild(visualizationSelectLabel);
+
+    // Create a select element for visualization type options
+    const visualizationSelect = document.createElement('select');
+    visualizationSelect.id = 'visualizationSelect';
+    visualizationSelect.style.display = 'block';
+    visualizationSelect.style.marginBottom = '15px';
+    visualizationSelect.style.padding = '10px';
+    visualizationSelect.style.border = '1px solid #146eb4';
+    visualizationSelect.style.borderRadius = '5px';
+    visualizationSelect.style.width = '100%';
+    const visualizations = [
+        { name: 'Eclipse', value: 'eclipse' },
+    ];
+    visualizations.forEach(visualization => {
+        const option = document.createElement('option');
+        option.value = visualization.value;
+        option.textContent = visualization.name;
+        visualizationSelect.appendChild(option);
+    });
+    alertsTabContent.appendChild(visualizationSelect);
+    const visualizationType = GM_getValue('visualizationType', 'eclipse');
+    visualizationSelect.value = visualizationType;
+    visualizationSelect.addEventListener('change', () => {
+        GM_setValue('visualizationType', visualizationSelect.value);
+    });
 
     // Add a label for the volume slider
     const volumeLabel = document.createElement('label');
@@ -327,23 +350,6 @@ function createFloatingMenu() {
     };
     alertsTabContent.appendChild(testButton);
 
-    // Add the checkbox for auto-assigning WIM DO NOT REMOVE OR USE THIS IS FOR TESTING PURPOSES ONLY
-    // This is a test feature and will be removed in the future
-    /*
-    const autoAssignLabel = document.createElement('label');
-    autoAssignLabel.textContent = 'Auto-Assign WIM: ';
-    autoAssignLabel.style.display = 'block'; // Block display for better spacing
-    autoAssignLabel.style.marginBottom = '5px'; // Added margin
-    alertsTabContent.appendChild(autoAssignLabel);
-
-    const autoAssignCheckbox = document.createElement('input');
-    autoAssignCheckbox.type = 'checkbox';
-    autoAssignCheckbox.id = 'autoAssignCheckbox';
-    autoAssignCheckbox.style.marginBottom = '15px'; // Increased margin
-    alertsTabContent.appendChild(autoAssignCheckbox);
-    */
-
-    
     const ahtTrackingTabContent = document.createElement('div');
     ahtTrackingTabContent.id = 'ahtTrackingTab';
     ahtTrackingTabContent.style.display = 'none';
@@ -370,16 +376,12 @@ function createFloatingMenu() {
     makeDraggable(menu, handle);
 
     // Load the alert toggle state
-    const alertEnabled = GM_getValue('alertEnabled', false);
-    alertToggle.checked = alertEnabled;
-    alertToggle.addEventListener('change', () => {
-        GM_setValue('alertEnabled', alertToggle.checked);
-        if (alertToggle.checked) {
-            observeWIMAlerts();
-        } else {
-            stopObservingWIMAlerts();
-        }
-    });
+    const alertEnabled = GM_getValue('alertEnabled', true);
+    const alertToggle = document.getElementById('alertToggle');
+    if (alertToggle) {
+        alertToggle.checked = true;
+        alertToggle.disabled = true;
+    }
 
     // Load the selected sound and volume
     const selectedSound = GM_getValue('selectedSound', 'beep');
@@ -394,22 +396,29 @@ function createFloatingMenu() {
         GM_setValue('volume', volumeSlider.value);
     });
 
-    // Load the auto-assign checkbox state
-    /*
-    const autoAssignEnabled = GM_getValue('autoAssignEnabled', false);
-    autoAssignCheckbox.checked = autoAssignEnabled;
-    autoAssignCheckbox.addEventListener('change', () => {
-        GM_setValue('autoAssignEnabled', autoAssignCheckbox.checked);
-        console.log(`Auto-assign enabled: ${autoAssignCheckbox.checked}`);
-    });
-    */
 
     // Add an audio element for the alert sound
     const audio = document.createElement('audio');
     audio.id = 'alertSound';
     audio.type = 'audio/mpeg';
     document.body.appendChild(audio);
+
+    // Add a canvas element for the audio visualization
+    const canvas = document.createElement('canvas');
+    canvas.id = 'audioCanvas';
+    canvas.width = 300;
+    canvas.height = 100;
+    document.body.appendChild(canvas);
 }
+
+// Load the alert toggle state
+const alertEnabled = GM_getValue('alertEnabled', true);
+const alertToggle = document.getElementById('alertToggle');
+if (alertToggle) {
+    alertToggle.checked = true;
+    alertToggle.disabled = true;
+}
+
 
 // Define the loadAlerts function
 function loadAlerts() {
@@ -417,16 +426,8 @@ function loadAlerts() {
 
     const alertToggle = document.getElementById('alertToggle');
     if (alertToggle) {
-        alertToggle.checked = settings.alertEnabled;
-        alertToggle.addEventListener('change', () => {
-            settings.alertEnabled = alertToggle.checked;
-            saveSettings(settings);
-            if (alertToggle.checked) {
-                observeWIMAlerts();
-            } else {
-                stopObservingWIMAlerts();
-            }
-        });
+        alertToggle.checked = true;
+        alertToggle.disabled = true;
     }
 
     const soundSelect = document.getElementById('soundSelect');
@@ -457,6 +458,7 @@ function loadAlerts() {
     }
 }
 
+
 // Function to play sound using Web Audio API
 function playSound(type) {
     console.log("playSound function called with type:", type);
@@ -471,10 +473,100 @@ function playSound(type) {
     const volume = document.getElementById('volumeSlider').value;
     gainNode.gain.value = volume;
 
-    const playNote = (frequency, duration, startTime) => {
+    const analyser = audioCtx.createAnalyser();
+    gainNode.connect(analyser);
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const canvas = document.getElementById('audioCanvas');
+    if (!canvas) {
+        console.error('Canvas element not found!');
+        return;
+    }
+    const canvasCtx = canvas.getContext('2d');
+    if (!canvasCtx) {
+        console.error('Failed to get canvas context!');
+        return;
+    }
+
+    function draw() {
+        requestAnimationFrame(draw);
+
+        analyser.getByteFrequencyData(dataArray);
+
+        // Clear the canvas before drawing
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const visualizationType = document.getElementById('visualizationSelect').value;
+
+        if (visualizationType === 'eclipse') {
+            drawEclipse();
+        } else if (visualizationType === 'wave') {
+            drawWave();
+        }
+    }
+
+    function drawEclipse() {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 10;
+        const barWidth = (2 * Math.PI) / bufferLength;
+
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = dataArray[i] / 2;
+            const angle = i * barWidth;
+
+            const randomOffsetX = (Math.random() - 0.5) * 10;
+            const randomOffsetY = (Math.random() - 0.5) * 10;
+
+            const x1 = centerX + Math.cos(angle) * (radius + randomOffsetX);
+            const y1 = centerY + Math.sin(angle) * (radius + randomOffsetY);
+            const x2 = centerX + Math.cos(angle) * (radius + barHeight + randomOffsetX);
+            const y2 = centerY + Math.sin(angle) * (radius + barHeight + randomOffsetY);
+
+            canvasCtx.strokeStyle = `rgb(${barHeight + 100}, 50, 50)`;
+            canvasCtx.lineWidth = 2;
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(x1, y1);
+            canvasCtx.lineTo(x2, y2);
+            canvasCtx.stroke();
+        }
+    }
+
+    function drawWave() {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 10;
+        const barWidth = (2 * Math.PI) / bufferLength;
+
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = dataArray[i] / 2;
+            const angle = i * barWidth;
+
+            const randomOffsetX = (Math.random() - 0.5) * 10;
+            const randomOffsetY = (Math.random() - 0.5) * 10;
+
+            const x1 = centerX + Math.cos(angle) * (radius + randomOffsetX);
+            const y1 = centerY + Math.sin(angle) * (radius + randomOffsetY);
+            const x2 = centerX + Math.cos(angle) * (radius + barHeight + randomOffsetX);
+            const y2 = centerY + Math.sin(angle) * (radius + barHeight + randomOffsetY);
+
+            canvasCtx.strokeStyle = `rgb(${barHeight + 100}, 50, 50)`;
+            canvasCtx.lineWidth = 2;
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(centerX, centerY);
+            canvasCtx.quadraticCurveTo(x1, y1, x2, y2); // Create a wave effect
+            canvasCtx.stroke();
+        }
+    }
+
+    draw();
+
+    const playNote = (frequency, duration, startTime, type = 'sine') => {
         const oscillator = audioCtx.createOscillator();
         oscillator.connect(gainNode);
-        oscillator.type = 'sine';
+        oscillator.type = type;
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime);
         oscillator.start(audioCtx.currentTime + startTime);
         oscillator.stop(audioCtx.currentTime + startTime + duration);
@@ -482,37 +574,71 @@ function playSound(type) {
 
     switch (type) {
         case 'beep':
-            playNote(440, 1, 0); // A4 for 1 second
+            playNote(440, 1, 0, 'square'); // A4 for 1 second with square waveform
             break;
         case 'chime':
             playNoteSequence([
-                { frequency: 392.00, duration: 0.3 }, // G4
-                { frequency: 440.00, duration: 0.3 }, // A4
-                { frequency: 523.25, duration: 0.3 }, // C5
-                { frequency: 392.00, duration: 0.3 }  // G4
+                { frequency: 392.00, duration: 0.3, type: 'sine' }, // G4
+                { frequency: 440.00, duration: 0.3, type: 'sine' }, // A4
+                { frequency: 523.25, duration: 0.3, type: 'sine' }, // C5
+                { frequency: 392.00, duration: 0.3, type: 'sine' }, // G4
+                { frequency: 659.25, duration: 0.3, type: 'sine' }, // E5
+                { frequency: 783.99, duration: 0.3, type: 'sine' }  // G5
             ]);
             break;
         case 'ding':
             playNoteSequence([
-                { frequency: 523.25, duration: 0.3 }, // C5
-                { frequency: 587.33, duration: 0.3 }, // D5
-                { frequency: 659.25, duration: 0.3 }, // E5
-                { frequency: 523.25, duration: 0.3 }  // C5
+                { frequency: 523.25, duration: 0.3, type: 'triangle' }, // C5
+                { frequency: 587.33, duration: 0.3, type: 'triangle' }, // D5
+                { frequency: 659.25, duration: 0.3, type: 'triangle' }, // E5
+                { frequency: 523.25, duration: 0.3, type: 'triangle' }  // C5
+            ]);
+            break;
+        case 'levelup':
+            playNoteSequence([
+                { frequency: 523.25, duration: 0.2, type: 'sine' }, // C5
+                { frequency: 659.25, duration: 0.2, type: 'sine' }, // E5
+                { frequency: 783.99, duration: 0.2, type: 'sine' }, // G5
+                { frequency: 1046.50, duration: 0.4, type: 'sine' }, // C6
+                { frequency: 880.00, duration: 0.2, type: 'square' }, // A5
+                { frequency: 987.77, duration: 0.2, type: 'square' }, // B5
+                { frequency: 1046.50, duration: 0.4, type: 'square' }  // C6
+            ]);
+            break;
+        case 'hiphop':
+            playNoteSequence([
+                { frequency: 60, duration: 0.5, type: 'sine' }, // Kick
+                { frequency: 120, duration: 0.2, type: 'square' }, // Snare
+                { frequency: 60, duration: 0.5, type: 'sine' }, // Kick
+                { frequency: 120, duration: 0.2, type: 'square' }, // Snare
+                { frequency: 80, duration: 0.3, type: 'triangle' }, // Hi-hat
+                { frequency: 80, duration: 0.3, type: 'triangle' }  // Hi-hat
+            ]);
+            break;
+        case 'fairy':
+            playNoteSequence([
+                { frequency: 1046.50, duration: 0.2, type: 'square' }, // C6
+                { frequency: 1174.66, duration: 0.2, type: 'square' }, // D6
+                { frequency: 1318.51, duration: 0.2, type: 'square' }, // E6
+                { frequency: 1567.98, duration: 0.4, type: 'square' }, // G6
+                { frequency: 2093.00, duration: 0.2, type: 'square' }, // C7
+                { frequency: 2349.32, duration: 0.2, type: 'square' }, // D7
+                { frequency: 2637.02, duration: 0.4, type: 'square' }  // E7
             ]);
             break;
         default:
             playNoteSequence([
-                { frequency: 440, duration: 0.3 }, // A4
-                { frequency: 523.25, duration: 0.3 }, // C5
-                { frequency: 659.25, duration: 0.3 }, // E5
-                { frequency: 783.99, duration: 0.3 } // G5
+                { frequency: 440, duration: 0.3, type: 'sine' }, // A4
+                { frequency: 523.25, duration: 0.3, type: 'sine' }, // C5
+                { frequency: 659.25, duration: 0.3, type: 'sine' }, // E5
+                { frequency: 783.99, duration: 0.3, type: 'sine' } // G5
             ]);
     }
 
     function playNoteSequence(notes) {
         let startTime = 0;
         notes.forEach(note => {
-            playNote(note.frequency, note.duration, startTime);
+            playNote(note.frequency, note.duration, startTime, note.type);
             startTime += note.duration;
         });
     }
@@ -1017,7 +1143,7 @@ window.addEventListener('load', function () {
     const alertToggle = document.getElementById('alertToggle');
     if (alertToggle) {
         alertToggle.checked = true;
-        alertToggle.dispatchEvent(new Event('change'));
+        alertToggle.disabled = true;
     } else {
         console.error('Alert toggle not found!');
     }
