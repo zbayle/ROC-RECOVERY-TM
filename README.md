@@ -1,6 +1,6 @@
-# ROC Tools
+# ROC Tools TOMY 3.1
 
-This Tampermonkey script dynamically highlights specified keywords with customizable colors using a floating menu. It also provides alerts when certain conditions are met on specific pages.
+This Tampermonkey script provides alerts when ATR is on and a task is offered. It also dynamically highlights specified keywords with customizable colors using a floating menu.
 
 ## Features
 
@@ -11,7 +11,7 @@ This Tampermonkey script dynamically highlights specified keywords with customiz
 ## Installation
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) in your browser.
-2. Click [here](https://raw.githubusercontent.com/zbayle/ROC-RECOVERY-TM/main/ROC-Tools.js) to install the script.
+2. Click [here](https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/tomy/ROC-Tools.js) to install the script.
 
 ## Usage
 
@@ -27,11 +27,17 @@ This Tampermonkey script dynamically highlights specified keywords with customiz
 - **Add/Update Keyword**: Enter a keyword and select a color to highlight it on the page.
 - **Edit Keyword**: Modify an existing keyword and its color.
 - **Remove Keyword**: Delete a keyword from the list.
+- **Critical Keywords**: Highlights critical keywords, set by admins of the project.
+
+### Critical Keywords
+
+The following keywords are hard-coded and will always be highlighted with the specified colors:
+
+- **Trailer Not Moving**: Highlighted in red (`#ff0000`).
+- **GAPS**: Highlighted in orange (`#ff9900`).
 
 ### Alerts
 
-- **Enable/Disable Alerts**: Toggle alerts on or off.
 - **Select Alert Sound**: Choose from different alert sounds.
 - **Volume Control**: Adjust the volume of the alert sound.
 - **Test Alert Sound**: Play the selected alert sound to test it.
-
