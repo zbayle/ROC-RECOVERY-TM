@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         ROC Tools 
+// @name         ROC Tools Tomy
 // @namespace    http://tampermonkey.net/
 // @version      3.0.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
@@ -805,9 +805,8 @@ function removeKeyword(index) {
 
 // Define hard-coded keywords and their colors
 const hardCodedKeywords = [
-    { keyword: 'urgent', color: '#ff0000' },
-    { keyword: 'Snoozed', color: '#ff9900' },
-    { keyword: 'note', color: '#0000ff' }
+    { keyword: 'Trailer Not Moving', color: '#ff0000' },
+    { keyword: 'GAPS', color: '#ff9900' },
 ];
 
 // Highlight keywords in page content
@@ -852,6 +851,8 @@ function highlightKeywords(keywords) {
                         const span = document.createElement('span');
                         span.className = 'highlighted-keyword';
                         span.style.border = `2px solid ${keyword.color}`;
+                        span.style.backgroundColor = keyword.color; // Set background color
+                        span.style.color = '#ffffff'; // Set text color to white for better contrast
                         span.style.padding = '2px';
                         span.textContent = part;
                         fragment.appendChild(span);
@@ -870,7 +871,6 @@ function highlightKeywords(keywords) {
         });
     });
 }
-
 
 let wimObserver;
 // Function to observe WIM alerts.
