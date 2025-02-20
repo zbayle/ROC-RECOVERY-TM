@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         ROC Tools 
+// @name         ROC Tools Tomy
 // @namespace    http://tampermonkey.net/
-// @version      3.2.2
+// @version      3.0.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        https://optimus-internal.amazon.com/*
@@ -803,12 +803,14 @@ function removeKeyword(index) {
     highlightKeywords(settings.keywords); // Ensure keywords are highlighted after removing
 }
 
-
+// Define hard-coded keywords and their colors
+const hardCodedKeywords = [
+    { keyword: 'Trailer Not Moving', color: '#ff0000' },
+    { keyword: 'GAPS', color: '#ff9900' },
+];
 
 // Highlight keywords in page content
 function highlightKeywords(keywords) {
-    //console.log("Highlighting keywords...", keywords); // Debug log
-
     // Ensure keywords is an array
     if (!Array.isArray(keywords)) {
         console.error('Keywords are stored incorrectly. Resetting to an empty array.');
@@ -817,6 +819,9 @@ function highlightKeywords(keywords) {
 
     // Validate keywords
     keywords = keywords.filter(item => typeof item.keyword === 'string' && typeof item.color === 'string');
+
+    // Merge hard-coded keywords with user-defined keywords
+    const allKeywords = [...hardCodedKeywords, ...keywords];
 
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     const nodes = [];
@@ -834,7 +839,7 @@ function highlightKeywords(keywords) {
             return;
         }
 
-        keywords.forEach(keyword => {
+        allKeywords.forEach(keyword => {
             const regex = new RegExp(`(${keyword.keyword})`, 'gi');
             const parts = text.split(regex);
 
@@ -846,6 +851,8 @@ function highlightKeywords(keywords) {
                         const span = document.createElement('span');
                         span.className = 'highlighted-keyword';
                         span.style.border = `2px solid ${keyword.color}`;
+                        span.style.backgroundColor = keyword.color; // Set background color
+                        span.style.color = '#ffffff'; // Set text color to white for better contrast
                         span.style.padding = '2px';
                         span.textContent = part;
                         fragment.appendChild(span);
@@ -863,27 +870,6 @@ function highlightKeywords(keywords) {
             }
         });
     });
-}
-// Function to download the audio file
-function downloadAudioFile(url, callback) {
-    console.log("Starting download of audio file from URL:", url);
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'blob';
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            console.log("Audio file downloaded successfully.");
-            const blob = xhr.response;
-            const objectURL = URL.createObjectURL(blob);
-            callback(objectURL);
-        } else {
-            console.error('Failed to download audio file:', xhr.status, xhr.statusText);
-        }
-    };
-    xhr.onerror = function () {
-        console.error('Network error while downloading audio file.');
-    };
-    xhr.send();
 }
 
 let wimObserver;
