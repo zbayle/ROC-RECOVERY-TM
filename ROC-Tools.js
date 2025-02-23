@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ROC Tools Tomy
 // @namespace    https://amazon.com
-// @version      3.6.tomy
+// @version      3.7.tomy
 // @description  Highlight specified keywords dynamically with custom colors using a floating menu in Tampermonkey. Also alerts when a WIM is offered on specific pages.
 // @autor        zbbayle
 // @match        *://*/*
@@ -179,11 +179,8 @@ function createFloatingMenu() {
     alertsTab.onmouseout = () => alertsTab.style.backgroundColor = '#146eb4';
     alertsTab.onclick = () => showTab('alertsTab');
 
-
-
     tabs.appendChild(keywordTab);
     tabs.appendChild(alertsTab);
-  
 
     const keywordsTab = document.createElement('div');
     keywordsTab.id = 'keywordsTab';
@@ -341,7 +338,6 @@ function createFloatingMenu() {
     alertsTabContent.appendChild(autoAssignCheckbox);
     */
 
-
     const ahtTrackingTabContent = document.createElement('div');
     ahtTrackingTabContent.id = 'ahtTrackingTab';
     ahtTrackingTabContent.style.display = 'none';
@@ -406,6 +402,9 @@ function createFloatingMenu() {
     audio.id = 'alertSound';
     audio.type = 'audio/mpeg';
     document.body.appendChild(audio);
+
+    // Load keywords after the floating menu is created
+    loadKeywords();
 }
 
 // Define the loadAlerts function
@@ -1058,7 +1057,6 @@ window.addEventListener('load', function () {
 
     createFloatingIcon();
     createFloatingMenu();
-    loadKeywords();
     loadAlerts();
     loadWIMEntries(); 
 
