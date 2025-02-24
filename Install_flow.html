@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install Flow</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        #install-flow {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .script-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+        .script-title {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 5px;
+        }
+        .script-description {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .interaction {
+            font-size: 1em;
+            color: #007BFF;
+            margin-bottom: 10px;
+        }
+        .logic-flow {
+            font-size: 1em;
+            color: #333;
+            margin-top: 10px;
+        }
+        .logic-flow ul {
+            padding-left: 20px;
+        }
+        .logic-flow li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="install-flow">
+        <div class="script-box">
+            <div class="script-title">ROC Tools</div>
+            <div class="script-description">
+                Provides keyword highlighting, WIM alerts, and a floating menu for user interaction.
+            </div>
+            <div class="interaction">
+                Interacts with WIMS and FMC pages by highlighting keywords and observing WIM alerts.
+            </div>
+            <div class="logic-flow">
+                <strong>Logic Flow:</strong>
+                <ul>
+                    <li><strong>Initialization:</strong> Ensures necessary functions are available, creates floating icon and menu, loads settings, and sets up keyword highlighting and WIM alerts.</li>
+                    <li><strong>Floating Icon and Menu:</strong> Creates a draggable floating icon and menu for user interaction. The menu contains tabs for managing keywords, alerts, and AHT tracking.</li>
+                    <li><strong>Keyword Highlighting:</strong> Loads keywords from storage and highlights them in the page content. Users can add, edit, or remove keywords using the floating menu.</li>
+                    <li><strong>WIM Alerts:</strong> Observes the DOM for WIM alerts and plays a sound when a new WIM is offered. Users can enable or disable alerts and choose the alert sound and volume.</li>
+                    <li><strong>AHT Tracking:</strong> Tracks WIMs and displays a timer. Users can stop tracking a WIM, which marks it as resolved and stops the timer. WIM entries are saved to storage.</li>
+                    <li><strong>Utility Functions:</strong> Includes functions for making elements draggable, toggling the floating menu, and downloading audio files for alert sounds.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="script-box">
+            <div class="script-title">WIMS and FMC Interaction</div>
+            <div class="script-description">
+                Enhances WIMS and FMC pages with refresh timers, table redesign, toggle switches, and ITR BY integration.
+            </div>
+            <div class="interaction">
+                Processes data for FMC and WIMS pages.
+            </div>
+            <div class="logic-flow">
+                <strong>Logic Flow:</strong>
+                <ul>
+                    <li><strong>CSS Injection:</strong> Injects CSS for highlighting the counter and spinner.</li>
+                    <li><strong>Timer Highlighting:</strong> Highlights the correct timer on the page and uses a `MutationObserver` to observe the DOM for changes.</li>
+                    <li><strong>Refresh Timer:</strong> Creates a refresh timer and updates the refresh timer counter.</li>
+                    <li><strong>WIMS Filters and Navigation:</strong> Checks and selects WIMS filters and navigates to task details when a task link is clicked.</li>
+                    <li><strong>Facility Classes:</strong> Logs the names of the stops and adds classes to the first and second stops.</li>
+                    <li><strong>FMC Page Handling:</strong> Clears values of `vrid`, `vistaDate`, and `vistaTime` in local storage.</li>
+                    <li><strong>Highlighting:</strong> Highlights "AZNG" in dynamically added spans and highlights run structure links.</li>
+                    <li><strong>Iframe Handling:</strong> Creates and appends an iframe.</li>
+                    <li><strong>Vista Button:</strong> Adds a button to open Vista.</li>
+                    <li><strong>Drive Time Extraction:</strong> Extracts the drive time from the iframe and fetches drive time using the API.</li>
+                    <li><strong>Time Calculation:</strong> Calculates the time and waits for local storage to be updated.</li>
+                    <li><strong>Table Redesign:</strong> Redesigns the table with responsive design.</li>
+                    <li><strong>Loading Handling:</strong> Waits for the loading screen to disappear using `MutationObserver`.</li>
+                    <li><strong>Facility Data Fetching:</strong> Fetches `fc_origin` and `fc_final` from the page.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="script-box">
+            <div class="script-title">Vista Auto Fill with VRID Scroll, Enter, and Hover</div>
+            <div class="script-description">
+                Automates the process of selecting facilities, setting VRIDs, and hovering over progress bars.
+            </div>
+            <div class="interaction">
+                Works with Display Hover Box Data with Time and Packages to get and process Vista information and dates.
+            </div>
+            <div class="logic-flow">
+                <strong>Logic Flow:</strong>
+                <ul>
+                    <li><strong>Facility Selection:</strong> Waits for the page to load and then selects the facility from the dropdown based on the facility ID stored in `localStorage`.</li>
+                    <li><strong>VRID Input:</strong> Waits for the VRID input field to be available, sets the VRID from `localStorage`, and simulates pressing the Enter key.</li>
+                    <li><strong>Progress Bar Hover:</strong> Emulates a mouseover event on the progress bar to trigger any associated tooltips or actions.</li>
+                    <li><strong>Page Load Handling:</strong> Waits for the page to load or any significant loading elements to disappear before executing the callback.</li>
+                    <li><strong>Main Logic:</strong> The main logic that runs after the page is loaded, calling the facility selection and VRID input functions.</li>
+                    <li><strong>Iframe Handling:</strong> Checks if the script is running inside an iframe or the main window and executes the main logic accordingly.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="script-box">
+            <div class="script-title">Display Hover Box Data with Time and Packages</div>
+            <div class="script-description">
+                Extracts and displays data from tooltips in a floating container, highlighting the first cumulative threshold.
+            </div>
+            <div class="interaction">
+                Uses tooltips triggered by Vista Auto Fill with VRID Scroll, Enter, and Hover to process Vista information and dates.
+            </div>
+            <div class="logic-flow">
+                <strong>Logic Flow:</strong>
+                <ul>
+                    <li><strong>Floating Container:</strong> Creates a floating container for displaying hover data.</li>
+                    <li><strong>Container Update:</strong> Updates the container content with time and package data.</li>
+                    <li><strong>Tooltip Data Extraction:</strong> Uses a `MutationObserver` to watch for the addition of the `tooltipTitle` element and extracts data from it.</li>
+                    <li><strong>Threshold Highlighting:</strong> Highlights the first cumulative threshold of 300 packages and stores the time and date in `localStorage`.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

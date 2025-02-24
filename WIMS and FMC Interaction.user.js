@@ -248,7 +248,7 @@
     function createIframe(url, callback, id = '') {
         const iframeContainer = document.createElement('div');
         iframeContainer.style.position = 'relative';
-        iframeContainer.style.width = '100%';
+        iframeContainer.style.width = 'auto !important';
         iframeContainer.style.height = '500px';
         iframeContainer.style.marginBottom = '10px';
 
