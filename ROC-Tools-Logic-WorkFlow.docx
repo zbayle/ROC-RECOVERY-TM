@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ROC-RECOVERY-TM Tool Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #2E6DA4;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 5px;
+        }
+        .key-functions, .logic-flow {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ROC-RECOVERY-TM Tool Documentation</h1>
+
+<h2>Overview</h2>
+<p>The ROC-RECOVERY-TM tool consists of four main scripts that enhance the functionality of the WIMS and FMC systems. These scripts are:</p>
+<ol>
+    <li><strong>WIMS and FMC Interaction</strong></li>
+    <li><strong>Vista auto fill with VRID scroll, Enter, and Hover</strong></li>
+    <li><strong>ROC Tools</strong></li>
+    <li><strong>Display Hover Box Data with Time and Packages</strong></li>
+</ol>
+<p>Each script has a specific role and they work together to provide a seamless user experience.</p>
+
+<h2>1. WIMS and FMC Interaction</h2>
+
+<h3>Purpose</h3>
+<p>This script enhances the WIMS and FMC systems by adding features such as refresh timers, table redesign, toggle switches, and ITR BY integration.</p>
+
+<h3>Key Functions</h3>
+<ul class="key-functions">
+    <li><strong>highlightRunStructureLink</strong>: Highlights specific links in the WIMS and FMC pages.</li>
+    <li><strong>createTimer</strong>: Creates a refresh timer displayed on the page.</li>
+    <li><strong>checkAndSelectOptions</strong>: Automatically selects specific filter options.</li>
+    <li><strong>navigateToTaskDetail</strong>: Navigates to task details when a task link is clicked.</li>
+    <li><strong>addVistaButton</strong>: Adds a button to open the Vista page and fetches drive time data.</li>
+    <li><strong>useStoredVistaTime</strong>: Parses stored time and date, calculates critical sort and ITR times, and displays them.</li>
+</ul>
+
+<h3>Logic Flow</h3>
+<ol class="logic-flow">
+    <li>The script starts by injecting CSS for highlighting elements and creating a refresh timer.</li>
+    <li>It observes the DOM for changes and highlights specific elements.</li>
+    <li>It periodically checks and selects filter options.</li>
+    <li>It adds a button to open the Vista page and fetches drive time data.</li>
+    <li>It calculates and displays critical sort and ITR times based on stored data.</li>
+</ol>
+
+<h2>2. Vista auto fill with VRID scroll, Enter, and Hover</h2>
+
+<h3>Purpose</h3>
+<p>This script automates the process of selecting a facility, setting the VRID in the filter input, pressing Enter, scrolling into view, and hovering over the progress bar.</p>
+
+<h3>Key Functions</h3>
+<ul class="key-functions">
+    <li><strong>selectFacility</strong>: Selects the facility from a dropdown.</li>
+    <li><strong>waitForVRIDInputAndSet</strong>: Waits for the VRID input field to be available and sets the VRID.</li>
+    <li><strong>hoverProgressBar</strong>: Emulates a mouseover event on the progress bar.</li>
+    <li><strong>waitForPageLoad</strong>: Waits for the page to load before executing the main logic.</li>
+</ul>
+
+<h3>Logic Flow</h3>
+<ol class="logic-flow">
+    <li>The script waits for the page to load.</li>
+    <li>It selects the facility from a dropdown.</li>
+    <li>It waits for the VRID input field to be available and sets the VRID.</li>
+    <li>It emulates a mouseover event on the progress bar.</li>
+</ol>
+
+<h2>3. ROC Tools</h2>
+
+<h3>Purpose</h3>
+<p>This script provides a floating menu for highlighting specified keywords dynamically with custom colors and alerts when a WIM is offered on specific pages.</p>
+
+<h3>Key Functions</h3>
+<ul class="key-functions">
+    <li><strong>createFloatingMenu</strong>: Creates and inserts a floating menu with tabs for keywords, alerts, and AHT tracking.</li>
+    <li><strong>showTab</strong>: Shows the selected tab in the floating menu.</li>
+    <li><strong>trackWIM</strong>: Tracks WIM entries and updates the AHT tracking list.</li>
+    <li><strong>observeWIMAlerts</strong>: Observes WIM alerts and plays a sound when an alert is detected.</li>
+</ul>
+
+<h3>Logic Flow</h3>
+<ol class="logic-flow">
+    <li>The script creates a floating menu with tabs for keywords, alerts, and AHT tracking.</li>
+    <li>It shows the selected tab in the floating menu.</li>
+    <li>It tracks WIM entries and updates the AHT tracking list.</li>
+    <li>It observes WIM alerts and plays a sound when an alert is detected.</li>
+</ol>
+
+<h2>4. Display Hover Box Data with Time and Packages</h2>
+
+<h3>Purpose</h3>
+<p>This script extracts and displays time and package data from tooltips in a floating container, highlighting the first cumulative threshold.</p>
+
+<h3>Key Functions</h3>
+<ul class="key-functions">
+    <li><strong>updateContainer</strong>: Updates the floating container with time and package data.</li>
+    <li><strong>observer</strong>: Observes the DOM for the addition of tooltip elements and extracts data from them.</li>
+</ul>
+
+<h3>Logic Flow</h3>
+<ol class="logic-flow">
+    <li>The script creates a floating container for displaying hover data.</li>
+    <li>It observes the DOM for the addition of tooltip elements.</li>
+    <li>It extracts and formats time and package data from tooltips.</li>
+    <li>It updates the floating container with the extracted data.</li>
+</ol>
+
+<h2>Interaction Between Scripts</h2>
+
+<h3>Data Flow</h3>
+<ul class="key-functions">
+    <li><strong>WIMS and FMC Interaction</strong>: Provides data such as VRID and facility information that is used by other scripts.</li>
+    <li><strong>Vista auto fill with VRID scroll, Enter, and Hover</strong>: Automates the process of setting VRID and interacting with the progress bar, which is observed by the <strong>Display Hover Box Data with Time and Packages</strong> script.</li>
+    <li><strong>ROC Tools</strong>: Tracks WIM entries and alerts, which can be influenced by the data provided by the <strong>WIMS and FMC Interaction</strong> script.</li>
+    <li><strong>Display Hover Box Data with Time and Packages</strong>: Displays data extracted from tooltips, which can be related to the VRID and facility information managed by the other scripts.</li>
+</ul>
+
+<h3>Example Workflow</h3>
+<ol class="logic-flow">
+    <li><strong>ROC Tools</strong> script runs and alerts the user when a WIM (Task) is offered. The user can also use the keyword menu to highlight specific words or phrases.</li>
+    <li><strong>WIMS and FMC Interaction</strong> script runs, adding a refresh timer to the WIMS page and adding Recovery WIMS lobbies to the WIMS filter. It also interacts with FMC pages by altering the table style and adds an "Open Vista" button if the shipper account matches "OutboundAmazonManaged".</li>
+    <li>When the "Open Vista" button is clicked, the <strong>Vista auto fill with VRID scroll, Enter, and Hover / Display Hover Box Data with Time and Packages</strong> script observes the DOM for the facility dropdown, selects the correct "FC", observes the DOM for the VRID filter field and enters the correct VRID, waits for the Vista page to finish loading the load details, scrolls the load into view, emulates a mouseover event on the load details, reads the tooltip for load package sort details, adds each package sort detail to the floating element, and counts packages found for each sort time until it reaches over 299 packages. This data is stored in local storage.</li>
+    <li>The <strong>WIMS and FMC Interaction</strong> script then uses the stored critical sort time and the RTT navigate to the next stop to calculate the critical ITR time.</li>
+</ol>
+
+</body>
+</html>

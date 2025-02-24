@@ -1,9 +1,9 @@
-// ==UserScript==
+// ==UserScript== 
 // @name         WIMS and FMC Interaction
 // @namespace    http://tampermonkey.net/
-// @version      2.3
-// @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
-// @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS and FMC Interaction.user.js
+// @version      2.3.1
+// @updateURL    https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS%20and%20FMC%20Interaction.user.js
+// @downloadURL  https://github.com/zbayle/ROC-RECOVERY-TM/raw/refs/heads/main/WIMS%20and%20FMC%20Interaction.user.js
 // @description  Enhanced script for WIMS and FMC with refresh timers, table redesign, toggle switches, and ITR BY integration.
 // @author       zbbayle
 // @match        https://optimus-internal.amazon.com/wims*
@@ -16,11 +16,6 @@
 
 (function () {
     'use strict';
-
-    //git checkout -b older-version <commit-hash>
-    //git checkout current-version
-    //git checkout older-version
-
 
     // Inject CSS for highlighting the counter and spinner
     const style = document.createElement('style');
@@ -301,102 +296,101 @@
     
     // Function to add the Vista button
     function addVistaButton() {
-        const retryInterval = setInterval(() => {
-            console.log('Checking for assets container...');
-            const assetsContainer = document.querySelector('td.assets');
-
-            if (assetsContainer) {
-                console.log('Assets container found!');
-                clearInterval(retryInterval);
-
-                if (document.querySelector('button#vistaButton')) {
-                    console.log('Vista button already exists!');
-                    return;
-                }
-
-                const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
-                if (outboundAmazonManagedText) {
-                    console.log('OutboundAmazonManaged text found!');
-
-                    const vistaButton = document.createElement('button');
-                    vistaButton.id = 'vistaButton';
-                    vistaButton.textContent = 'Open Vista';
-                    vistaButton.style.backgroundColor = '#FF9900';
-                    vistaButton.style.color = 'black';
-                    vistaButton.style.padding = '10px 20px';
-                    vistaButton.style.border = 'none';
-                    vistaButton.style.cursor = 'pointer';
-                    vistaButton.style.borderRadius = '5px';
-                    vistaButton.style.fontSize = '16px';
-
-                    vistaButton.addEventListener('click', async function () {
-                        console.log('Vista button clicked!');
-
-                        const stopNames = document.querySelectorAll('span.vr-stop-name');
-                        console.log('Stop names detected:', stopNames);
-
-                        if (stopNames.length < 2) {
-                            console.error('Not enough stops found!');
-                            return;
-                        }
-
-                        const finalFacilityElement = stopNames[1];
-                        const facilityId = finalFacilityElement.textContent.trim();
-
-                        if (!facilityId) {
-                            console.error('Facility ID not found!');
-                            return;
-                        }
-
-                        localStorage.setItem('facilityId', facilityId);
-                        console.log('Stored Facility ID:', facilityId);
-
-                        const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
-                        if (!vridElement) {
-                            console.error('VRID element not found!');
-                            return;
-                        }
-
-                        const vrid = vridElement.textContent.trim();
-                        if (!vrid) {
-                            console.error('VRID not found!');
-                            return;
-                        }
-
-                        localStorage.setItem('vrid', vrid);
-                        console.log('Stored VRID:', vrid);
-
-                        // Create an iframe and retrieve data from it
-                        createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
-                            // Call useStoredVistaTime after the iframe is loaded and data is retrieved
-                            useStoredVistaTime();
-                        });
-
-                        // Fetch drive time using the API
-                        extractDriveTime(vrid, facilityId);
-                    });
-
-                    assetsContainer.appendChild(vistaButton);
-                    console.log('Vista button added to the page.');
-
-                    // Create and append the calculated-time-display element
-                    const calculatedTimeDisplay = document.createElement('div');
-                    calculatedTimeDisplay.id = 'calculated-time-display';
-                    calculatedTimeDisplay.style.marginTop = '10px';
-                    calculatedTimeDisplay.style.padding = '10px';
-                    calculatedTimeDisplay.style.backgroundColor = '#FF9900';
-                    calculatedTimeDisplay.style.color = 'black';
-                    calculatedTimeDisplay.style.borderRadius = '5px';
-                    calculatedTimeDisplay.style.fontSize = '16px';
-                    assetsContainer.appendChild(calculatedTimeDisplay);
-                } else {
-                    console.warn('OutboundAmazonManaged text not found.');
-                }
-            } else {
-                console.warn('Assets container not found. Retrying...');
+        const assetsContainer = document.querySelector('td.assets');
+        if (assetsContainer) {
+            console.log('Assets container found!');
+    
+            if (document.querySelector('button#vistaButton')) {
+                //console.log('Vista button already exists!');
+                return;
             }
-        }, 500);
+    
+            const outboundAmazonManagedText = [...document.querySelectorAll('table.clear-table.full-width td')].find(td => td.textContent.includes('OutboundAmazonManaged'));
+            if (outboundAmazonManagedText) {
+                console.log('OutboundAmazonManaged text found!');
+    
+                const vistaButton = document.createElement('button');
+                vistaButton.id = 'vistaButton';
+                vistaButton.textContent = 'Open Vista';
+                vistaButton.style.backgroundColor = '#FF9900';
+                vistaButton.style.color = 'black';
+                vistaButton.style.padding = '10px 20px';
+                vistaButton.style.border = 'none';
+                vistaButton.style.cursor = 'pointer';
+                vistaButton.style.borderRadius = '5px';
+                vistaButton.style.fontSize = '16px';
+    
+                vistaButton.addEventListener('click', async function () {
+                    console.log('Vista button clicked!');
+    
+                    const stopNames = document.querySelectorAll('span.vr-stop-name');
+                    console.log('Stop names detected:', stopNames);
+    
+                    if (stopNames.length < 2) {
+                        console.error('Not enough stops found!');
+                        return;
+                    }
+    
+                    const finalFacilityElement = stopNames[1];
+                    const facilityId = finalFacilityElement.textContent.trim();
+    
+                    if (!facilityId) {
+                        console.error('Facility ID not found!');
+                        return;
+                    }
+    
+                    localStorage.setItem('facilityId', facilityId);
+                    console.log('Stored Facility ID:', facilityId);
+    
+                    const vridElement = document.querySelector('td.borderless-fix span.vr-audit-dialog');
+                    if (!vridElement) {
+                        console.error('VRID element not found!');
+                        return;
+                    }
+    
+                    const vrid = vridElement.textContent.trim();
+                    if (!vrid) {
+                        console.error('VRID not found!');
+                        return;
+                    }
+    
+                    localStorage.setItem('vrid', vrid);
+                    console.log('Stored VRID:', vrid);
+    
+                    // Create an iframe and retrieve data from it
+                    createIframe('https://trans-logistics.amazon.com/sortcenter/vista/', async (iframe) => {
+                        // Call useStoredVistaTime after the iframe is loaded and data is retrieved
+                        useStoredVistaTime();
+                    });
+    
+                    // Fetch drive time using the API
+                    extractDriveTime(vrid, facilityId);
+                });
+    
+                assetsContainer.appendChild(vistaButton);
+                console.log('Vista button added to the page.');
+    
+                // Create and append the calculated-time-display element
+                const calculatedTimeDisplay = document.createElement('div');
+                calculatedTimeDisplay.id = 'calculated-time-display';
+                calculatedTimeDisplay.style.marginTop = '10px';
+                calculatedTimeDisplay.style.padding = '10px';
+                calculatedTimeDisplay.style.backgroundColor = '#FF9900';
+                calculatedTimeDisplay.style.color = 'black';
+                calculatedTimeDisplay.style.borderRadius = '5px';
+                calculatedTimeDisplay.style.fontSize = '16px';
+                assetsContainer.appendChild(calculatedTimeDisplay);
+            } else {
+                console.warn('OutboundAmazonManaged text not found.');
+            }
+        }
     }
+    
+    // Call the addVistaButton function when the page loads
+    document.addEventListener("DOMContentLoaded", addVistaButton);
+    
+    // Periodically check if the Vista button needs to be added
+    setInterval(addVistaButton, 5000);
 
     // Function to extract the drive time from the iframe
     function extractDriveTime(vrid, facilityId) {
@@ -635,56 +629,56 @@
             // Inject responsive CSS
             const style = document.createElement('style');
             style.innerHTML = `
-                /* Basic table styling */
-                #fmc-execution-plans-vrs {
-                    width: 100%;
-                    border-collapse: collapse;
+            /* Basic table styling */
+            #fmc-execution-plans-vrs {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td {
+                padding: 8px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            /* Responsive design for smaller screens */
+            @media screen and (max-width: 768px) {
+                #fmc-execution-plans-vrs, #fmc-execution-plans-vrs thead, #fmc-execution-plans-vrs tbody, #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td, #fmc-execution-plans-vrs tr {
+                    display: block;
                 }
 
-                #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td {
-                    padding: 8px;
+                #fmc-execution-plans-vrs thead tr {
+                    display: none;
+                }
+
+                #fmc-execution-plans-vrs tr {
+                    margin-bottom: 15px;
+                }
+
+                #fmc-execution-plans-vrs td {
+                    text-align: right;
+                    padding-left: 50%;
+                    position: relative;
+                }
+
+                #fmc-execution-plans-vrs td:before {
+                    content: attr(data-label);
+                    position: absolute;
+                    left: 0;
+                    width: 50%;
+                    padding-left: 15px;
+                    font-weight: bold;
                     text-align: left;
-                    border: 1px solid #ddd;
                 }
+            }
 
-                /* Responsive design for smaller screens */
-                @media screen and (max-width: 768px) {
-                    #fmc-execution-plans-vrs, #fmc-execution-plans-vrs thead, #fmc-execution-plans-vrs tbody, #fmc-execution-plans-vrs th, #fmc-execution-plans-vrs td, #fmc-execution-plans-vrs tr {
-                        display: block;
-                    }
-
-                    #fmc-execution-plans-vrs thead tr {
-                        display: none;
-                    }
-
-                    #fmc-execution-plans-vrs tr {
-                        margin-bottom: 15px;
-                    }
-
-                    #fmc-execution-plans-vrs td {
-                        text-align: right;
-                        padding-left: 50%;
-                        position: relative;
-                    }
-
-                    #fmc-execution-plans-vrs td:before {
-                        content: attr(data-label);
-                        position: absolute;
-                        left: 0;
-                        width: 50%;
-                        padding-left: 15px;
-                        font-weight: bold;
-                        text-align: left;
-                    }
+            /* Hide less important columns on smaller screens */
+            @media screen and (max-width: 768px) {
+                .hide-on-small {
+                    display: none;
                 }
-
-                /* Hide less important columns on smaller screens */
-                @media screen and (max-width: 768px) {
-                    .hide-on-small {
-                        display: none;
-                    }
-                }
-            `;
+            }
+        `;
             document.head.appendChild(style);
 
             // Add data-label attributes to each cell for responsive design
@@ -709,7 +703,7 @@
                 const table = document.querySelector('#fmc-execution-plans-vrs');
                 if (table) {
                     redesignTable();
-                    observer.disconnect(); // Stop observing once the table is found and redesigned
+                    // observer.disconnect(); // Stop observing once the table is found and redesigned
                     break;
                 }
             }

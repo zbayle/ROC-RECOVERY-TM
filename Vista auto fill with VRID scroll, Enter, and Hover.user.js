@@ -1,4 +1,4 @@
-// ==UserScript==
+// ==UserScript== 
 // @name         Vista auto fill with VRID scroll, Enter, and Hover
 // @namespace    http://tampermonkey.net/
 // @version      1.6
